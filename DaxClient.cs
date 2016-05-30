@@ -12,9 +12,10 @@ namespace DG2NTT.DaxDrill
     {
         public DataTable ExecuteQuery(string qry, ADOMD.AdomdConnection cnx)
         {
-            ADOMD.AdomdDataAdapter currentDataAdapter = new ADOMD.AdomdDataAdapter(qry, cnx);
+            ADOMD.AdomdDataAdapter dataAdapter = new ADOMD.AdomdDataAdapter(qry, cnx);
             DataTable tabularResults = new DataTable();
-            currentDataAdapter.Fill(tabularResults);
+            dataAdapter.Fill(tabularResults);
+            
             return tabularResults;
         }
     }
