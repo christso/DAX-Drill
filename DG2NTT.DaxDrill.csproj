@@ -75,8 +75,10 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="ExcelHelpers\ExcelHelper.cs" />
+    <Compile Include="ExcelHelpers\PivotTableHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DaxClient.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="DG2NTT.DaxDrill-AddIn.dna">

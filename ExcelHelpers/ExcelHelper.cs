@@ -17,6 +17,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             this.excelApp = excelApp;
         }
 
+        public void GetDAXQuery(Excel.Range rngCell)
+        {
+            var queryDic = PivotTableHelper.GetPivotCellQuery(rngCell);
+
+        }
+
         public void FillRange(System.Data.DataTable dataTable, Excel.Range rngOutput)
         {
             Excel.Worksheet sheet = excelApp.ActiveSheet;
@@ -28,7 +34,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             try
             {
 
-                object[,] arr = CreateArray(dataTable);
+                object[,] arr = Utils.CreateArray(dataTable);
                 rng = rngOutput.Resize[arr.GetUpperBound(rowBoundIndex) + boundToSizeFactor,
                     arr.GetUpperBound(columnBoundIndex) + boundToSizeFactor];
                 rng.Value2 = arr;
@@ -41,68 +47,5 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-        public object[,] CreateArray(System.Data.DataTable dataTable)
-        {
-            var rowCount = dataTable.Rows.Count;
-            var columnCount = dataTable.Columns.Count;
-            object[,] result = new object[rowCount + 1, columnCount];
-
-            // header
-            for (int c = 0; c < dataTable.Columns.Count; c++)
-            {
-                result[0, c] = dataTable.Columns[c].Caption;
-            }
-
-            // records
-            for (int r = 1; r < dataTable.Rows.Count; r++)
-            {
-                
-                for (int c = 0; c < dataTable.Columns.Count; c++)
-                {
-                    result[r, c] = dataTable.Rows[r][c];
-                }
-            }
-
-            return result;
-        }
-
-        public static Dictionary<string, string> GetPivotCellQuery(Excel.Range rngCell)
-        {
-            Excel.Application XlApp = rngCell.Application;
-
-            //Field values
-            Excel.PivotCell pc = null;
-            //Aggregate value the user is drilling through
-            Excel.PivotTable pt = null;
-
-            pt = XlApp.ActiveCell.PivotTable;
-            pc = XlApp.ActiveCell.PivotCell;
-
-            Dictionary<string, string> dicCell = new Dictionary<string, string>();
-
-            //Filter by Row and ColumnFields - not, we don't need a loop here but will use one just in case
-            foreach (Excel.PivotItem pi in pc.RowItems)
-            {
-                Excel.PivotField pf = (Excel.PivotField)pi.Parent;
-                dicCell.Add(pf.Name, pi.SourceName.ToString());
-            }
-            foreach (Excel.PivotItem pi in pc.ColumnItems)
-            {
-                Excel.PivotField pf = (Excel.PivotField)pi.Parent;
-                dicCell.Add(pf.Name, pi.SourceName.ToString());
-            }
-
-            //Filter by page field if not all items are selected
-            foreach (Excel.PivotField pf in (Excel.PivotFields)(pt.PageFields))
-            {
-                if (((Excel.PivotItem)pf.CurrentPage).Name != "(All)")
-                {
-                    Excel.PivotItem pi = (Excel.PivotItem)pf.CurrentPage;
-                    dicCell.Add(pf.Name, pi.SourceName.ToString());
-                }
-            }
-
-            return dicCell;
-        }
     }
 }
