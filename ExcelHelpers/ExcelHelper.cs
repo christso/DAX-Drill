@@ -7,7 +7,7 @@ using ExcelDna.Integration;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
 
-namespace DG2NTT.DaxDrill
+namespace DG2NTT.DaxDrill.ExcelHelpers
 {
     public class ExcelHelper
     {
@@ -20,22 +20,41 @@ namespace DG2NTT.DaxDrill
         public void FillRange(System.Data.DataTable dataTable, Excel.Range rngOutput)
         {
             Excel.Worksheet sheet = excelApp.ActiveSheet;
+            Excel.Range rng = null;
+            const int boundToSizeFactor = 1;
+            const int rowBoundIndex = 0;
+            const int columnBoundIndex = 1;
 
-            object[,] arr = CreateArray(dataTable);
-            Excel.Range rng = rngOutput.Resize[arr.GetUpperBound(0) + 1, arr.GetUpperBound(1) + 1];
-            rng.Value2 = arr;
+            try
+            {
 
-            if (sheet != null) Marshal.ReleaseComObject(sheet);
-            if (rng != null) Marshal.ReleaseComObject(rng);
+                object[,] arr = CreateArray(dataTable);
+                rng = rngOutput.Resize[arr.GetUpperBound(rowBoundIndex) + boundToSizeFactor,
+                    arr.GetUpperBound(columnBoundIndex) + boundToSizeFactor];
+                rng.Value2 = arr;
+
+            }
+            finally
+            {
+                if (sheet != null) Marshal.ReleaseComObject(sheet);
+                if (rng != null) Marshal.ReleaseComObject(rng);
+            }
         }
 
         public object[,] CreateArray(System.Data.DataTable dataTable)
         {
             var rowCount = dataTable.Rows.Count;
             var columnCount = dataTable.Columns.Count;
-            object[,] result = new object[rowCount, columnCount];
+            object[,] result = new object[rowCount + 1, columnCount];
 
-            for (int r = 0; r < dataTable.Rows.Count; r++)
+            // header
+            for (int c = 0; c < dataTable.Columns.Count; c++)
+            {
+                result[0, c] = dataTable.Columns[c].Caption;
+            }
+
+            // records
+            for (int r = 1; r < dataTable.Rows.Count; r++)
             {
                 
                 for (int c = 0; c < dataTable.Columns.Count; c++)
