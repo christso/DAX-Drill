@@ -28,32 +28,50 @@ namespace DG2NTT.DaxDrill
         public static void DrillThrough()
         {
             Excel.Worksheet sheet = null;
-            Excel.Range rng = null;
+            Excel.Sheets sheets = null;
+            Excel.Range rngOut = null;
+            Excel.Range rngCell = null;
             Excel.Application app = null;
 
             try
             {
+                // set up Excel Helper
+                Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                var excelHelper = new ExcelHelper(excelApp);
+
+                // set up connection
+                rngCell = excelApp.ActiveCell;
                 var connString = "Provider=MSOLAP.5;Integrated Security=SSPI;Persist Security Info=True;Initial Catalog=Roaming;Data Source=localhost;";
-                var commandText = "EVALUATE TOPN ( 10, Usage)";
+                var commandText = excelHelper.GetDAXQuery(rngCell);
                 var client = new DaxClient();
                 var cnn = new ADOMD.AdomdConnection(connString);
                 var dtResult = client.ExecuteQuery(commandText, cnn);
 
-                Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                var excelHelper = new ExcelHelper(excelApp);
-
-                sheet = (Excel.Worksheet)excelApp.ActiveSheet;
-                rng = sheet.Range["A1"];
-                excelHelper.FillRange(dtResult, rng);
+                // output result to new sheet
+                sheets = excelApp.Sheets;
+                sheet = (Excel.Worksheet)sheets.Add();
+                rngOut = sheet.Range["A1"];
+                excelHelper.FillRange(dtResult, rngOut);
+            }
+            catch (Exception ex)
+            {
+                Helpers.ErrForm.ShowException(ex);
             }
             finally
             {
+                if (sheets != null) Marshal.ReleaseComObject(sheets);
                 if (sheet != null) Marshal.ReleaseComObject(sheet);
-                if (rng != null) Marshal.ReleaseComObject(rng);
+                if (rngOut != null) Marshal.ReleaseComObject(rngOut);
                 if (app != null) Marshal.ReleaseComObject(app);
             }
         }
 
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
+        public static void TestErrForm()
+        {
+            var ex = new InvalidOperationException("This is a test error");
+            Helpers.ErrForm.ShowException(ex);
+        }
 
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
         public static void About()

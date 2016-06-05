@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace DG2NTT.DaxDrill
 {
@@ -33,5 +35,9 @@ namespace DG2NTT.DaxDrill
             return result;
         }
 
+        public void ShowException(Exception ex)
+        {
+            MessageBox.Show(ex.Message);
+        }
     }
 }

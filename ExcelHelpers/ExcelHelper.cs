@@ -17,10 +17,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             this.excelApp = excelApp;
         }
 
-        public void GetDAXQuery(Excel.Range rngCell)
+        public string GetDAXQuery(Excel.Range rngCell)
         {
-            var queryDic = PivotTableHelper.GetPivotCellQuery(rngCell);
+            // "EVALUATE TOPN ( 10, Usage)";
+            Dictionary<string, string> queryDic = PivotCellHelper.GetPivotCellQuery(rngCell);
 
+            return "EVALUATE TOPN ( 10, Usage)";
         }
 
         public void FillRange(System.Data.DataTable dataTable, Excel.Range rngOutput)
