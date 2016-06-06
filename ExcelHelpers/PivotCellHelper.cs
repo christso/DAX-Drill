@@ -11,6 +11,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 {
     public class PivotCellHelper
     {
+        public const int PIS_LBOUND = 1;
 
         #region Static Members
 
@@ -23,8 +24,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.PivotTable pt = null;
             Excel.PivotFields pfs = null;
 
-            const int lbound = 1;
-
             try
             {
                 XlApp = rngCell.Application;
@@ -34,7 +33,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 Dictionary<string, string> dicCell = new Dictionary<string, string>();
 
                 //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
-                for (int i = lbound; i < pc.RowItems.Count + lbound; i++)
+                for (int i = PIS_LBOUND; i < pc.RowItems.Count + PIS_LBOUND; i++)
                 {
                     Excel.PivotItem pi = pc.RowItems[i];
                     Excel.PivotField pf = (Excel.PivotField)pi.Parent;
@@ -43,7 +42,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                     if (pi != null) Marshal.ReleaseComObject(pi);
                     if (pf != null) Marshal.ReleaseComObject(pf);
                 }
-                for (int i = lbound; i < pc.ColumnItems.Count + lbound; i++)
+                for (int i = PIS_LBOUND; i < pc.ColumnItems.Count + PIS_LBOUND; i++)
                 {
                     Excel.PivotItem pi = pc.ColumnItems[i];
                     Excel.PivotField pf = (Excel.PivotField)pi.Parent;
@@ -55,9 +54,9 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
                 //Filter by page field if not all items are selected
                 pfs = (Excel.PivotFields)(pt.PageFields);
-                for (int i = lbound; i < pfs.Count + lbound; i++)
+                for (int i = PIS_LBOUND; i < pfs.Count + PIS_LBOUND; i++)
                 {
-                    Excel.PivotField pf = pfs.Item(i + lbound);
+                    Excel.PivotField pf = pfs.Item(i + PIS_LBOUND);
                     var currentPage = (Excel.PivotItem)pf.CurrentPage;
                     if (currentPage.Name != "(All)")
                     {

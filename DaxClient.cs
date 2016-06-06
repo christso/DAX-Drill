@@ -18,5 +18,6 @@ namespace DG2NTT.DaxDrill
             
             return tabularResults;
         }
+
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace DG2NTT.DaxDrill.ExcelHelpers
 {
@@ -21,6 +22,10 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         {
             // "EVALUATE TOPN ( 10, Usage)";
             Dictionary<string, string> queryDic = PivotCellHelper.GetPivotCellQuery(rngCell);
+            foreach (var pair in queryDic)
+            {
+                Debug.Print("{0} | {1}", pair.Key, pair.Value);
+            }
 
             return "EVALUATE TOPN ( 10, Usage)";
         }
