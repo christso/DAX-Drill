@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddIn.cs" />
+    <Compile Include="DaxFilter.cs" />
     <Compile Include="ExcelHelpers\ExcelHelper.cs" />
     <Compile Include="ExcelHelpers\PivotCellHelper.cs" />
     <Compile Include="Helpers\DaxDrillParser.cs" />
