@@ -22,6 +22,7 @@ namespace DG2NTT.DaxDrill.Helpers
             return commandText;
         }
 
+
         public List<DaxFilter> ConvertExcelDrillToDaxFilter(
             Dictionary<string, string> inputDic)
         {

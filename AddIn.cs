@@ -31,27 +31,23 @@ namespace DG2NTT.DaxDrill
             Excel.Sheets sheets = null;
             Excel.Range rngOut = null;
             Excel.Range rngCell = null;
-            Excel.Application app = null;
+            Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
 
             try
             {
-                // set up Excel Helper
-                Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                var excelHelper = new ExcelHelper(excelApp);
-
                 // set up connection
                 rngCell = excelApp.ActiveCell;
                 var connString = "Provider=MSOLAP.5;Integrated Security=SSPI;Persist Security Info=True;Initial Catalog=Roaming;Data Source=localhost;";
-                var commandText = excelHelper.GetDAXQuery(rngCell);
+                var commandText = ExcelHelper.GetDAXQuery(rngCell);
                 var client = new DaxClient();
                 var cnn = new ADOMD.AdomdConnection(connString);
-                var dtResult = client.ExecuteQuery(commandText, cnn);
+                var dtResult = client.ExecuteTable(commandText, cnn);
 
                 // output result to new sheet
                 sheets = excelApp.Sheets;
                 sheet = (Excel.Worksheet)sheets.Add();
                 rngOut = sheet.Range["A1"];
-                excelHelper.FillRange(dtResult, rngOut);
+                ExcelHelper.FillRange(dtResult, rngOut);
             }
             catch (Exception ex)
             {
@@ -62,15 +58,60 @@ namespace DG2NTT.DaxDrill
                 if (sheets != null) Marshal.ReleaseComObject(sheets);
                 if (sheet != null) Marshal.ReleaseComObject(sheet);
                 if (rngOut != null) Marshal.ReleaseComObject(rngOut);
-                if (app != null) Marshal.ReleaseComObject(app);
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
             }
         }
 
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
-        public static void TestErrForm()
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Add XML")]
+        public static void AddXML()
         {
-            var ex = new InvalidOperationException("This is a test error");
-            Helpers.ErrForm.ShowException(ex);
+            Excel.Application excelApp = null;
+            Excel.Workbook workbook = null;
+            try
+            {
+                excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                workbook = excelApp.ActiveWorkbook;
+                string xmlString = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
+                  "<employees xmlns=\"http://schemas.microsoft.com/vsto/samplestest\">" +
+                  "<employee>" +
+                  "<name>Surender GGG</name>" +
+                  "<hireDate>1999-04-01</hireDate>" +
+                  "<title>Manager</title>" +
+                  "</employee>" +
+                  "</employees>";
+                ExcelHelper.AddCustomXmlPartToWorkbook(workbook, xmlString);
+            }
+            catch (Exception ex)
+            {
+                Helpers.ErrForm.ShowException(ex);
+            }
+            finally
+            {
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+            }
+        }
+
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Read XML")]
+        public static void ReadXML()
+        {
+            Excel.Application excelApp = null;
+            Excel.Workbook workbook = null;
+            try
+            {
+                excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                workbook = excelApp.ActiveWorkbook;
+                ExcelHelper.ReadCustomXmlPartSingleNode(workbook);
+            }
+            catch (Exception ex)
+            {
+                Helpers.ErrForm.ShowException(ex);
+            }
+            finally
+            {
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+            }
         }
 
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
