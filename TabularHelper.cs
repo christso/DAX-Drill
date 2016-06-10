@@ -42,11 +42,30 @@ namespace DG2NTT.DaxDrill
             server.Disconnect();
         }
 
-        public Table FindTable(string tableName)
+        public Measure GetMeasure(string measureName)
         {
             if (!server.Connected)
             {
-                throw new InvalidOperationException("You must connect to server before calling FindTable");
+                throw new InvalidOperationException("You must be connect to the server");
+            }
+
+            Database database = GetDatabase(databaseName);
+
+            
+            foreach (var table in database.Model.Tables)
+            {
+                Measure measure = table.Measures.Find(measureName);
+                if (measure != null)
+                    return measure;
+            }
+            return null;
+        }
+
+        public Database GetDatabase(string databaseName)
+        {
+            if (!server.Connected)
+            {
+                throw new InvalidOperationException("You must be connect to the server");
             }
 
             Database database = server.Databases.FindByName(databaseName);
@@ -55,6 +74,13 @@ namespace DG2NTT.DaxDrill
                 throw new InvalidOperationException(string.Format(
                     "Error retrieving database '{0}' because it does not exist on server '{1}'",
                     databaseName, server.Name));
+
+            return database;
+        }
+
+        public Table GetTable(string tableName)
+        {
+            Database database = GetDatabase(this.databaseName);
 
             var table = database.Model.Tables.Find(tableName);
             if (table == null)

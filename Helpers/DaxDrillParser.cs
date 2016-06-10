@@ -9,27 +9,38 @@ namespace DG2NTT.DaxDrill.Helpers
 {
     public class DaxDrillParser
     {
-        public string BuildFilterCommandText(Dictionary<string, string> excelDic, string serverName, string databaseName)
+        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName)
         {
-            using (var tabular = new TabularHelper(serverName, databaseName))
+            string filterText = BuildFilterCommandText(excelDic, tabular);
+            var measure = tabular.GetMeasure(measureName);
+            string commandText = string.Format("EVALUATE CALCULATETABLE ( TOPN ( 99999, {0} )", measure.Table.Name);
+
+            if (string.IsNullOrWhiteSpace(filterText))
             {
-                tabular.Connect();
-
-                var daxFilter = ConvertExcelDrillToDaxFilter(excelDic);
-
-                string commandText = "";
-                foreach (var item in daxFilter)
-                {
-                    if (commandText != "")
-                        commandText += ",\n";
-                    var table = tabular.FindTable(item.TableName);
-                    var column = table.Columns.Find(item.ColumnName);
-                    commandText += BuildColumnCommandText(column, item);
-                }
-
-                tabular.Disconnect();
-                return commandText;
+                commandText += " )";
             }
+            else
+            {
+                commandText += ",\n" + filterText;
+            }
+         
+            return commandText + " )";
+        }
+        public string BuildFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
+        {
+            var daxFilter = ConvertExcelDrillToDaxFilter(excelDic);
+
+            string commandText = "";
+            foreach (var item in daxFilter)
+            {
+                if (commandText != "")
+                    commandText += ",\n";
+                var table = tabular.GetTable(item.TableName);
+                var column = table.Columns.Find(item.ColumnName);
+                commandText += BuildColumnCommandText(column, item);
+            }
+
+            return commandText;
         }
 
         public string BuildColumnCommandText(Tabular.Column column, DaxFilter item)
@@ -91,13 +102,6 @@ namespace DG2NTT.DaxDrill.Helpers
             var itemIndex = input.IndexOf('&');
             string output = input.Substring(itemIndex, input.Length - itemIndex);
             output = output.Substring(2, output.Length - 3);
-            return output;
-        }
-
-        //Gross Billed Sum
-        public string GetTableFromPivotCell(string input)
-        {
-            string output = "";
             return output;
         }
     }
