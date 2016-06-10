@@ -3,25 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tabular = Microsoft.AnalysisServices.Tabular;
 
 namespace DG2NTT.DaxDrill.Helpers
 {
     public class DaxDrillParser
     {
-        public string BuildFilterCommandText(Dictionary<string, string> excelDic)
+        public string BuildFilterCommandText(Dictionary<string, string> excelDic, string serverName, string databaseName)
         {
-            var daxFilter = ConvertExcelDrillToDaxFilter(excelDic);
-
-            string commandText = "";
-            foreach (var item in daxFilter)
+            using (var tabular = new TabularHelper(serverName, databaseName))
             {
-                if (commandText != "")
-                    commandText += ",\n";
-                commandText += string.Format("{0}[{1}] = \"{2}\"", item.TableName, item.ColumnName, item.Value);
+                tabular.Connect();
+
+                var daxFilter = ConvertExcelDrillToDaxFilter(excelDic);
+
+                string commandText = "";
+                foreach (var item in daxFilter)
+                {
+                    if (commandText != "")
+                        commandText += ",\n";
+                    var table = tabular.FindTable(item.TableName);
+                    var column = table.Columns.Find(item.ColumnName);
+                    commandText += BuildColumnCommandText(column, item);
+                }
+
+                tabular.Disconnect();
+                return commandText;
+            }
+        }
+
+        public string BuildColumnCommandText(Tabular.Column column, DaxFilter item)
+        {
+            string commandText;
+            switch (column.DataType)
+            {
+                case Tabular.DataType.String:
+                    commandText = string.Format("{0}[{1}] = \"{2}\"", item.TableName, item.ColumnName, item.Value);
+                    break;
+                case Tabular.DataType.Int64:
+                case Tabular.DataType.Decimal:
+                case Tabular.DataType.Double:
+                    commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, item.Value);
+                    break;
+                default:
+                    commandText = string.Format("{0}[{1}] = \"{2}\"", item.TableName, item.ColumnName, item.Value);
+                    break;
             }
             return commandText;
         }
-
 
         public List<DaxFilter> ConvertExcelDrillToDaxFilter(
             Dictionary<string, string> inputDic)
@@ -31,15 +60,15 @@ namespace DG2NTT.DaxDrill.Helpers
 
             foreach (var pair in inputDic)
             {
-                string column = ParseExcelPivotFieldColumn(pair.Key);
-                string table = ParseExcelPivotFieldTable(pair.Key);
-                string value = ParseExcelPivotItem(pair.Value);
+                string column = GetColumnFromPivotFIeld(pair.Key);
+                string table = GetTableFromPivotField(pair.Key);
+                string value = GetValueFromPivotItem(pair.Value);
                 output.Add(new DaxFilter() { TableName = table, ColumnName = column, Value = value });
             }
             return output;
         }
 
-        public string ParseExcelPivotFieldTable(string input)
+        public string GetTableFromPivotField(string input)
         {
             string[] split = input.Split('.');
             string output = split[0];
@@ -48,7 +77,7 @@ namespace DG2NTT.DaxDrill.Helpers
         }
 
         // [Usage].[Inbound or Outbound].[Inbound or Outbound]
-        public string ParseExcelPivotFieldColumn(string input)
+        public string GetColumnFromPivotFIeld(string input)
         {
             string[] split = input.Split('.');
             string output = split[1];
@@ -57,11 +86,18 @@ namespace DG2NTT.DaxDrill.Helpers
         }
 
         // "[Usage].[Inbound or Outbound].&[Inbound]
-        public string ParseExcelPivotItem(string input)
+        public string GetValueFromPivotItem(string input)
         {
             var itemIndex = input.IndexOf('&');
             string output = input.Substring(itemIndex, input.Length - itemIndex);
             output = output.Substring(2, output.Length - 3);
+            return output;
+        }
+
+        //Gross Billed Sum
+        public string GetTableFromPivotCell(string input)
+        {
+            string output = "";
             return output;
         }
     }

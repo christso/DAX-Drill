@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ADOMD = Microsoft.AnalysisServices.AdomdClient;
+using Microsoft.AnalysisServices.Tabular;
+using SSAS = Microsoft.AnalysisServices;
 
 namespace DG2NTT.DaxDrill
 {

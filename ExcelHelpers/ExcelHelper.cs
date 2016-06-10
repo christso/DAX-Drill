@@ -33,7 +33,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             if (enumerator.MoveNext())
             {
                 Office.CustomXMLPart a = (Office.CustomXMLPart)enumerator.Current;
-
                 a.NamespaceManager.AddNamespace("x", "http://schemas.microsoft.com/vsto/samplestest");
                 MessageBox.Show(a.SelectSingleNode("/x:employees/x:employee/x:name").Text);
                 MessageBox.Show(a.XML);
