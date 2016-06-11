@@ -20,8 +20,13 @@ namespace DG2NTT.DaxDrill
             this.serverName = serverName;
             this.databaseName = databaseName;
             this.connectionString = string.Format(
-"Integrated Security=SSPI; Data source = {0};", serverName);
+"Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={1};Data Source={0};", serverName, databaseName);
             this.server = new Server();
+        }
+
+        public TabularHelper(string connectionString)
+        {
+
         }
 
         public string ServerName

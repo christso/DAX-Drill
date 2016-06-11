@@ -9,24 +9,47 @@ namespace DG2NTT.DaxDrill.Helpers
 {
     public class DaxDrillParser
     {
-        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName)
+        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName, 
+            IEnumerable<SelectedColumn> selectedColumns)
         {
             string filterText = BuildFilterCommandText(excelDic, tabular);
-
             var measure = tabular.GetMeasure(measureName);
 
-            string commandText = string.Format("EVALUATE CALCULATETABLE ( TOPN ( 99999, {0} )", measure.Table.Name);
+            string commandText = string.Format("TOPN ( 99999, {0} )", measure.Table.Name);
 
-            if (string.IsNullOrWhiteSpace(filterText))
+            if (selectedColumns != null)
             {
-                commandText += " )";
+                commandText = string.Format("SELECTCOLUMNS ( {0}, {{0}} )", commandText);
+
+                string selectColumnsText = BuildSelectText(selectedColumns);
+
+                commandText = string.Format(commandText, selectColumnsText);
             }
-            else
-            {
-                commandText += ",\n" + filterText + " )";
-            }
-         
+
+            if (!string.IsNullOrWhiteSpace(filterText))
+                commandText += string.Format(",\n{0}", filterText);
+
+            commandText = string.Format("EVALUATE CALCULATETABLE ( {0} )", commandText);
+            
             return commandText;
+        }
+
+        public string BuildSelectText(IEnumerable<SelectedColumn> selectedColumns)
+        {
+            string result = string.Empty;
+            foreach (var column in selectedColumns)
+            {
+                if (result != string.Empty)
+                    result += ",";
+
+                result += string.Format("\n\"{0}\", {1}", column.Name, column.Expression);  
+            }
+            return result;
+        }
+
+        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName)
+        {
+            return BuildQueryText(tabular, excelDic, measureName, null);
         }
         public string BuildFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
         {
