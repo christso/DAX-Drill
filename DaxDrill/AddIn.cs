@@ -12,17 +12,31 @@ using DG2NTT.DaxDrill.ExcelHelpers;
 using DG2NTT.DaxDrill.Helpers;
 using System.Threading;
 using System.Data.SqlClient;
+using System.Diagnostics;
 
 namespace DG2NTT.DaxDrill
 {
     public class AddIn : IExcelAddIn
     {
+        private Excel.Application xlApp = (Excel.Application)ExcelDnaUtil.Application;
+
         public void AutoClose()
         {
+            xlApp.WorkbookDeactivate -= XlApp_WorkbookDeactivate;
         }
 
         public void AutoOpen()
         {
+            xlApp.WorkbookDeactivate += XlApp_WorkbookDeactivate;
+        }
+
+        // kill Excel process in case objects are not properly released
+        private void XlApp_WorkbookDeactivate(Excel.Workbook Wb)
+        {
+            if (Wb.Application.Workbooks.Count == 1)
+            {
+                Process.GetCurrentProcess().Kill();
+            }
         }
 
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "DrillThrough")]
@@ -37,7 +51,7 @@ namespace DG2NTT.DaxDrill
                 });
             });
         }
-                
+
         public static void DrillThroughThreadSafe()
         {
             Excel.Worksheet sheet = null;
