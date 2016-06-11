@@ -13,6 +13,7 @@ using DG2NTT.DaxDrill.Helpers;
 using System.Data.SqlClient;
 using System.Data.Common;
 using System.Xml;
+using System.Collections;
 
 namespace DG2NTT.DaxDrill.ExcelHelpers
 {
@@ -74,7 +75,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return commandText;
         }
 
-        public static string ReadCustomXml(Excel.Workbook workbook, string xNameSpace,
+        public static string ReadCustomXmlPart(Excel.Workbook workbook, string xNameSpace,
             string xPath)
         {
             System.Collections.IEnumerator enumerator = workbook.CustomXMLParts.SelectByNamespace(Constants.DaxDrillXmlSchemaSpace).GetEnumerator();
@@ -99,9 +100,28 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                   "</employee>" +
                   "</employees>"
         */
-        public static void AddCustomXmlPartToWorkbook(Excel.Workbook workbook, string xmlNamespace, string xmlString)
+
+        public static void UpdateCustomXmlPart(Excel.Workbook workbook, string namespaceName, string xmlString)
         {
-            System.Collections.IEnumerator enumerator = workbook.CustomXMLParts.SelectByNamespace(xmlNamespace).GetEnumerator();
+            DeleteCustomXmlPart(workbook, namespaceName);
+            AddCustomXmlPart(workbook, namespaceName, xmlString);
+        }
+
+        public static void DeleteCustomXmlPart(Excel.Workbook workbook, string namespaceName)
+        {
+            IEnumerator e = workbook.CustomXMLParts.GetEnumerator();
+            Office.CustomXMLPart p;
+            while (e.MoveNext())
+            {
+                p = (Office.CustomXMLPart)e.Current;
+                //p.BuiltIn will be true for internal buildin excel parts 
+                if (p != null && !p.BuiltIn && p.NamespaceURI == namespaceName)
+                    p.Delete();
+            }
+        }
+        public static void AddCustomXmlPart(Excel.Workbook workbook, string namespaceName, string xmlString)
+        {
+            System.Collections.IEnumerator enumerator = workbook.CustomXMLParts.SelectByNamespace(namespaceName).GetEnumerator();
             enumerator.Reset();
 
             if (!(enumerator.MoveNext()))

@@ -80,9 +80,17 @@ namespace DG2NTT.DaxDrill
         {
             Excel.Range rngCell = null;
             Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
+            Excel.Workbook workbook = null;
 
             try
             {
+                // XML configuration
+                excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                workbook = excelApp.ActiveWorkbook;
+                string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
+                var columns = DaxDrillConfig.GetColumns(xml, Constants.DaxDrillXmlSchemaSpace);
+
+                // generate command
                 rngCell = excelApp.ActiveCell;
                 var commandText = ExcelHelper.GetDAXQuery(rngCell);
                 MsgForm.ShowMessage("DAX Command", commandText);
@@ -95,6 +103,7 @@ namespace DG2NTT.DaxDrill
             {
                 if (rngCell != null) Marshal.ReleaseComObject(rngCell);
                 if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
             }
         }
 
@@ -122,42 +131,7 @@ namespace DG2NTT.DaxDrill
                   "<expression>Usage[Gross Billed]</expression>" +
                   "</column>" +
                   "</columns>";
-                ExcelHelper.AddCustomXmlPartToWorkbook(workbook, Constants.DaxDrillXmlSchemaSpace, xmlString1);
-
-                string xmlString2 = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
-                  "<columns xmlns=\"" + Constants.DaxDrillXmlSchemaSpace + "2" + "\">" +
-                  "<column>" +
-                  "<name>Call Type</name>" +
-                  "<expression>Usage[Call Type]</expression>" +
-                  "</column>" +
-                  "<column>" +
-                  "<name>Call Type Description</name>" +
-                  "<expression>Usage[Call Type Description]</expression>" +
-                  "</column>" +
-                  "<column>" +
-                  "<name>Gross Billed</name>" +
-                  "<expression>Usage[Gross Billed]</expression>" +
-                  "</column>" +
-                  "</columns>";
-                ExcelHelper.AddCustomXmlPartToWorkbook(workbook, Constants.DaxDrillXmlSchemaSpace, xmlString2);
-
-
-                string xmlString3 = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
-                  "<columns xmlns=\"" + Constants.DaxDrillXmlSchemaSpace + "2" + "\">" +
-                  "<column>" +
-                  "<name>Call Type2</name>" +
-                  "<expression>Usage[Call Type]</expression>" +
-                  "</column>" +
-                  "<column>" +
-                  "<name>Call Type Description2</name>" +
-                  "<expression>Usage[Call Type Description]</expression>" +
-                  "</column>" +
-                  "<column>" +
-                  "<name>Gross Billed2</name>" +
-                  "<expression>Usage[Gross Billed]</expression>" +
-                  "</column>" +
-                  "</columns>";
-                ExcelHelper.AddCustomXmlPartToWorkbook(workbook, Constants.DaxDrillXmlSchemaSpace, xmlString3);
+                ExcelHelper.UpdateCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, xmlString1);
             }
             catch (Exception ex)
             {
@@ -179,8 +153,9 @@ namespace DG2NTT.DaxDrill
             {
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
-                string xml = ExcelHelper.ReadCustomXml(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
+                string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
                 var columns = DaxDrillConfig.GetColumns(xml, Constants.DaxDrillXmlSchemaSpace);
+                XmlEditorForm.ShowMessage("Edit your XML here", xml);
             }
             catch (Exception ex)
             {
@@ -191,16 +166,6 @@ namespace DG2NTT.DaxDrill
                 if (excelApp != null) Marshal.ReleaseComObject(excelApp);
                 if (workbook != null) Marshal.ReleaseComObject(workbook);
             }
-        }
-
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
-        public static void Test()
-        {
-            var xlApp = new Excel.Application();
-            Excel.Workbook wb = xlApp.Workbooks.Add(Excel.XlWBATemplate.xlWBATWorksheet);
-            Excel.Worksheet ws = (Excel.Worksheet)wb.Worksheets[1];
-            xlApp.Visible = true;
-            
         }
         
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
