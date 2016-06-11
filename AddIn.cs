@@ -9,6 +9,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using DG2NTT.DaxDrill.ExcelHelpers;
+using DG2NTT.DaxDrill.Helpers;
 
 namespace DG2NTT.DaxDrill
 {
@@ -16,7 +17,6 @@ namespace DG2NTT.DaxDrill
     {
         public void AutoClose()
         {
-            var x = 1;
         }
 
         public void AutoOpen()
@@ -51,7 +51,40 @@ namespace DG2NTT.DaxDrill
             }
             catch (Exception ex)
             {
-                Helpers.ErrForm.ShowException(ex);
+                Helpers.MsgForm.ShowMessage(ex);
+            }
+            finally
+            {
+                if (sheets != null) Marshal.ReleaseComObject(sheets);
+                if (sheet != null) Marshal.ReleaseComObject(sheet);
+                if (rngOut != null) Marshal.ReleaseComObject(rngOut);
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+            }
+        }
+
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Get DAX Command")]
+        public static void GetDrillThroughCommand()
+        {
+            Excel.Worksheet sheet = null;
+            Excel.Sheets sheets = null;
+            Excel.Range rngOut = null;
+            Excel.Range rngCell = null;
+            Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
+
+            try
+            {
+                // set up connection
+                rngCell = excelApp.ActiveCell;
+                var connString = "Provider=MSOLAP.5;Integrated Security=SSPI;Persist Security Info=True;Initial Catalog=Roaming;Data Source=localhost;";
+                
+                var commandText = ExcelHelper.GetDAXQuery(rngCell);
+
+                // action
+                MsgForm.ShowMessage("DAX Command", commandText);
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
             }
             finally
             {
@@ -83,7 +116,7 @@ namespace DG2NTT.DaxDrill
             }
             catch (Exception ex)
             {
-                Helpers.ErrForm.ShowException(ex);
+                Helpers.MsgForm.ShowMessage(ex);
             }
             finally
             {
@@ -105,7 +138,7 @@ namespace DG2NTT.DaxDrill
             }
             catch (Exception ex)
             {
-                Helpers.ErrForm.ShowException(ex);
+                Helpers.MsgForm.ShowMessage(ex);
             }
             finally
             {

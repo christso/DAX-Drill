@@ -83,11 +83,11 @@
     <Compile Include="ExcelHelpers\ExcelHelper.cs" />
     <Compile Include="ExcelHelpers\PivotCellHelper.cs" />
     <Compile Include="Helpers\DaxDrillParser.cs" />
-    <Compile Include="Helpers\ErrForm.cs">
+    <Compile Include="Helpers\MsgForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Helpers\ErrForm.Designer.cs">
-      <DependentUpon>ErrForm.cs</DependentUpon>
+    <Compile Include="Helpers\MsgForm.Designer.cs">
+      <DependentUpon>MsgForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\XmlHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -106,8 +106,8 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Helpers\ErrForm.resx">
-      <DependentUpon>ErrForm.cs</DependentUpon>
+    <EmbeddedResource Include="Helpers\MsgForm.resx">
+      <DependentUpon>MsgForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

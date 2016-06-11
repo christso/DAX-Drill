@@ -11,7 +11,7 @@ using System;
 
 namespace DG2NTT.DaxDrill.Helpers
 {
-    partial class ErrForm
+    partial class MsgForm
     {
         /// <summary>
         /// Designer variable used to keep track of non-visual components.

@@ -9,6 +9,7 @@ using Office = Microsoft.Office.Core;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Forms;
+using DG2NTT.DaxDrill.Helpers;
 
 namespace DG2NTT.DaxDrill.ExcelHelpers
 {
@@ -16,14 +17,29 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
     {
         public static string GetDAXQuery(Excel.Range rngCell)
         {
-            // "EVALUATE TOPN ( 10, Usage)";
-            Dictionary<string, string> queryDic = PivotCellHelper.GetPivotCellQuery(rngCell);
-            foreach (var pair in queryDic)
+            Dictionary<string, string> excelDic = PivotCellHelper.GetPivotCellQuery(rngCell);
+            var parser = new DaxDrillParser();
+
+            string commandText = "";
+            string measureName = parser.GetMeasureFromPivotItem(rngCell.PivotItem.Name);
+
+            // get connection from Pivot Table
+            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            {
+
+                tabular.Connect();
+                commandText = parser.BuildQueryText(tabular, excelDic, measureName);
+                tabular.Disconnect();
+            }
+
+            #region DEBUG
+            foreach (var pair in excelDic)
             {
                 Debug.Print("{0} | {1}", pair.Key, pair.Value);
             }
+            #endregion
 
-            return "EVALUATE TOPN ( 10, Usage)";
+            return commandText;
         }
 
         public static void ReadCustomXmlPartSingleNode(Excel.Workbook workbook)

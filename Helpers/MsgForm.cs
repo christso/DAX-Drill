@@ -7,11 +7,12 @@ namespace DG2NTT.DaxDrill.Helpers
     /// <summary>
     /// Description of ErrForm.
     /// </summary>
-    public partial class ErrForm : Form
+    public partial class MsgForm : Form
     {
+        private const string AppName = "DAX Drill";
 
         #region Static Accessors
-        public static void ShowException(string messageHeader, string messageDetail, string formTitle = "DAX Drill Exception")
+        public static void ShowMessage(string messageHeader, string messageDetail, string formTitle = AppName)
         {
             try
             {
@@ -22,17 +23,17 @@ namespace DG2NTT.DaxDrill.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error trying to invoke ErrForm.\n" + ex.Message + "\n" + ex.ToString(), "DAX Drill", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error trying to invoke form.\n" + ex.Message + "\n" + ex.ToString(), AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        public static void ShowException(Exception ex, string formTitle = "DAX Drill Exception")
+        public static void ShowMessage(Exception ex, string formTitle = AppName)
         {
-            ShowException(ex.Message, ex.ToString(), formTitle);
+            ShowMessage(ex.Message, ex.ToString(), formTitle);
         }
 
         //Shows the static version of the form
-        public static ErrForm ShowForm()
+        public static MsgForm ShowForm()
         {
             try
             {
@@ -47,7 +48,7 @@ namespace DG2NTT.DaxDrill.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error trying to show ErrForm.\n" + ex.Message + "\n" + ex.ToString(), "SADM", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error trying to show Form.\n" + ex.Message + "\n" + ex.ToString(), AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             return GetStatic();
         }
@@ -55,23 +56,23 @@ namespace DG2NTT.DaxDrill.Helpers
 
         #region Form Initialisation via Static Accessor
 
-        private static ErrForm _form = new ErrForm();
+        private static MsgForm _form = new MsgForm();
 
-        private delegate ErrForm GetFormCallBack();
+        private delegate MsgForm GetFormCallBack();
         //Returns static version of the form
-        public static ErrForm GetStatic()
+        public static MsgForm GetStatic()
         {
 
             //Reinstantiate the form
             if (_form.IsDisposed)
             {
-                _form = new ErrForm();
+                _form = new MsgForm();
             }
 
             if (_form.InvokeRequired)
             {
                 var d = new GetFormCallBack(GetStatic);
-                return (ErrForm)_form.Invoke(d);
+                return (MsgForm)_form.Invoke(d);
             }
             return _form;
         }
@@ -79,7 +80,7 @@ namespace DG2NTT.DaxDrill.Helpers
         #endregion
 
         private Size _originalSize;
-        public ErrForm()
+        public MsgForm()
         {
             //
             // The InitializeComponent() call is required for Windows Forms designer support.

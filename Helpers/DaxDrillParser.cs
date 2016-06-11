@@ -12,7 +12,9 @@ namespace DG2NTT.DaxDrill.Helpers
         public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName)
         {
             string filterText = BuildFilterCommandText(excelDic, tabular);
+
             var measure = tabular.GetMeasure(measureName);
+
             string commandText = string.Format("EVALUATE CALCULATETABLE ( TOPN ( 99999, {0} )", measure.Table.Name);
 
             if (string.IsNullOrWhiteSpace(filterText))
@@ -21,10 +23,10 @@ namespace DG2NTT.DaxDrill.Helpers
             }
             else
             {
-                commandText += ",\n" + filterText;
+                commandText += ",\n" + filterText + " )";
             }
          
-            return commandText + " )";
+            return commandText;
         }
         public string BuildFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
         {
@@ -71,7 +73,7 @@ namespace DG2NTT.DaxDrill.Helpers
 
             foreach (var pair in inputDic)
             {
-                string column = GetColumnFromPivotFIeld(pair.Key);
+                string column = GetColumnFromPivotField(pair.Key);
                 string table = GetTableFromPivotField(pair.Key);
                 string value = GetValueFromPivotItem(pair.Value);
                 output.Add(new DaxFilter() { TableName = table, ColumnName = column, Value = value });
@@ -88,7 +90,7 @@ namespace DG2NTT.DaxDrill.Helpers
         }
 
         // [Usage].[Inbound or Outbound].[Inbound or Outbound]
-        public string GetColumnFromPivotFIeld(string input)
+        public string GetColumnFromPivotField(string input)
         {
             string[] split = input.Split('.');
             string output = split[1];
@@ -103,6 +105,12 @@ namespace DG2NTT.DaxDrill.Helpers
             string output = input.Substring(itemIndex, input.Length - itemIndex);
             output = output.Substring(2, output.Length - 3);
             return output;
+        }
+
+        // example input: [Measures].[Gross Billed Sum]
+        public string GetMeasureFromPivotItem(string input)
+        {
+            return GetColumnFromPivotField(input);
         }
     }
 }

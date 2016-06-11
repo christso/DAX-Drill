@@ -24,6 +24,22 @@ namespace DG2NTT.DaxDrill
             this.server = new Server();
         }
 
+        public string ServerName
+        {
+            get
+            {
+                return this.serverName;
+            }
+        }
+
+        public string DatabaseName
+        {
+            get
+            {
+                return this.databaseName;
+            }
+        }
+        
         public string ConnectionString
         {
             get
@@ -50,15 +66,17 @@ namespace DG2NTT.DaxDrill
             }
 
             Database database = GetDatabase(databaseName);
-
-            
+            Measure measure = null;
             foreach (var table in database.Model.Tables)
             {
-                Measure measure = table.Measures.Find(measureName);
+                measure = table.Measures.Find(measureName);
                 if (measure != null)
-                    return measure;
+                    break;
             }
-            return null;
+            if (measure == null)
+                throw new InvalidOperationException("Measure " + measureName + " was not found in database " + this.databaseName);
+
+            return measure;
         }
 
         public Database GetDatabase(string databaseName)
