@@ -150,6 +150,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
             finally
             {
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
                 if (sheet != null) Marshal.ReleaseComObject(sheet);
                 if (rng != null) Marshal.ReleaseComObject(rng);
             }
