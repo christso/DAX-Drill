@@ -8,11 +8,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ExcelDna.Integration;
+using DG2NTT.DaxDrill.ExcelHelpers;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Runtime.InteropServices;
 
 namespace DG2NTT.DaxDrill.UI
 {
     public partial class XmlEditForm : Form
     {
+        public XmlEditForm()
+        {
+            //
+            // The InitializeComponent() call is required for Windows Forms designer support.
+            //
+            InitializeComponent();
+
+            //
+            // Add constructor code after the InitializeComponent() call.
+            //
+            xmlEditController = new XmlEditController(this);
+        }
+
         private const string AppName = Constants.AppName;
         private readonly XmlEditController xmlEditController;
 
@@ -29,12 +46,19 @@ namespace DG2NTT.DaxDrill.UI
             get { return this.Text; }
             set { this.Text = value;  }
         }
-        
-        #endregion
 
-        #region Static Accessors
- 
-        //Shows the static version of the form
+        public string NamespaceText
+        {
+            get { return cbNamespace.Text; }
+            set { cbNamespace.Text = value; }
+        }
+
+        public string XpathText
+        {
+            get { return txtXpath.Text;  }
+            set { txtXpath.Text = value; }
+        }
+
         public void ShowForm()
         {
             try
@@ -46,10 +70,77 @@ namespace DG2NTT.DaxDrill.UI
                 {
                     form.Show();
                     form.TopMost = true; //keep form on top
-                    xmlEditController.LoadXmlFromWorkbook();
                 }
 
                 form.WindowState = System.Windows.Forms.FormWindowState.Normal;
+
+                RefreshControls();
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+        }
+
+        public void RefreshControls()
+        {
+            Excel.Application excelApp = null;
+            Excel.Workbook workbook = null;
+
+            try
+            {
+                excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                workbook = excelApp.ActiveWorkbook;
+
+                var wbList = ExcelHelper.ListWorkbooks(excelApp);
+                cbWorkbooks.Items.Clear();
+                cbWorkbooks.Items.AddRange(wbList.ToArray());
+                cbWorkbooks.Text = workbook.Name;
+
+                var nsList = ExcelHelper.ListXmlNamespaces(workbook);
+                cbNamespace.Items.Clear();
+                cbNamespace.Items.AddRange(nsList.ToArray());
+                cbNamespace.Text = Constants.DaxDrillXmlSchemaSpace;
+
+                txtXpath.Text = "x:*";
+
+                xmlEditController.LoadXmlFromWorkbook();
+            }
+            finally
+            {
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+            }
+        }
+
+        #endregion
+
+        #region Form Events
+
+        void BtnSaveClick(object sender, EventArgs e)
+        {
+            try
+            {
+                // save changes
+                xmlEditController.SaveXmlToWorkbook();
+                MessageBox.Show(string.Format("XML saved to namespace '{0}'", this.NamespaceText));
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            Hide();
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                xmlEditController.LoadXmlFromWorkbook();
             }
             catch (Exception ex)
             {
@@ -83,52 +174,6 @@ namespace DG2NTT.DaxDrill.UI
 
         #endregion
 
-        private Size _originalSize;
-        public XmlEditForm()
-        {
-            //
-            // The InitializeComponent() call is required for Windows Forms designer support.
-            //
-            InitializeComponent();
-
-            //
-            // Add constructor code after the InitializeComponent() call.
-            //
-            _originalSize = Size;
-            xmlEditController = new XmlEditController(this);
-        }
-
-        #region Form Events
-
-        void BtnOkClick(object sender, EventArgs e)
-        {
-            // save changes
-            xmlEditController.SaveXmlToWorkbook();
-            Hide();
-        }
-
-        private void FormResizer(object sender, EventArgs eventArgs)
-        {
-            if (WindowState == FormWindowState.Minimized) return;
-            //prevent form from being resized to smaller than the minimum
-            if (Size.Width < _originalSize.Width)
-                Size = new Size(_originalSize.Width, Size.Height);
-            if (Size.Height < _originalSize.Height)
-                Size = new Size(Size.Width, _originalSize.Height);
-
-            //resize controls
-            txtXmlText.Size = new Size(Size.Width - 41, Size.Height - 120);
-
-            //relocate controls
-            btnOk.Location = new Point(Size.Width - 104, Size.Height - 72);
-            btnCancel.Location = new Point(Size.Width - 196, Size.Height - 72);
-        }
-        #endregion
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            Hide();
-        }
     }
 }
 

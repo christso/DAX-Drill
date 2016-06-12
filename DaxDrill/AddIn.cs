@@ -210,12 +210,6 @@ namespace DG2NTT.DaxDrill
             }
         }
 
-        private static void ShowWorkbookName(Excel.Workbook workbook)
-        {
-            MessageBox.Show(workbook.Name);
-            if (workbook != null) Marshal.ReleaseComObject(workbook);
-        }
-
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
         public static void About()
         {

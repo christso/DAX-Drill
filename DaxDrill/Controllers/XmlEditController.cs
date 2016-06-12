@@ -15,7 +15,7 @@ namespace DG2NTT.DaxDrill.Controllers
     public class XmlEditController : IDisposable
     {
         private readonly XmlEditForm xmlEditForm;
-        private readonly Excel.Workbook workbook;
+        private Excel.Workbook workbook;
         private readonly Excel.Application excelApp;
         public XmlEditController(XmlEditForm xmlEditForm)
         {
@@ -25,37 +25,32 @@ namespace DG2NTT.DaxDrill.Controllers
             workbook = excelApp.ActiveWorkbook;
         }
 
+        public void SetWorkbook(string name)
+        {
+            if (workbook != null) Marshal.ReleaseComObject(workbook);
+            if (!string.IsNullOrEmpty(name))
+                workbook = excelApp.Workbooks[name];
+        }
+
+    
         public void LoadXmlFromWorkbook()
         {
-            string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:table");
-            if (string.IsNullOrEmpty(xml)) ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-            xmlEditForm.XmlText = xml;
+            string xmlString = ExcelHelper.ReadCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XpathText);
+       
+            //var xmls = ExcelHelper.ReadCustomXmlParts(workbook);
+            //string xmlString = string.Empty;
+            //foreach (string x in xmls)
+            //{
+            //    if (xmlString != string.Empty)
+            //        xmlString += "\r\n---------\r\n";
+            //    xmlString += x;
+            //}
+            xmlEditForm.XmlText = xmlString;
         }
 
         public void SaveXmlToWorkbook()
         {
-            //ExcelHelper.UpdateCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, xmlEditForm.XmlText);
-
-            var xmlString =
-@"<?xml version=""1.0"" encoding=""utf-8\"" ?>
-<table id=""Usage"" connection_id=""localhost Roaming Model"" xmlns=""{0}"">
-	<columns>
-	   <column>
-		  <name>Call Type</name>
-		  <expression>Usage[Call Type]</expression>
-	   </column>
-	   <column>
-		  <name>Call Type Description</name>
-		  <expression>Usage[Call Type Description]</expression>
-	   </column>
-	   <column>
-		  <name>Gross Billed</name>
-		  <expression>Usage[Gross Billed]</expression>
-	   </column>
-	</columns>
-</table>".Replace("{0}", Constants.DaxDrillXmlSchemaSpace);
-
-            ExcelHelper.UpdateCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, xmlString);
+            ExcelHelper.UpdateCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText);
         }
 
         #region IDisposable Support

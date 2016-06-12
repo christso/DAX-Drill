@@ -74,20 +74,59 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return commandText;
         }
 
+
+        public static List<string> ReadCustomXmlParts(Excel.Workbook workbook)
+        {
+            var result = new List<string>();
+
+            IEnumerator e = workbook.CustomXMLParts.GetEnumerator();
+            Office.CustomXMLPart p;
+            while (e.MoveNext())
+            {
+                p = (Office.CustomXMLPart)e.Current;
+                //p.BuiltIn will be true for internal buildin excel parts 
+                if (p != null && !p.BuiltIn)
+                    result.Add(p.XML);
+
+                Marshal.ReleaseComObject(p);
+            }
+                
+            return result;
+        }
+
         public static string ReadCustomXmlPart(Excel.Workbook workbook, string xNameSpace,
             string xPath)
         {
-            System.Collections.IEnumerator enumerator = workbook.CustomXMLParts.SelectByNamespace(Constants.DaxDrillXmlSchemaSpace).GetEnumerator();
-            enumerator.Reset();
-            while (enumerator.MoveNext())
+            Office.CustomXMLParts ps = null;
+
+            try
             {
-                Office.CustomXMLPart p = (Office.CustomXMLPart)enumerator.Current;
-                p.NamespaceManager.AddNamespace("x", xNameSpace);
-                Office.CustomXMLNode node = p.SelectSingleNode(xPath);
-                if (node != null)
-                    return node.XML;
+                ps = workbook.CustomXMLParts;
+                ps = ps.SelectByNamespace(xNameSpace);
+
+                for (int i = 1; i <= ps.Count; i++)
+                {
+                    Office.CustomXMLPart p = ps[i];
+                    var nsmgr = p.NamespaceManager;
+                    nsmgr.AddNamespace("x", xNameSpace);
+                    Office.CustomXMLNode node = p.SelectSingleNode(xPath);
+
+                    Marshal.ReleaseComObject(nsmgr);
+                    Marshal.ReleaseComObject(p);
+
+                    if (node != null)
+                    {
+                        var xml = node.XML;
+                        Marshal.ReleaseComObject(node);
+                        return xml;
+                    }
+                }
+                return string.Empty;
             }
-            return string.Empty;
+            finally
+            {
+                if (ps != null) Marshal.ReleaseComObject(ps);
+            }
         }
 
         /*
@@ -156,6 +195,52 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
+        public static List<string> ListWorkbooks(Excel.Application excelApp)
+        {
+            Excel.Workbooks workbooks = null;
+            try
+            {
+                workbooks = excelApp.Workbooks;
+                var wbList = new List<string>();
+                for (int i = 1; i <= workbooks.Count; i++)
+                {
+                    Excel.Workbook wb = workbooks[i];
+                    wbList.Add(wb.Name);
+                    Marshal.ReleaseComObject(wb);
+                }
+                return wbList;
+            }
+            finally
+            {
+                if (workbooks != null) Marshal.ReleaseComObject(workbooks);
+            }
+        }
+
+        public static List<string> ListXmlNamespaces(Excel.Workbook workbook)
+        {
+            Office.CustomXMLParts ps = null;
+            try
+            {
+                var result = new List<string>();
+                ps = workbook.CustomXMLParts;
+                for (int i = 1; i <= workbook.CustomXMLParts.Count; i++)
+                {
+                    Office.CustomXMLPart p = ps[i];
+
+                    //p.BuiltIn will be true for internal buildin excel parts 
+                    if (p != null && !p.BuiltIn)
+                        result.Add(p.NamespaceURI);
+
+                    Marshal.ReleaseComObject(p);
+                }
+
+                return result;
+            }
+            finally
+            {
+                if (ps != null) Marshal.ReleaseComObject(ps);
+            }
+        }
 
 
 
