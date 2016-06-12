@@ -39,17 +39,17 @@
       <HintPath>..\packages\Microsoft.AnalysisServices.AdomdClient.12.0.2000.8\lib\net40\Microsoft.AnalysisServices.AdomdClient.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AnalysisServices.Server.Core">
-      <HintPath>..\assemblies\Microsoft.AnalysisServices.Server.Core.dll</HintPath>
+    <Reference Include="Microsoft.AnalysisServices.Server.Core, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AnalysisServices.Server.13.0.1601.5\lib\Microsoft.AnalysisServices.Server.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AnalysisServices.Server.Tabular">
-      <HintPath>..\assemblies\Microsoft.AnalysisServices.Server.Tabular.dll</HintPath>
+    <Reference Include="Microsoft.AnalysisServices.Server.Tabular, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AnalysisServices.Server.13.0.1601.5\lib\Microsoft.AnalysisServices.Server.Tabular.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AnalysisServices.Server.Tabular.Json">
-      <HintPath>..\assemblies\Microsoft.AnalysisServices.Server.Tabular.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.AnalysisServices.TimeDimGenerator">
-      <HintPath>..\assemblies\Microsoft.AnalysisServices.TimeDimGenerator.dll</HintPath>
+    <Reference Include="Microsoft.AnalysisServices.Server.Tabular.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AnalysisServices.Server.13.0.1601.5\lib\Microsoft.AnalysisServices.Server.Tabular.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
