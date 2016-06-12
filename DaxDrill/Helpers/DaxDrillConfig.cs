@@ -9,7 +9,7 @@ namespace DG2NTT.DaxDrill.Helpers
 {
     public class DaxDrillConfig
     {
-        public static List<SelectedColumn> GetColumns(string xmlString, string nsString)
+        public static List<SelectedColumn> GetColumnsFromColumnsXml(string xmlString, string nsString)
         {
             var columns = new List<SelectedColumn>();
 
@@ -32,5 +32,47 @@ namespace DG2NTT.DaxDrill.Helpers
             }
             return columns;
         }
+
+        public static List<SelectedColumn> GetColumnsFromColumnsXmlNode(XmlNode columnsNode, XmlNamespaceManager nsmgr)
+        {
+            var columns = new List<SelectedColumn>();
+
+            foreach (XmlNode columnNode in columnsNode)
+            {
+                XmlNode nameNode = columnNode.SelectSingleNode("./x:name", nsmgr);
+                XmlNode exprNode = columnNode.SelectSingleNode("./x:expression", nsmgr);
+                columns.Add(new SelectedColumn()
+                {
+                    Name = nameNode.InnerText,
+                    Expression = exprNode.InnerText
+                });
+            }
+            return columns;
+        }
+
+        public static List<SelectedColumn> GetColumnsFromTableXml(string connectionName, string tableName, string xmlString, string nsString)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xmlString);
+            XmlNode root = doc.DocumentElement;
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+            nsmgr.AddNamespace("x", nsString);
+
+            string xpath = string.Empty;
+            if (root.Name == "columns")
+                xpath = "/x:columns";
+            else if (root.Name == "table" && !string.IsNullOrWhiteSpace(connectionName))
+                xpath = string.Format("/x:table[@id=\"{0}\" and @connection_id=\"{1}\"]/x:columns",
+                    tableName, connectionName);
+            else if (root.Name == "table")
+                xpath = string.Format("/x:table[@id=\"{0}\"]/x:columns", tableName);
+
+            XmlNode columnsNode = root.SelectSingleNode(xpath, nsmgr);
+            if (columnsNode == null)
+                throw new InvalidOperationException("Invalid node '" + xpath + "'");
+            var columns = GetColumnsFromColumnsXmlNode(columnsNode, nsmgr);
+            return columns;
+        }
+
     }
 }

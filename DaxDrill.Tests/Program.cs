@@ -10,8 +10,8 @@ namespace DG2NTT.DaxDrill.Tests
     {
         static void Main(string[] args)
         {
-            var tests = new ExcelTests();
-            tests.StartExcelApp();
+            var tests = new DaxDrillTests();
+            tests.ParseXml();
             Console.ReadKey();
         }
     }
