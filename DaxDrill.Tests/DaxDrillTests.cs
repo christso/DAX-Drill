@@ -163,28 +163,38 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             const string nsString = "dg2ntt.daxdrill";
             var xmlString =
-@"<?xml version=""1.0"" encoding=""UTF-8""?>
-<columns xmlns=""{0}"">
-   <column>
-      <name>Call Type</name>
-      <expression>Usage[Call Type]</expression>
-   </column>
-   <column>
-      <name>Call Type Description</name>
-      <expression>Usage[Call Type Description]</expression>
-   </column>
-   <column>
-      <name>Gross Billed</name>
-      <expression>Usage[Gross Billed]</expression>
-   </column>
-</columns>"
+@"<table id=""Usage"" xmlns=""{0}"">
+	<columns>
+	   <column>
+		  <name>Call Type</name>
+		  <expression>Usage[Call Type]</expression>
+	   </column>
+	   <column>
+		  <name>Call Type Description</name>
+		  <expression>Usage[Call Type Description]</expression>
+	   </column>
+	   <column>
+		  <name>Gross Billed</name>
+		  <expression>Usage[Gross Billed]</expression>
+	   </column>
+	</columns>
+</table>"
             .Replace("{0}", nsString);
 
             #endregion
 
             #region Act
 
-            List<SelectedColumn> columns = DaxDrillConfig.GetColumns(xmlString, nsString);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xmlString);
+            XmlNode root = doc.DocumentElement;
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+            nsmgr.AddNamespace("x", nsString);
+
+            //XmlNode tableNode = root.SelectSingleNode("/x:table[@id=\"Usage\"]", nsmgr);
+            //XmlNode columnsNode = tableNode.SelectSingleNode("./x:columns", nsmgr);
+
+            List<SelectedColumn> columns = DaxDrillConfig.GetColumnsFromTableXml("Usage", root.InnerXml, nsString);
 
             #endregion
 

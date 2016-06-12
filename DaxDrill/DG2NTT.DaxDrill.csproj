@@ -80,7 +80,6 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="DaxDrillRoot.cs" />
     <Compile Include="SelectedColumn.cs" />
     <Compile Include="DaxFilter.cs" />
     <Compile Include="ExcelHelpers\ExcelHelper.cs" />

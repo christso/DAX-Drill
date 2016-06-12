@@ -105,7 +105,7 @@ namespace DG2NTT.DaxDrill
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DaxDrillConfig.GetColumns(xml, Constants.DaxDrillXmlSchemaSpace);
+                var columns = DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
 
                 // generate command
                 rngCell = excelApp.ActiveCell;
@@ -171,7 +171,7 @@ namespace DG2NTT.DaxDrill
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DaxDrillConfig.GetColumns(xml, Constants.DaxDrillXmlSchemaSpace);
+                var columns = DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
                 XmlEditorForm.ShowMessage("Edit your XML here", xml);
             }
             catch (Exception ex)
