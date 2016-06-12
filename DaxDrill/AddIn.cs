@@ -13,6 +13,7 @@ using System.Threading;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using DG2NTT.DaxDrill.UI;
+using DG2NTT.DaxDrill.Controllers;
 
 namespace DG2NTT.DaxDrill
 {
@@ -105,7 +106,7 @@ namespace DG2NTT.DaxDrill
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DG2NTT.DaxDrill.DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
+                var columns = DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
 
                 // generate command
                 rngCell = excelApp.ActiveCell;
@@ -124,8 +125,8 @@ namespace DG2NTT.DaxDrill
             }
         }
 
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Config")]
-        public static void ShowConfigEditor()
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "XML Metadata")]
+        public static void ShowMetadataEditor()
         {
             Excel.Application excelApp = null;
             Excel.Workbook workbook = null;
@@ -133,8 +134,9 @@ namespace DG2NTT.DaxDrill
             {
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
-                string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                XmlEditForm.ShowForm(xml);
+                var form = XmlEditForm.GetStatic();
+                var controller = new XmlEditController(form);
+                form.ShowForm();
             }
             catch (Exception ex)
             {
@@ -194,8 +196,8 @@ namespace DG2NTT.DaxDrill
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DG2NTT.DaxDrill.DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
-                XmlEditForm.ShowForm(xml);
+                var columns = DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
+                //XmlEditForm.ShowForm(xml);
             }
             catch (Exception ex)
             {
@@ -207,11 +209,18 @@ namespace DG2NTT.DaxDrill
                 if (workbook != null) Marshal.ReleaseComObject(workbook);
             }
         }
-        
+
+        private static void ShowWorkbookName(Excel.Workbook workbook)
+        {
+            MessageBox.Show(workbook.Name);
+            if (workbook != null) Marshal.ReleaseComObject(workbook);
+        }
+
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
         public static void About()
         {
             MessageBox.Show("DAX Drill is developed by DG2NTT Pty Ltd");
         }
     }
+
 }

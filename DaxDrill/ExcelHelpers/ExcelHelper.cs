@@ -84,7 +84,8 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 Office.CustomXMLPart p = (Office.CustomXMLPart)enumerator.Current;
                 p.NamespaceManager.AddNamespace("x", xNameSpace);
                 Office.CustomXMLNode node = p.SelectSingleNode(xPath);
-                return node.XML;
+                if (node != null)
+                    return node.XML;
             }
             return string.Empty;
         }

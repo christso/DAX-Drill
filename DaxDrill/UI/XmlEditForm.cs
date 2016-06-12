@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DG2NTT.DaxDrill.Controllers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,41 +14,47 @@ namespace DG2NTT.DaxDrill.UI
     public partial class XmlEditForm : Form
     {
         private const string AppName = Constants.AppName;
+        private readonly XmlEditController xmlEditController;
 
-        #region Static Accessors
-        public static void ShowForm(string xmlText, string formTitle = AppName)
+        #region Public Members
+
+        public string XmlText
         {
-            try
-            {
-                GetStatic().Text = formTitle;
-                GetStatic().txtStackTrace.Text = xmlText;
-                ShowForm();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error trying to invoke form.\n" + ex.Message + "\n" + ex.ToString(), AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            get { return txtXmlText.Text; }
+            set { txtXmlText.Text = value;  }
         }
 
+        public string FormTitle
+        {
+            get { return this.Text; }
+            set { this.Text = value;  }
+        }
+        
+        #endregion
+
+        #region Static Accessors
+ 
         //Shows the static version of the form
-        public static XmlEditForm ShowForm()
+        public void ShowForm()
         {
             try
             {
+                var form = this;
+
                 //Show Form
-                if (!GetStatic().Visible)
+                if (!form.Visible)
                 {
-                    GetStatic().Show();
-                    GetStatic().TopMost = true;
-                    //keep form on top
+                    form.Show();
+                    form.TopMost = true; //keep form on top
+                    xmlEditController.LoadXmlFromWorkbook();
                 }
-                GetStatic().WindowState = System.Windows.Forms.FormWindowState.Normal;
+
+                form.WindowState = System.Windows.Forms.FormWindowState.Normal;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error trying to show Form.\n" + ex.Message + "\n" + ex.ToString(), AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MsgForm.ShowMessage(ex);
             }
-            return GetStatic();
         }
         #endregion
 
@@ -88,6 +95,7 @@ namespace DG2NTT.DaxDrill.UI
             // Add constructor code after the InitializeComponent() call.
             //
             _originalSize = Size;
+            xmlEditController = new XmlEditController(this);
         }
 
         #region Form Events
@@ -95,12 +103,11 @@ namespace DG2NTT.DaxDrill.UI
         void BtnOkClick(object sender, EventArgs e)
         {
             // save changes
-
-
+            xmlEditController.SaveXmlToWorkbook();
             Hide();
         }
 
-        private void ErrFormResize(object sender, EventArgs eventArgs)
+        private void FormResizer(object sender, EventArgs eventArgs)
         {
             if (WindowState == FormWindowState.Minimized) return;
             //prevent form from being resized to smaller than the minimum
@@ -110,21 +117,17 @@ namespace DG2NTT.DaxDrill.UI
                 Size = new Size(Size.Width, _originalSize.Height);
 
             //resize controls
-            txtStackTrace.Size = new Size(Size.Width - 41, Size.Height - 126);
+            txtXmlText.Size = new Size(Size.Width - 41, Size.Height - 120);
 
             //relocate controls
-            btnOk.Location = new Point(Size.Width - 104, Size.Height - 68);
+            btnOk.Location = new Point(Size.Width - 104, Size.Height - 72);
+            btnCancel.Location = new Point(Size.Width - 196, Size.Height - 72);
         }
         #endregion
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Hide();
-        }
-
-        private void XmlEditorForm_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }

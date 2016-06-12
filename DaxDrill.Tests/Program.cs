@@ -11,7 +11,7 @@ namespace DG2NTT.DaxDrill.Tests
         static void Main(string[] args)
         {
             var tests = new DaxDrillTests();
-            tests.ParseXml();
+            tests.XmlTest();
             Console.ReadKey();
         }
     }
