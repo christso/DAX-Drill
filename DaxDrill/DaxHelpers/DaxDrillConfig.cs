@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace DG2NTT.DaxDrill.Helpers
+namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxDrillConfig
     {

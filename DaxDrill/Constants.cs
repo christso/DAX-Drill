@@ -9,5 +9,6 @@ namespace DG2NTT.DaxDrill
     public class Constants
     {
         public const string DaxDrillXmlSchemaSpace = "http://schemas.microsoft.com/daxdrill";
+        public const string AppName = "DAX Drill";
     }
 }

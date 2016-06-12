@@ -1,5 +1,4 @@
-﻿using DG2NTT.DaxDrill.Helpers;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,9 +39,9 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
 
             #region Parse
-            var parser = new DaxDrillParser();
+            var parser = new DG2NTT.DaxDrill.DaxHelpers.DaxDrillParser();
             string commandText;
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.DaxHelpers.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 commandText = parser.BuildFilterCommandText(excelDic, tabular);
@@ -73,9 +72,9 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
 
             #region Parse
-            var parser = new DaxDrillParser();
+            var parser = new DG2NTT.DaxDrill.DaxHelpers.DaxDrillParser();
             string commandText;
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.DaxHelpers.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 commandText = parser.BuildQueryText(tabular, excelDic, "Gross Billed Sum");
@@ -106,14 +105,14 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
 
             #region Parse
-            var parser = new DaxDrillParser();
+            var parser = new DG2NTT.DaxDrill.DaxHelpers.DaxDrillParser();
             string commandText;
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.DaxHelpers.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
-                var selectedColumns = new List<SelectedColumn>();
-                selectedColumns.Add(new SelectedColumn() { Name = "Call Type", Expression = "Usage[Call Type]" });
-                selectedColumns.Add(new SelectedColumn() { Name = "Call Type Description", Expression = "Usage[Call Type Description]" });
+                var selectedColumns = new List<DG2NTT.DaxDrill.DaxHelpers.SelectedColumn>();
+                selectedColumns.Add(new DG2NTT.DaxDrill.DaxHelpers.SelectedColumn() { Name = "Call Type", Expression = "Usage[Call Type]" });
+                selectedColumns.Add(new DG2NTT.DaxDrill.DaxHelpers.SelectedColumn() { Name = "Call Type Description", Expression = "Usage[Call Type Description]" });
                 commandText = parser.BuildQueryText(tabular, excelDic, "Gross Billed Sum", selectedColumns);
                 tabular.Disconnect();
             }
@@ -129,7 +128,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         public void ParsePivotText()
         {
             #region Parse
-            var parser = new DaxDrillParser();
+            var parser = new DG2NTT.DaxDrill.DaxHelpers.DaxDrillParser();
 
             var columnCommandText = parser.GetColumnFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
             Assert.AreEqual("Inbound or Outbound", columnCommandText);
@@ -147,7 +146,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         public void GetMeasure()
         {
             string measureName = "Gross Billed Sum";
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.DaxHelpers.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 var measure = tabular.GetMeasure(measureName);
@@ -186,7 +185,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             #region Act
 
-            List<SelectedColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(
+            List<DG2NTT.DaxDrill.DaxHelpers.SelectedColumn> columns = DG2NTT.DaxDrill.DaxHelpers.DaxDrillConfig.GetColumnsFromTableXml(
                 "localhost Roaming Model", "Usage", xmlString, nsString);
 
             #endregion

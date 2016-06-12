@@ -9,7 +9,7 @@ using ADOMD = Microsoft.AnalysisServices.AdomdClient;
 using Microsoft.AnalysisServices.Tabular;
 using SSAS = Microsoft.AnalysisServices;
 
-namespace DG2NTT.DaxDrill
+namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxClient
     {

@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Tabular = Microsoft.AnalysisServices.Tabular;
 
-namespace DG2NTT.DaxDrill.Helpers
+namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxDrillParser
     {
-        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName, 
+        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName,
             IEnumerable<SelectedColumn> selectedColumns)
         {
             string filterText = BuildFilterCommandText(excelDic, tabular);
@@ -30,7 +30,7 @@ namespace DG2NTT.DaxDrill.Helpers
                 commandText += string.Format(",\n{0}", filterText);
 
             commandText = string.Format("EVALUATE CALCULATETABLE ( {0} )", commandText);
-            
+
             return commandText;
         }
 
@@ -42,7 +42,7 @@ namespace DG2NTT.DaxDrill.Helpers
                 if (result != string.Empty)
                     result += ",";
 
-                result += string.Format("\n\"{0}\", {1}", column.Name, column.Expression);  
+                result += string.Format("\n\"{0}\", {1}", column.Name, column.Expression);
             }
             return result;
         }

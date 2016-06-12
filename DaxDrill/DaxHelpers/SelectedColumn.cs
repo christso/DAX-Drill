@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace DG2NTT.DaxDrill
+namespace DG2NTT.DaxDrill.DaxHelpers
 {
     [Serializable]
     public class SelectedColumn
@@ -14,9 +14,5 @@ namespace DG2NTT.DaxDrill
         public string Name;
         [XmlElement("expression")]
         public string Expression;
-
-        public SelectedColumn()
-        {
-        }
     }
 }

@@ -8,20 +8,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace DG2NTT.DaxDrill
+namespace DG2NTT.DaxDrill.UI
 {
-    public partial class XmlEditorForm : Form
+    public partial class XmlEditForm : Form
     {
-        private const string AppName = "DAX Drill";
+        private const string AppName = Constants.AppName;
 
         #region Static Accessors
-        public static void ShowMessage(string messageHeader, string messageDetail, string formTitle = AppName)
+        public static void ShowForm(string xmlText, string formTitle = AppName)
         {
             try
             {
                 GetStatic().Text = formTitle;
-                GetStatic().lblMessage.Text = messageHeader;
-                GetStatic().txtStackTrace.Text = messageDetail;
+                GetStatic().txtStackTrace.Text = xmlText;
                 ShowForm();
             }
             catch (Exception ex)
@@ -31,7 +30,7 @@ namespace DG2NTT.DaxDrill
         }
 
         //Shows the static version of the form
-        public static XmlEditorForm ShowForm()
+        public static XmlEditForm ShowForm()
         {
             try
             {
@@ -54,23 +53,23 @@ namespace DG2NTT.DaxDrill
 
         #region Form Initialisation via Static Accessor
 
-        private static XmlEditorForm _form = new XmlEditorForm();
+        private static XmlEditForm _form = new XmlEditForm();
 
-        private delegate XmlEditorForm GetFormCallBack();
+        private delegate XmlEditForm GetFormCallBack();
         //Returns static version of the form
-        public static XmlEditorForm GetStatic()
+        public static XmlEditForm GetStatic()
         {
 
             //Reinstantiate the form
             if (_form.IsDisposed)
             {
-                _form = new XmlEditorForm();
+                _form = new XmlEditForm();
             }
 
             if (_form.InvokeRequired)
             {
                 var d = new GetFormCallBack(GetStatic);
-                return (XmlEditorForm)_form.Invoke(d);
+                return (XmlEditForm)_form.Invoke(d);
             }
             return _form;
         }
@@ -78,7 +77,7 @@ namespace DG2NTT.DaxDrill
         #endregion
 
         private Size _originalSize;
-        public XmlEditorForm()
+        public XmlEditForm()
         {
             //
             // The InitializeComponent() call is required for Windows Forms designer support.
@@ -95,6 +94,9 @@ namespace DG2NTT.DaxDrill
 
         void BtnOkClick(object sender, EventArgs e)
         {
+            // save changes
+
+
             Hide();
         }
 
@@ -109,12 +111,21 @@ namespace DG2NTT.DaxDrill
 
             //resize controls
             txtStackTrace.Size = new Size(Size.Width - 41, Size.Height - 126);
-            lblMessage.Size = new Size(Size.Width - 40, lblMessage.Size.Height);
 
             //relocate controls
             btnOk.Location = new Point(Size.Width - 104, Size.Height - 68);
         }
         #endregion
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            Hide();
+        }
+
+        private void XmlEditorForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AnalysisServices.Tabular;
 using SSAS = Microsoft.AnalysisServices;
 
-namespace DG2NTT.DaxDrill
+namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class TabularHelper : IDisposable
     {
@@ -22,11 +22,6 @@ namespace DG2NTT.DaxDrill
             this.connectionString = string.Format(
 "Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={1};Data Source={0};", serverName, databaseName);
             this.server = new Server();
-        }
-
-        public TabularHelper(string connectionString)
-        {
-
         }
 
         public string ServerName

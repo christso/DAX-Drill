@@ -80,28 +80,29 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="SelectedColumn.cs" />
-    <Compile Include="DaxFilter.cs" />
+    <Compile Include="DaxHelpers\SelectedColumn.cs" />
+    <Compile Include="DaxHelpers\DaxFilter.cs" />
     <Compile Include="ExcelHelpers\ExcelHelper.cs" />
     <Compile Include="ExcelHelpers\PivotCellHelper.cs" />
-    <Compile Include="Helpers\DaxDrillParser.cs" />
-    <Compile Include="Helpers\MsgForm.cs">
+    <Compile Include="DaxHelpers\DaxDrillParser.cs" />
+    <Compile Include="UI\MsgForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Helpers\MsgForm.Designer.cs">
+    <Compile Include="UI\MsgForm.Designer.cs">
       <DependentUpon>MsgForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\DaxDrillConfig.cs" />
+    <Compile Include="DaxHelpers\DaxDrillConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DaxClient.cs" />
-    <Compile Include="TabularConnectionStringBuilder.cs" />
-    <Compile Include="TabularHelper.cs" />
+    <Compile Include="DaxHelpers\DaxClient.cs" />
+    <Compile Include="DaxHelpers\TabularConnectionStringBuilder.cs" />
+    <Compile Include="DaxHelpers\TabularHelper.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="XmlEditorForm.cs">
+    <Compile Include="Controllers\XmlEditController.cs" />
+    <Compile Include="UI\XmlEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="XmlEditorForm.Designer.cs">
-      <DependentUpon>XmlEditorForm.cs</DependentUpon>
+    <Compile Include="UI\XmlEditForm.Designer.cs">
+      <DependentUpon>XmlEditForm.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -115,11 +116,11 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Helpers\MsgForm.resx">
+    <EmbeddedResource Include="UI\MsgForm.resx">
       <DependentUpon>MsgForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="XmlEditorForm.resx">
-      <DependentUpon>XmlEditorForm.cs</DependentUpon>
+    <EmbeddedResource Include="UI\XmlEditForm.resx">
+      <DependentUpon>XmlEditForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

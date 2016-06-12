@@ -9,7 +9,6 @@ using Office = Microsoft.Office.Core;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Forms;
-using DG2NTT.DaxDrill.Helpers;
 using System.Data.SqlClient;
 using System.Data.Common;
 using System.Xml;
@@ -57,13 +56,13 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         public static string GetDAXQuery(string connString, Excel.Range rngCell)
         {
             Dictionary<string, string> excelDic = PivotCellHelper.GetPivotCellQuery(rngCell);
-            var parser = new DaxDrillParser();
+            var parser = new DG2NTT.DaxDrill.DaxHelpers.DaxDrillParser();
 
             string commandText = "";
             string measureName = parser.GetMeasureFromPivotItem(rngCell.PivotItem.Name);
-            var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
+            var cnnStringBuilder = new DG2NTT.DaxDrill.DaxHelpers.TabularConnectionStringBuilder(connString);
 
-            using (var tabular = new TabularHelper(
+            using (var tabular = new DG2NTT.DaxDrill.DaxHelpers.TabularHelper(
                 cnnStringBuilder.DataSource, 
                 cnnStringBuilder.InitialCatalog))
             {

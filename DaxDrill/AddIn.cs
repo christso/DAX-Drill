@@ -9,10 +9,10 @@ using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using DG2NTT.DaxDrill.ExcelHelpers;
-using DG2NTT.DaxDrill.Helpers;
 using System.Threading;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using DG2NTT.DaxDrill.UI;
 
 namespace DG2NTT.DaxDrill
 {
@@ -74,8 +74,8 @@ namespace DG2NTT.DaxDrill
                 // set up connection
                 var connString = ExcelHelper.GetConnectionString(rngCell);
                 var commandText = ExcelHelper.GetDAXQuery(connString, rngCell);
-                var client = new DaxClient();
-                var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
+                var client = new DG2NTT.DaxDrill.DaxHelpers.DaxClient();
+                var cnnStringBuilder = new DG2NTT.DaxDrill.DaxHelpers.TabularConnectionStringBuilder(connString);
                 var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
                 var dtResult = client.ExecuteTable(commandText, cnn);
 
@@ -105,7 +105,7 @@ namespace DG2NTT.DaxDrill
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
+                var columns = DG2NTT.DaxDrill.DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
 
                 // generate command
                 rngCell = excelApp.ActiveCell;
@@ -119,6 +119,29 @@ namespace DG2NTT.DaxDrill
             finally
             {
                 if (rngCell != null) Marshal.ReleaseComObject(rngCell);
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+            }
+        }
+
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Config")]
+        public static void ShowConfigEditor()
+        {
+            Excel.Application excelApp = null;
+            Excel.Workbook workbook = null;
+            try
+            {
+                excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                workbook = excelApp.ActiveWorkbook;
+                string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
+                XmlEditForm.ShowForm(xml);
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+            finally
+            {
                 if (excelApp != null) Marshal.ReleaseComObject(excelApp);
                 if (workbook != null) Marshal.ReleaseComObject(workbook);
             }
@@ -152,7 +175,7 @@ namespace DG2NTT.DaxDrill
             }
             catch (Exception ex)
             {
-                Helpers.MsgForm.ShowMessage(ex);
+                MsgForm.ShowMessage(ex);
             }
             finally
             {
@@ -171,12 +194,12 @@ namespace DG2NTT.DaxDrill
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
-                XmlEditorForm.ShowMessage("Edit your XML here", xml);
+                var columns = DG2NTT.DaxDrill.DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
+                XmlEditForm.ShowForm(xml);
             }
             catch (Exception ex)
             {
-                Helpers.MsgForm.ShowMessage(ex);
+                MsgForm.ShowMessage(ex);
             }
             finally
             {
