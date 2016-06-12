@@ -37,7 +37,7 @@
             this.cbNamespace = new System.Windows.Forms.ComboBox();
             this.cbWorkbooks = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnLoad = new System.Windows.Forms.Button();
             this.lblXpath = new System.Windows.Forms.Label();
             this.txtXpath = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
@@ -63,7 +63,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(422, 224);
+            this.btnCancel.Location = new System.Drawing.Point(341, 224);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -95,6 +95,7 @@
             this.cbWorkbooks.Name = "cbWorkbooks";
             this.cbWorkbooks.Size = new System.Drawing.Size(194, 21);
             this.cbWorkbooks.TabIndex = 7;
+            this.cbWorkbooks.SelectedValueChanged += new System.EventHandler(this.cbWorkbooks_SelectedValueChanged);
             // 
             // label1
             // 
@@ -105,15 +106,15 @@
             this.label1.TabIndex = 6;
             this.label1.Text = "Workbook";
             // 
-            // btnRefresh
+            // btnLoad
             // 
-            this.btnRefresh.Location = new System.Drawing.Point(341, 224);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(75, 23);
-            this.btnRefresh.TabIndex = 8;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            this.btnLoad.Location = new System.Drawing.Point(422, 224);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(75, 23);
+            this.btnLoad.TabIndex = 8;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
             // 
             // lblXpath
             // 
@@ -138,7 +139,7 @@
             this.ClientSize = new System.Drawing.Size(591, 254);
             this.Controls.Add(this.txtXpath);
             this.Controls.Add(this.lblXpath);
-            this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.cbWorkbooks);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cbNamespace);
@@ -163,7 +164,7 @@
         private System.Windows.Forms.ComboBox cbNamespace;
         private System.Windows.Forms.ComboBox cbWorkbooks;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Label lblXpath;
         private System.Windows.Forms.TextBox txtXpath;
     }

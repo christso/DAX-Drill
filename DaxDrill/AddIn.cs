@@ -93,8 +93,8 @@ namespace DG2NTT.DaxDrill
             }
         }
 
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Get DAX Command")]
-        public static void GetDrillThroughCommand()
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "DAX Query")]
+        public static void DrillThroughQuery()
         {
             Excel.Range rngCell = null;
             Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
@@ -111,7 +111,7 @@ namespace DG2NTT.DaxDrill
                 // generate command
                 rngCell = excelApp.ActiveCell;
                 var commandText = ExcelHelper.GetDAXQuery(rngCell);
-                MsgForm.ShowMessage("DAX Command", commandText);
+                MsgForm.ShowMessage("DAX Query", commandText);
             }
             catch (Exception ex)
             {
@@ -137,67 +137,6 @@ namespace DG2NTT.DaxDrill
                 var form = XmlEditForm.GetStatic();
                 var controller = new XmlEditController(form);
                 form.ShowForm();
-            }
-            catch (Exception ex)
-            {
-                MsgForm.ShowMessage(ex);
-            }
-            finally
-            {
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
-        }
-
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Add XML")]
-        public static void AddXML()
-        {
-            Excel.Application excelApp = null;
-            Excel.Workbook workbook = null;
-            try
-            {
-                excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                workbook = excelApp.ActiveWorkbook;
-                string xmlString1 = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
-                  "<columns xmlns=\"" + Constants.DaxDrillXmlSchemaSpace + "\">" +
-                  "<column>" +
-                  "<name>Call Type</name>" +
-                  "<expression>Usage[Call Type]</expression>" +
-                  "</column>" +
-                  "<column>" +
-                  "<name>Call Type Description</name>" +
-                  "<expression>Usage[Call Type Description]</expression>" +
-                  "</column>" +
-                  "<column>" +
-                  "<name>Gross Billed</name>" +
-                  "<expression>Usage[Gross Billed]</expression>" +
-                  "</column>" +
-                  "</columns>";
-                ExcelHelper.UpdateCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, xmlString1);
-            }
-            catch (Exception ex)
-            {
-                MsgForm.ShowMessage(ex);
-            }
-            finally
-            {
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
-        }
-
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Read XML")]
-        public static void ReadXML()
-        {
-            Excel.Application excelApp = null;
-            Excel.Workbook workbook = null;
-            try
-            {
-                excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                workbook = excelApp.ActiveWorkbook;
-                string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
-                //XmlEditForm.ShowForm(xml);
             }
             catch (Exception ex)
             {

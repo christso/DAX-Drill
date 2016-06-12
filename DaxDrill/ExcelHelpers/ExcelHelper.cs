@@ -242,7 +242,28 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-
+        public static Excel.Workbook FindWorkbook(string name)
+        {
+            Excel.Application excelApp = null;
+            Excel.Workbook workbook = null;
+            Excel.Workbooks workbooks = null;
+            try
+            {
+                excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                workbooks = excelApp.Workbooks;
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    throw new InvalidOperationException("Workbook cannot be empty");
+                }
+                workbook = workbooks[name];
+                return workbook;
+            }
+            finally
+            {
+                if (workbooks != null) Marshal.ReleaseComObject(workbooks);
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+            }
+        }
 
     }
 }

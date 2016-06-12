@@ -12,6 +12,7 @@ using ExcelDna.Integration;
 using DG2NTT.DaxDrill.ExcelHelpers;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace DG2NTT.DaxDrill.UI
 {
@@ -59,6 +60,12 @@ namespace DG2NTT.DaxDrill.UI
             set { txtXpath.Text = value; }
         }
 
+        public string WorkbookText
+        {
+            get { return cbWorkbooks.Text; }
+            set { cbWorkbooks.Text = value; }
+        }
+
         public void ShowForm()
         {
             try
@@ -74,7 +81,12 @@ namespace DG2NTT.DaxDrill.UI
 
                 form.WindowState = System.Windows.Forms.FormWindowState.Normal;
 
-                RefreshControls();
+                RefreshWorkbooksControl();
+                SelectActiveWorkbook();
+                RefreshNamespaceControl();
+                SelectDefaultNamespace();
+                txtXpath.Text = "x:*";
+                xmlEditController.LoadXmlFromWorkbook();
             }
             catch (Exception ex)
             {
@@ -82,7 +94,34 @@ namespace DG2NTT.DaxDrill.UI
             }
         }
 
-        public void RefreshControls()
+        public void RefreshNamespaceControl()
+        {
+            Excel.Workbook workbook = null;
+            try
+            {
+                workbook = ExcelHelper.FindWorkbook(WorkbookText);
+                RefreshNamespaceControl(workbook);
+            }
+            finally
+            {
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+            }
+        }
+
+        public void RefreshNamespaceControl(Excel.Workbook workbook)
+        {
+            var nsList = ExcelHelper.ListXmlNamespaces(workbook);
+            cbNamespace.Items.Clear();
+            cbNamespace.Items.AddRange(nsList.ToArray());
+            
+        }
+
+        public void SelectDefaultNamespace()
+        {
+            NamespaceText = Constants.DaxDrillXmlSchemaSpace;
+        }
+
+        public void SelectActiveWorkbook()
         {
             Excel.Application excelApp = null;
             Excel.Workbook workbook = null;
@@ -91,20 +130,7 @@ namespace DG2NTT.DaxDrill.UI
             {
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
-
-                var wbList = ExcelHelper.ListWorkbooks(excelApp);
-                cbWorkbooks.Items.Clear();
-                cbWorkbooks.Items.AddRange(wbList.ToArray());
                 cbWorkbooks.Text = workbook.Name;
-
-                var nsList = ExcelHelper.ListXmlNamespaces(workbook);
-                cbNamespace.Items.Clear();
-                cbNamespace.Items.AddRange(nsList.ToArray());
-                cbNamespace.Text = Constants.DaxDrillXmlSchemaSpace;
-
-                txtXpath.Text = "x:*";
-
-                xmlEditController.LoadXmlFromWorkbook();
             }
             finally
             {
@@ -112,6 +138,28 @@ namespace DG2NTT.DaxDrill.UI
                 if (excelApp != null) Marshal.ReleaseComObject(excelApp);
             }
         }
+
+        public void RefreshWorkbooksControl()
+        {
+            Excel.Application excelApp = null;
+            Excel.Workbook workbook = null;
+
+            try
+            {
+                excelApp = (Excel.Application)ExcelDnaUtil.Application;
+                
+                workbook = excelApp.ActiveWorkbook;
+                var wbList = ExcelHelper.ListWorkbooks(excelApp);
+                cbWorkbooks.Items.Clear();
+                cbWorkbooks.Items.AddRange(wbList.ToArray());
+            }
+            finally
+            {
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
+            }
+        }
+
 
         #endregion
 
@@ -136,7 +184,7 @@ namespace DG2NTT.DaxDrill.UI
             Hide();
         }
 
-        private void btnRefresh_Click(object sender, EventArgs e)
+        private void btnLoad_Click(object sender, EventArgs e)
         {
             try
             {
@@ -147,6 +195,7 @@ namespace DG2NTT.DaxDrill.UI
                 MsgForm.ShowMessage(ex);
             }
         }
+
         #endregion
 
         #region Form Initialisation via Static Accessor
@@ -174,6 +223,10 @@ namespace DG2NTT.DaxDrill.UI
 
         #endregion
 
+        private void cbWorkbooks_SelectedValueChanged(object sender, EventArgs e)
+        {
+            RefreshNamespaceControl();
+        }
     }
 }
 
