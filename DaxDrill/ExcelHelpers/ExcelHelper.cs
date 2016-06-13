@@ -13,6 +13,7 @@ using System.Data.SqlClient;
 using System.Data.Common;
 using System.Xml;
 using System.Collections;
+using DG2NTT.DaxDrill.DaxHelpers;
 
 namespace DG2NTT.DaxDrill.ExcelHelpers
 {
@@ -36,44 +37,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
             return connString;
         }
-        public static string GetDAXQuery(Excel.Range rngCell)
-        {
-            var connString = GetConnectionString(rngCell);
-            return GetDAXQuery(connString, rngCell);
-        }
-
-        public static string FormatConnectionString(string connString)
-        {
-            var cnnStringBuilder = new DbConnectionStringBuilder();
-            cnnStringBuilder.ConnectionString = connString;
-            string dataSource = cnnStringBuilder["data source"].ToString();
-            string initialCatalog = cnnStringBuilder["initial catalog"].ToString();
-            return string.Format(
-                "Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={1};Data Source={0};", 
-                dataSource, initialCatalog);
-        }
-
-        public static string GetDAXQuery(string connString, Excel.Range rngCell)
-        {
-            Dictionary<string, string> excelDic = PivotCellHelper.GetPivotCellQuery(rngCell);
-            var parser = new DG2NTT.DaxDrill.DaxHelpers.DaxDrillParser();
-
-            string commandText = "";
-            string measureName = parser.GetMeasureFromPivotItem(rngCell.PivotItem.Name);
-            var cnnStringBuilder = new DG2NTT.DaxDrill.DaxHelpers.TabularConnectionStringBuilder(connString);
-
-            using (var tabular = new DG2NTT.DaxDrill.DaxHelpers.TabularHelper(
-                cnnStringBuilder.DataSource, 
-                cnnStringBuilder.InitialCatalog))
-            {
-                tabular.Connect();
-                commandText = parser.BuildQueryText(tabular, excelDic, measureName);
-                tabular.Disconnect();
-            }
-
-            return commandText;
-        }
-
 
         public static List<string> ReadCustomXmlParts(Excel.Workbook workbook)
         {

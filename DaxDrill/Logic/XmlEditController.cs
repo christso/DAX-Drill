@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 
-namespace DG2NTT.DaxDrill.Controllers
+namespace DG2NTT.DaxDrill.Logic
 {
     public class XmlEditController
     {

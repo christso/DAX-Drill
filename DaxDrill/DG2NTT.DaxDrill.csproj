@@ -80,7 +80,8 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="DaxHelpers\SelectedColumn.cs" />
+    <Compile Include="Logic\QueryLogic.cs" />
+    <Compile Include="DaxHelpers\DetailColumn.cs" />
     <Compile Include="DaxHelpers\DaxFilter.cs" />
     <Compile Include="ExcelHelpers\ExcelHelper.cs" />
     <Compile Include="ExcelHelpers\PivotCellHelper.cs" />
@@ -97,7 +98,7 @@
     <Compile Include="DaxHelpers\TabularConnectionStringBuilder.cs" />
     <Compile Include="DaxHelpers\TabularHelper.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Controllers\XmlEditController.cs" />
+    <Compile Include="Logic\XmlEditController.cs" />
     <Compile Include="UI\XmlEditForm.cs">
       <SubType>Form</SubType>
     </Compile>

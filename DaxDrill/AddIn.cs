@@ -13,7 +13,8 @@ using System.Threading;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using DG2NTT.DaxDrill.UI;
-using DG2NTT.DaxDrill.Controllers;
+using DG2NTT.DaxDrill.Logic;
+using DG2NTT.DaxDrill.DaxHelpers;
 
 namespace DG2NTT.DaxDrill
 {
@@ -74,9 +75,9 @@ namespace DG2NTT.DaxDrill
 
                 // set up connection
                 var connString = ExcelHelper.GetConnectionString(rngCell);
-                var commandText = ExcelHelper.GetDAXQuery(connString, rngCell);
-                var client = new DG2NTT.DaxDrill.DaxHelpers.DaxClient();
-                var cnnStringBuilder = new DG2NTT.DaxDrill.DaxHelpers.TabularConnectionStringBuilder(connString);
+                var commandText = QueryLogic.GetDAXQuery(connString, rngCell);
+                var client = new DaxClient();
+                var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
                 var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
                 var dtResult = client.ExecuteTable(commandText, cnn);
 
@@ -110,7 +111,7 @@ namespace DG2NTT.DaxDrill
 
                 // generate command
                 rngCell = excelApp.ActiveCell;
-                var commandText = ExcelHelper.GetDAXQuery(rngCell);
+                var commandText = QueryLogic.GetDAXQuery(rngCell);
                 MsgForm.ShowMessage("DAX Query", commandText);
             }
             catch (Exception ex)

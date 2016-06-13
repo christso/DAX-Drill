@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 namespace DG2NTT.DaxDrill.DaxHelpers
 {
     [Serializable]
-    public class SelectedColumn
+    public class DetailColumn
     {
         [XmlElement("name")]
         public string Name;

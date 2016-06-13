@@ -111,9 +111,9 @@ UsageDate[Usage_MonthAbbrev] = "May"
             using (var tabular = new TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
-                var selectedColumns = new List<SelectedColumn>();
-                selectedColumns.Add(new SelectedColumn() { Name = "Call Type", Expression = "Usage[Call Type]" });
-                selectedColumns.Add(new SelectedColumn() { Name = "Call Type Description", Expression = "Usage[Call Type Description]" });
+                var selectedColumns = new List<DetailColumn>();
+                selectedColumns.Add(new DetailColumn() { Name = "Call Type", Expression = "Usage[Call Type]" });
+                selectedColumns.Add(new DetailColumn() { Name = "Call Type Description", Expression = "Usage[Call Type Description]" });
                 commandText = parser.BuildQueryText(tabular, excelDic, "Gross Billed Sum", selectedColumns);
                 tabular.Disconnect();
             }
@@ -186,7 +186,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             #region Act
 
-            List<SelectedColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(
+            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(
                 "localhost Roaming Model", "Usage", xmlString, nsString);
 
             #endregion

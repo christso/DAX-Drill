@@ -9,9 +9,9 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxDrillConfig
     {
-        public static List<SelectedColumn> GetColumnsFromColumnsXml(string xmlString, string nsString)
+        public static List<DetailColumn> GetColumnsFromColumnsXml(string xmlString, string nsString)
         {
-            var columns = new List<SelectedColumn>();
+            var columns = new List<DetailColumn>();
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xmlString);
@@ -24,7 +24,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             {
                 XmlNode nameNode = columnNode.SelectSingleNode("./x:name", nsmgr);
                 XmlNode exprNode = columnNode.SelectSingleNode("./x:expression", nsmgr);
-                columns.Add(new SelectedColumn()
+                columns.Add(new DetailColumn()
                 {
                     Name = nameNode.InnerText,
                     Expression = exprNode.InnerText
@@ -33,15 +33,15 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return columns;
         }
 
-        public static List<SelectedColumn> GetColumnsFromColumnsXmlNode(XmlNode columnsNode, XmlNamespaceManager nsmgr)
+        public static List<DetailColumn> GetColumnsFromColumnsXmlNode(XmlNode columnsNode, XmlNamespaceManager nsmgr)
         {
-            var columns = new List<SelectedColumn>();
+            var columns = new List<DetailColumn>();
 
             foreach (XmlNode columnNode in columnsNode)
             {
                 XmlNode nameNode = columnNode.SelectSingleNode("./x:name", nsmgr);
                 XmlNode exprNode = columnNode.SelectSingleNode("./x:expression", nsmgr);
-                columns.Add(new SelectedColumn()
+                columns.Add(new DetailColumn()
                 {
                     Name = nameNode.InnerText,
                     Expression = exprNode.InnerText
@@ -50,7 +50,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return columns;
         }
 
-        public static List<SelectedColumn> GetColumnsFromTableXml(string connectionName, string tableName, string xmlString, string nsString)
+        public static List<DetailColumn> GetColumnsFromTableXml(string connectionName, string tableName, string xmlString, string nsString)
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xmlString);

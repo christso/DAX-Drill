@@ -10,34 +10,44 @@ namespace DG2NTT.DaxDrill.DaxHelpers
     public class DaxDrillParser
     {
         public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName,
-            IEnumerable<SelectedColumn> selectedColumns)
+            IEnumerable<DetailColumn> detailColumns)
         {
             string filterText = BuildFilterCommandText(excelDic, tabular);
             var measure = tabular.GetMeasure(measureName);
 
+            // create inner clause
             string commandText = string.Format("TOPN ( 99999, {0} )", measure.Table.Name);
 
-            if (selectedColumns != null)
+            // nest into SELECTCOLUMNS function
+            if (detailColumns != null && detailColumns.Count() > 0)
             {
                 commandText = string.Format("SELECTCOLUMNS ( {0}, {{0}} )", commandText);
-
-                string selectColumnsText = BuildSelectText(selectedColumns);
-
+                string selectColumnsText = BuildSelectText(detailColumns);
                 commandText = string.Format(commandText, selectColumnsText);
             }
 
+            // add filter arguments
             if (!string.IsNullOrWhiteSpace(filterText))
                 commandText += string.Format(",\n{0}", filterText);
 
+            // nest into CALCULATETABLE function
             commandText = string.Format("EVALUATE CALCULATETABLE ( {0} )", commandText);
 
             return commandText;
         }
 
-        public string BuildSelectText(IEnumerable<SelectedColumn> selectedColumns)
+        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName)
+        {
+            return BuildQueryText(tabular, excelDic, measureName, null);
+        }
+
+        /// <summary>
+        /// Creates a comma-delimited string of column filter arguments
+        /// </summary>
+        public string BuildSelectText(IEnumerable<DetailColumn> detailColumns)
         {
             string result = string.Empty;
-            foreach (var column in selectedColumns)
+            foreach (var column in detailColumns)
             {
                 if (result != string.Empty)
                     result += ",";
@@ -47,10 +57,6 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName)
-        {
-            return BuildQueryText(tabular, excelDic, measureName, null);
-        }
         public string BuildFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
         {
             var daxFilter = ConvertExcelDrillToDaxFilter(excelDic);

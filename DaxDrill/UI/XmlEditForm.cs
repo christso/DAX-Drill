@@ -1,4 +1,4 @@
-﻿using DG2NTT.DaxDrill.Controllers;
+﻿using DG2NTT.DaxDrill.Logic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
