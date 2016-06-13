@@ -60,6 +60,7 @@ namespace DG2NTT.DaxDrill
         {
             Excel.Worksheet sheet = null;
             Excel.Sheets sheets = null;
+            Excel.Range rngHead = null;
             Excel.Range rngOut = null;
             Excel.Range rngCell = null;
             Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
@@ -71,24 +72,32 @@ namespace DG2NTT.DaxDrill
                 // create sheet
                 sheets = excelApp.Sheets;
                 sheet = (Excel.Worksheet)sheets.Add();
-                rngOut = sheet.Range["A1"];
 
+                rngHead = sheet.Range["A1"];
+                int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
+                rngHead.Value2 = string.Format("Retrieving TOP {0} records", 
+                    maxDrillThroughRecords);
+                
                 // set up connection
+                var queryClient = new QueryClient(rngCell);
                 var connString = ExcelHelper.GetConnectionString(rngCell);
-                var commandText = QueryLogic.GetDAXQuery(connString, rngCell);
-                var client = new DaxClient();
+                var commandText = queryClient.GetDAXQuery(connString, rngCell);
+                var daxClient = new DaxClient();
                 var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
                 var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
-                var dtResult = client.ExecuteTable(commandText, cnn);
+                var dtResult = daxClient.ExecuteTable(commandText, cnn);
 
                 // output result to sheet
+                rngOut = sheet.Range["A3"];
                 ExcelHelper.FillRange(dtResult, rngOut);
+                rngHead.Value2 = string.Format("Retrieved TOP {0} records", maxDrillThroughRecords);
             }
             finally
             {
                 if (sheets != null) Marshal.ReleaseComObject(sheets);
                 if (sheet != null) Marshal.ReleaseComObject(sheet);
                 if (rngOut != null) Marshal.ReleaseComObject(rngOut);
+                if (rngHead != null) Marshal.ReleaseComObject(rngHead);
                 if (excelApp != null) Marshal.ReleaseComObject(excelApp);
                 if (rngCell != null) Marshal.ReleaseComObject(rngCell);
             }
@@ -107,11 +116,11 @@ namespace DG2NTT.DaxDrill
                 excelApp = (Excel.Application)ExcelDnaUtil.Application;
                 workbook = excelApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                var columns = DaxHelpers.DaxDrillConfig.GetColumnsFromColumnsXml(xml, Constants.DaxDrillXmlSchemaSpace);
-
+                
                 // generate command
                 rngCell = excelApp.ActiveCell;
-                var commandText = QueryLogic.GetDAXQuery(rngCell);
+                var queryClient = new QueryClient(rngCell);
+                var commandText = queryClient.GetDAXQuery(rngCell);
                 MsgForm.ShowMessage("DAX Query", commandText);
             }
             catch (Exception ex)

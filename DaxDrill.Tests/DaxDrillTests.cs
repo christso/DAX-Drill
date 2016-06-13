@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using ADOMD = Microsoft.AnalysisServices.AdomdClient;
 using DG2NTT.DaxDrill.DaxHelpers;
+using Microsoft.AnalysisServices.Tabular;
 
 namespace DG2NTT.DaxDrill.Tests
 {
@@ -40,12 +41,11 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
 
             #region Parse
-            var parser = new DaxDrillParser();
             string commandText;
             using (var tabular = new TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
-                commandText = parser.BuildFilterCommandText(excelDic, tabular);
+                commandText = DaxDrillParser.BuildFilterCommandText(excelDic, tabular);
                 tabular.Disconnect();
             }
             #endregion
@@ -73,12 +73,11 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
 
             #region Parse
-            var parser = new DaxDrillParser();
             string commandText;
             using (var tabular = new TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
-                commandText = parser.BuildQueryText(tabular, excelDic, "Gross Billed Sum");
+                commandText = DaxDrillParser.BuildQueryText(tabular, excelDic, "Gross Billed Sum", 99999);
                 tabular.Disconnect();
             }
             #endregion
@@ -114,7 +113,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
                 var selectedColumns = new List<DetailColumn>();
                 selectedColumns.Add(new DetailColumn() { Name = "Call Type", Expression = "Usage[Call Type]" });
                 selectedColumns.Add(new DetailColumn() { Name = "Call Type Description", Expression = "Usage[Call Type Description]" });
-                commandText = parser.BuildQueryText(tabular, excelDic, "Gross Billed Sum", selectedColumns);
+                commandText = DaxDrillParser.BuildQueryText(tabular, excelDic, "Gross Billed Sum", 99999, selectedColumns);
                 tabular.Disconnect();
             }
             #endregion
@@ -129,15 +128,13 @@ UsageDate[Usage_MonthAbbrev] = "May"
         public void ParsePivotText()
         {
             #region Parse
-            var parser = new DaxDrillParser();
-
-            var columnCommandText = parser.GetColumnFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
+            var columnCommandText = DaxDrillParser.GetColumnFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
             Assert.AreEqual("Inbound or Outbound", columnCommandText);
 
-            var tableCommandText = parser.GetTableFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
+            var tableCommandText = DaxDrillParser.GetTableFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
             Assert.AreEqual("Usage", tableCommandText);
 
-            var pivotItemCommandText = parser.GetValueFromPivotItem("[Usage].[Inbound or Outbound].&[Inbound]");
+            var pivotItemCommandText = DaxDrillParser.GetValueFromPivotItem("[Usage].[Inbound or Outbound].&[Inbound]");
             Assert.AreEqual("Inbound", pivotItemCommandText);
 
             #endregion
@@ -147,13 +144,14 @@ UsageDate[Usage_MonthAbbrev] = "May"
         public void GetMeasure()
         {
             string measureName = "Gross Billed Sum";
+            Measure measure = null;
             using (var tabular = new TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
-                var measure = tabular.GetMeasure(measureName);
-                Console.WriteLine("Measure = {0}, Table = {1}", measure.Name, measure.Table.Name);
+                measure = tabular.GetMeasure(measureName);
                 tabular.Disconnect();
             }
+            Console.WriteLine("Measure = {0}, Table = {1}", measure.Name, measure.Table.Name);
         }
 
         [Test]

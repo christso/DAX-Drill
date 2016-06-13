@@ -29,13 +29,49 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 pt = rngCell.PivotTable;
                 cache = pt.PivotCache();
                 connString = cache.Connection;
+                return connString;
             }
             finally
             {
                 if (pt != null) Marshal.ReleaseComObject(pt);
                 if (cache != null) Marshal.ReleaseComObject(cache);
             }
-            return connString;
+        }
+
+        public static Excel.WorkbookConnection GetWorkbookConnection(Excel.Range rngCell)
+        {
+            Excel.PivotTable pt = null;
+            Excel.PivotCache cache = null;
+            Excel.WorkbookConnection wbcnn = null;
+            try
+            {
+                pt = rngCell.PivotTable;
+                cache = pt.PivotCache();
+                wbcnn = cache.WorkbookConnection;
+                return wbcnn;
+            }
+            finally
+            {
+                if (pt != null) Marshal.ReleaseComObject(pt);
+                if (cache != null) Marshal.ReleaseComObject(cache);
+            }
+        }
+
+        public static int GetMaxDrillthroughRecords(Excel.Range rngCell)
+        {
+            Excel.WorkbookConnection wbcnn = null;
+            Excel.OLEDBConnection oledbcnn = null;
+            try
+            {
+                wbcnn = ExcelHelper.GetWorkbookConnection(rngCell);
+                oledbcnn = wbcnn.OLEDBConnection;
+                return oledbcnn.MaxDrillthroughRecords;
+            }
+            finally
+            {
+                if (wbcnn != null) Marshal.ReleaseComObject(wbcnn);
+                if (oledbcnn == null) Marshal.ReleaseComObject(oledbcnn);
+            }
         }
 
         public static List<string> ReadCustomXmlParts(Excel.Workbook workbook)

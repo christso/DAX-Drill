@@ -29,6 +29,9 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             }
         }
 
+        /// <summary>
+        /// Returns minimal connection string with other arguments stripped out
+        /// </summary>
         public string StrippedConnectionString
         {
             get

@@ -9,14 +9,23 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxDrillParser
     {
-        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName,
-            IEnumerable<DetailColumn> detailColumns)
+        /// <summary>
+        /// Builds DAX query based on location on pivot table (specified in parameters)
+        /// </summary>
+        /// <param name="tabular">Tabular connection helper</param>
+        /// <param name="excelDic">Dictionary representing Pivot Table context filters</param>
+        /// <param name="measureName">Name of DAX measure to be used in drillthrough</param>
+        /// <param name="maxRecords">Maximum records to be retrieved</param>
+        /// <param name="detailColumns">List of columns to be included in drill-through</param>
+        /// <returns></returns>
+        public static string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName,
+            int maxRecords, IEnumerable<DetailColumn> detailColumns)
         {
             string filterText = BuildFilterCommandText(excelDic, tabular);
             var measure = tabular.GetMeasure(measureName);
 
             // create inner clause
-            string commandText = string.Format("TOPN ( 99999, {0} )", measure.Table.Name);
+            string commandText = string.Format("TOPN ( {1}, {0} )", measure.Table.Name, maxRecords);
 
             // nest into SELECTCOLUMNS function
             if (detailColumns != null && detailColumns.Count() > 0)
@@ -36,15 +45,17 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName)
+        public static string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName, int maxRecords)
         {
-            return BuildQueryText(tabular, excelDic, measureName, null);
+            return BuildQueryText(tabular, excelDic, measureName, maxRecords, null);
         }
+
+        #region Static Members
 
         /// <summary>
         /// Creates a comma-delimited string of column filter arguments
         /// </summary>
-        public string BuildSelectText(IEnumerable<DetailColumn> detailColumns)
+        public static string BuildSelectText(IEnumerable<DetailColumn> detailColumns)
         {
             string result = string.Empty;
             foreach (var column in detailColumns)
@@ -57,7 +68,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        public string BuildFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
+        public static string BuildFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
         {
             var daxFilter = ConvertExcelDrillToDaxFilter(excelDic);
 
@@ -74,7 +85,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public string BuildColumnCommandText(Tabular.Column column, DaxFilter item)
+        public static string BuildColumnCommandText(Tabular.Column column, DaxFilter item)
         {
             string commandText;
             switch (column.DataType)
@@ -94,7 +105,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public List<DaxFilter> ConvertExcelDrillToDaxFilter(
+        public static List<DaxFilter> ConvertExcelDrillToDaxFilter(
             Dictionary<string, string> inputDic)
         {
 
@@ -110,7 +121,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
-        public string GetTableFromPivotField(string input)
+        public static string GetTableFromPivotField(string input)
         {
             string[] split = input.Split('.');
             string output = split[0];
@@ -119,7 +130,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         }
 
         // [Usage].[Inbound or Outbound].[Inbound or Outbound]
-        public string GetColumnFromPivotField(string input)
+        public static string GetColumnFromPivotField(string input)
         {
             string[] split = input.Split('.');
             string output = split[1];
@@ -128,7 +139,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         }
 
         // "[Usage].[Inbound or Outbound].&[Inbound]
-        public string GetValueFromPivotItem(string input)
+        public static string GetValueFromPivotItem(string input)
         {
             var itemIndex = input.IndexOf('&');
             string output = input.Substring(itemIndex, input.Length - itemIndex);
@@ -137,9 +148,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         }
 
         // example input: [Measures].[Gross Billed Sum]
-        public string GetMeasureFromPivotItem(string input)
+        public static string GetMeasureFromPivotItem(string input)
         {
             return GetColumnFromPivotField(input);
         }
+
+        #endregion
     }
 }
