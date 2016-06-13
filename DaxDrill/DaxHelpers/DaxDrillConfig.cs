@@ -69,7 +69,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             XmlNode columnsNode = root.SelectSingleNode(xpath, nsmgr);
             if (columnsNode == null)
-                throw new InvalidOperationException("Invalid node '" + xpath + "'");
+                return null;
+
             var columns = GetColumnsFromColumnsXmlNode(columnsNode, nsmgr);
             return columns;
         }
