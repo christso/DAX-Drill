@@ -53,6 +53,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         public static List<DetailColumn> GetColumnsFromTableXml(string connectionName, string tableName, string xmlString, string nsString)
         {
             XmlDocument doc = new XmlDocument();
+            if (string.IsNullOrWhiteSpace(xmlString))
+                return null;
             doc.LoadXml(xmlString);
             XmlNode root = doc.DocumentElement;
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
