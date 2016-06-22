@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using DG2NTT.DaxDrill.DaxHelpers;
 
 namespace DG2NTT.DaxDrill.ExcelHelpers
 {
@@ -23,6 +24,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             //Aggregate value the user is drilling through
             Excel.PivotTable pt = null;
             Excel.PivotFields pfs = null;
+            Excel.PivotCache cache = null;
 
             try
             {
@@ -54,19 +56,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
                 //Filter by page field if not all items are selected
                 pfs = (Excel.PivotFields)(pt.PageFields);
-                for (int i = PIS_LBOUND; i < pfs.Count + PIS_LBOUND; i++)
-                {
-                    Excel.PivotField pf = pfs.Item(i + PIS_LBOUND);
-                    var currentPage = (Excel.PivotItem)pf.CurrentPage;
-                    if (currentPage.Name != "(All)")
-                    {
-                        Excel.PivotItem pi = (Excel.PivotItem)pf.CurrentPage;
-                        dicCell.Add(pf.Name, pi.SourceName.ToString());
-                    }
-                    if (currentPage != null) Marshal.ReleaseComObject(currentPage);
-                    if (pf != null) Marshal.ReleaseComObject(pf);
-                }
-
+                cache = pt.PivotCache();
+                if (cache.OLAP)
+                    AddOlapPageFieldFilterToDic(pfs, dicCell);
+                else
+                    AddPageFieldFilterToDic(pfs, dicCell);
+                
                 return dicCell;
             }
             finally
@@ -75,6 +70,39 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 if (pt != null) Marshal.ReleaseComObject(pt);
                 if (pc != null) Marshal.ReleaseComObject(pc);
                 if (pfs != null) Marshal.ReleaseComObject(pfs);
+                if (cache != null) Marshal.ReleaseComObject(cache);
+            }
+        }
+
+        private static void AddOlapPageFieldFilterToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
+        {
+            //Filter by page field if not all items are selected
+            for (int i = PIS_LBOUND; i < pfs.Count + PIS_LBOUND; i++)
+            {
+                Excel.PivotField pf = pfs.Item(i);
+                string pageItemValue = DaxDrillParser.GetValueFromPivotItem(pf.CurrentPageName);
+                if (pageItemValue != "All")
+                {
+                    dicCell.Add(pf.Name, pf.CurrentPageName);
+                }
+                if (pf != null) Marshal.ReleaseComObject(pf);
+            }
+        }
+
+        private static void AddPageFieldFilterToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
+        {
+            //Filter by page field if not all items are selected
+            for (int i = PIS_LBOUND; i < pfs.Count + PIS_LBOUND; i++)
+            {
+                Excel.PivotField pf = pfs.Item(i);
+                var currentPage = (Excel.PivotItem)pf.CurrentPage;
+                if (currentPage.Name != "(All)")
+                {
+                    Excel.PivotItem pi = (Excel.PivotItem)pf.CurrentPage;
+                    dicCell.Add(pf.Name, pi.SourceName.ToString());
+                }
+                if (currentPage != null) Marshal.ReleaseComObject(currentPage);
+                if (pf != null) Marshal.ReleaseComObject(pf);
             }
         }
 
