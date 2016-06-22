@@ -147,6 +147,14 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
+        public static bool IsAllItems(string input)
+        {
+            string[] split = input.Split('.');
+            string output = split[2];
+            output = output.Substring(1, output.Length - 2);
+            return output == "All";
+        }
+
         // example input: [Measures].[Gross Billed Sum]
         public static string GetMeasureFromPivotItem(string input)
         {

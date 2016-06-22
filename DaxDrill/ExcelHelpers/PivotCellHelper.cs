@@ -80,12 +80,27 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             for (int i = PIS_LBOUND; i < pfs.Count + PIS_LBOUND; i++)
             {
                 Excel.PivotField pf = pfs.Item(i);
-                string pageItemValue = DaxDrillParser.GetValueFromPivotItem(pf.CurrentPageName);
-                if (pageItemValue != "All")
+                bool isAllItems = true;
+                string pageName = string.Empty;
+
+                try
                 {
-                    dicCell.Add(pf.Name, pf.CurrentPageName);
+                    pageName = pf.CurrentPageName; // error maybe thrown
+                    isAllItems = DaxDrillParser.IsAllItems(pageName);
+
+                    if (!isAllItems)
+                    {
+                        dicCell.Add(pf.Name, pageName);
+                    }
                 }
-                if (pf != null) Marshal.ReleaseComObject(pf);
+                catch (COMException ex)
+                {
+                    // exception is thrown by Excel if multiple item selection is enabled
+                }
+                finally
+                {
+                    if (pf != null) Marshal.ReleaseComObject(pf);
+                }
             }
         }
 
