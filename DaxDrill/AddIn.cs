@@ -37,13 +37,21 @@ namespace DG2NTT.DaxDrill
         // double click stops working after 15 times
         private void SheetBeforeDoubleClick(object Sh, Excel.Range Target, ref bool Cancel)
         {
+            Excel.Range rngCell = null;
             try
             {
+                rngCell = xlApp.ActiveCell;
+                if (!QueryClient.IsDrillThroughEnabled(rngCell)) return;
+
                 DrillThrough();
             }
             catch (Exception ex)
             {
                 MsgForm.ShowMessage(ex);
+            }
+            finally
+            {
+                if (rngCell != null) Marshal.ReleaseComObject(rngCell);
             }
             Cancel = true;
         }
@@ -124,12 +132,13 @@ namespace DG2NTT.DaxDrill
 
             try
             {
+                rngCell = xlApp.ActiveCell;
+
                 // XML configuration
                 workbook = xlApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
                 
                 // generate command
-                rngCell = xlApp.ActiveCell;
                 var queryClient = new QueryClient(rngCell);
                 var commandText = queryClient.GetDAXQuery(rngCell);
                 MsgForm.ShowMessage("DAX Query", commandText);

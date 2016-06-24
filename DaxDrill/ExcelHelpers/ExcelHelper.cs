@@ -91,7 +91,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             finally
             {
                 if (wbcnn != null) Marshal.ReleaseComObject(wbcnn);
-                if (oledbcnn == null) Marshal.ReleaseComObject(oledbcnn);
+                if (oledbcnn != null) Marshal.ReleaseComObject(oledbcnn);
             }
         }
 

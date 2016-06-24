@@ -154,5 +154,24 @@ namespace DG2NTT.DaxDrill.Logic
             }
         }
 
+        public static bool IsDrillThroughEnabled(Excel.Range rngCell)
+        {
+            Excel.PivotCache cache = null;
+            Excel.PivotTable pt = null;
+
+            try
+            {
+                pt = rngCell.PivotTable;
+                cache = pt.PivotCache();
+                return cache.OLAP;
+            }
+            finally
+            {
+                if (pt != null) Marshal.ReleaseComObject(pt);
+                if (cache != null) Marshal.ReleaseComObject(cache);
+            }
+
+        }
+
     }
 }
