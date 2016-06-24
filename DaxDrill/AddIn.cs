@@ -20,25 +20,40 @@ namespace DG2NTT.DaxDrill
 {
     public class AddIn : IExcelAddIn
     {
-        // set to true to force Excel to close
-        public const bool KillExcel = false;
+        private static Excel.Application xlApp = (Excel.Application)ExcelDnaUtil.Application;
+
         public void AutoClose()
         {
-            var excelApp = (Excel.Application)ExcelDnaUtil.Application;
-            excelApp.WorkbookDeactivate -= XlApp_WorkbookDeactivate;
+            xlApp.WorkbookDeactivate -= XlApp_WorkbookDeactivate;
+            xlApp.SheetBeforeDoubleClick -= SheetBeforeDoubleClick;
         }
 
         public void AutoOpen()
         {
-            var excelApp = (Excel.Application)ExcelDnaUtil.Application;
-            excelApp.WorkbookDeactivate += XlApp_WorkbookDeactivate;
+            xlApp.WorkbookDeactivate += XlApp_WorkbookDeactivate;
+            xlApp.SheetBeforeDoubleClick += SheetBeforeDoubleClick;
+        }
+
+        // double click stops working after 15 times
+        private void SheetBeforeDoubleClick(object Sh, Excel.Range Target, ref bool Cancel)
+        {
+            try
+            {
+                DrillThrough();
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+            Cancel = true;
         }
 
         // kill Excel process in case objects are not properly released
         private void XlApp_WorkbookDeactivate(Excel.Workbook Wb)
         {
-            if (KillExcel && Wb.Application.Workbooks.Count == 1)
+            if (Wb.Application.Workbooks.Count == 1)
             {
+                if (xlApp != null) Marshal.ReleaseComObject(xlApp);
                 Process.GetCurrentProcess().Kill();
             }
         }
@@ -63,14 +78,13 @@ namespace DG2NTT.DaxDrill
             Excel.Range rngHead = null;
             Excel.Range rngOut = null;
             Excel.Range rngCell = null;
-            Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
 
             try
             {
-                rngCell = excelApp.ActiveCell;
+                rngCell = xlApp.ActiveCell;
 
                 // create sheet
-                sheets = excelApp.Sheets;
+                sheets = xlApp.Sheets;
                 sheet = (Excel.Worksheet)sheets.Add();
 
                 rngHead = sheet.Range["A1"];
@@ -98,7 +112,6 @@ namespace DG2NTT.DaxDrill
                 if (sheet != null) Marshal.ReleaseComObject(sheet);
                 if (rngOut != null) Marshal.ReleaseComObject(rngOut);
                 if (rngHead != null) Marshal.ReleaseComObject(rngHead);
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
                 if (rngCell != null) Marshal.ReleaseComObject(rngCell);
             }
         }
@@ -107,18 +120,16 @@ namespace DG2NTT.DaxDrill
         public static void DrillThroughQuery()
         {
             Excel.Range rngCell = null;
-            Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
             Excel.Workbook workbook = null;
 
             try
             {
                 // XML configuration
-                excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                workbook = excelApp.ActiveWorkbook;
+                workbook = xlApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
                 
                 // generate command
-                rngCell = excelApp.ActiveCell;
+                rngCell = xlApp.ActiveCell;
                 var queryClient = new QueryClient(rngCell);
                 var commandText = queryClient.GetDAXQuery(rngCell);
                 MsgForm.ShowMessage("DAX Query", commandText);
@@ -130,7 +141,6 @@ namespace DG2NTT.DaxDrill
             finally
             {
                 if (rngCell != null) Marshal.ReleaseComObject(rngCell);
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
                 if (workbook != null) Marshal.ReleaseComObject(workbook);
             }
         }
@@ -138,12 +148,10 @@ namespace DG2NTT.DaxDrill
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "XML Metadata")]
         public static void ShowMetadataEditor()
         {
-            Excel.Application excelApp = null;
             Excel.Workbook workbook = null;
             try
             {
-                excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                workbook = excelApp.ActiveWorkbook;
+                workbook = xlApp.ActiveWorkbook;
                 var form = XmlEditForm.GetStatic();
                 var controller = new XmlEditController(form);
                 form.ShowForm();
@@ -154,7 +162,6 @@ namespace DG2NTT.DaxDrill
             }
             finally
             {
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
                 if (workbook != null) Marshal.ReleaseComObject(workbook);
             }
         }

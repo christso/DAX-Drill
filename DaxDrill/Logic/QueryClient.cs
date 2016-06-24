@@ -86,6 +86,43 @@ namespace DG2NTT.DaxDrill.Logic
             }
         }
 
+        public static IEnumerable<DetailColumn> GetDetailColumns2(Excel.Range rngCell)
+        {
+
+            Excel.WorkbookConnection wbcnn = null;
+            Excel.Workbook workbook = null;
+            Excel.Worksheet sheet = null;
+            try
+            {
+                
+                wbcnn = ExcelHelper.GetWorkbookConnection(rngCell);
+
+                sheet = (Excel.Worksheet)rngCell.Parent;
+                workbook = (Excel.Workbook)sheet.Parent;
+
+                var cnnString = ExcelHelper.GetConnectionString(rngCell);
+                var cnnBuilder = new TabularConnectionStringBuilder(cnnString);
+
+                /*string measureName = GetMeasureName(rngCell); */
+                /*
+                Measure measure = null;
+                using (var tabular = new TabularHelper(cnnBuilder.DataSource, cnnBuilder.InitialCatalog))
+                {
+                    tabular.Connect();
+                    measure = tabular.GetMeasure(measureName);
+                    tabular.Disconnect();
+                }
+                */
+                return null;
+            }
+            finally
+            {
+                if (wbcnn != null) Marshal.ReleaseComObject(wbcnn);
+                if (sheet != null) Marshal.ReleaseComObject(sheet);
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+            }
+        }
+
         private static Measure GetMeasure(Excel.Range rngCell)
         {
             var cnnString = ExcelHelper.GetConnectionString(rngCell);
@@ -102,7 +139,7 @@ namespace DG2NTT.DaxDrill.Logic
             return measure;
         }
 
-        private static string GetMeasureName(Excel.Range rngCell)
+        public static string GetMeasureName(Excel.Range rngCell)
         {
             Excel.PivotItem pi = null;
             try

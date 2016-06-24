@@ -19,6 +19,27 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 {
     public class ExcelHelper
     {
+        public static Excel.Worksheet AddSheet(Excel.Worksheet sh1)
+        {
+            Excel.Workbook workbook = null;
+            Excel.Sheets sheets = null;
+            Excel.Worksheet sh2 = null;
+            try
+            {
+                workbook = (Excel.Workbook)sh1.Parent;
+                sheets = workbook.Sheets;
+                sh2 = sheets.Add();
+                return sh2;
+            }
+            finally
+            {
+                if (workbook != null) Marshal.ReleaseComObject(workbook);
+                if (sheets != null) Marshal.ReleaseComObject(sheets);
+                if (sh2 != null) Marshal.ReleaseComObject(sh2);
+            }
+            
+        }
+        
         public static string GetConnectionString(Excel.Range rngCell)
         {
             Excel.PivotTable pt = null;
