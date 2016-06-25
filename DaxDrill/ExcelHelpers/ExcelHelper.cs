@@ -281,9 +281,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             finally
             {
                 if (workbooks != null) Marshal.ReleaseComObject(workbooks);
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
             }
         }
-
     }
 }

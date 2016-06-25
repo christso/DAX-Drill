@@ -14,8 +14,9 @@ namespace DG2NTT.DaxDrill
         {
             var rowCount = dataTable.Rows.Count;
             var columnCount = dataTable.Columns.Count;
-            object[,] result = new object[rowCount + 1, columnCount];
-
+            const int headerFlag = 1;
+            object[,] result = new object[rowCount + headerFlag, columnCount];
+            
             // header
             for (int c = 0; c < dataTable.Columns.Count; c++)
             {
@@ -23,12 +24,11 @@ namespace DG2NTT.DaxDrill
             }
 
             // records
-            for (int r = 1; r < dataTable.Rows.Count; r++)
+            for (int r = 0; r < dataTable.Rows.Count; r++)
             {
-
                 for (int c = 0; c < dataTable.Columns.Count; c++)
                 {
-                    result[r, c] = dataTable.Rows[r][c];
+                    result[headerFlag + r, c] = dataTable.Rows[r][c];
                 }
             }
 

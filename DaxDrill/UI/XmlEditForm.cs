@@ -135,7 +135,6 @@ namespace DG2NTT.DaxDrill.UI
             finally
             {
                 if (workbook != null) Marshal.ReleaseComObject(workbook);
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
             }
         }
 
@@ -156,7 +155,6 @@ namespace DG2NTT.DaxDrill.UI
             finally
             {
                 if (workbook != null) Marshal.ReleaseComObject(workbook);
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
             }
         }
 
