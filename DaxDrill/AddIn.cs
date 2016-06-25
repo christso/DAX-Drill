@@ -112,6 +112,7 @@ namespace DG2NTT.DaxDrill
                 // output result to sheet
                 rngOut = sheet.Range["A3"];
                 ExcelHelper.FillRange(dtResult, rngOut);
+                ExcelHelper.FormatRange(dtResult, rngOut);
                 rngHead.Value2 = string.Format("Retrieved TOP {0} records", maxDrillThroughRecords);
             }
             finally

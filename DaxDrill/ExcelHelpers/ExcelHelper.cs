@@ -189,10 +189,47 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
+        public static void FormatRange(System.Data.DataTable dataTable, Excel.Range rngOutput, int headerFlag = 1)
+        {
+            const int xlBaseIndex = 1;
+            Excel.Range rng = null;
+            
+            try
+            {
+                // get data range
+                int colCnt = dataTable.Columns.Count;
+                int rowCnt = dataTable.Rows.Count;
+                rng = rngOutput.Resize[rowCnt + headerFlag, colCnt];
+
+                // format columns
+                foreach (System.Data.DataColumn column in dataTable.Columns)
+                {
+                    // format date
+                    if (column.DataType == typeof(DateTime))
+                    {
+                        Excel.Range rngColumn = null;
+                        try
+                        {
+                            rngColumn = rng.Columns[column.Ordinal + xlBaseIndex];
+                            rngColumn.NumberFormat = "dd-mmm-yy";
+                        }
+                        finally
+                        {
+                            if (rngColumn != null) Marshal.ReleaseComObject(rngColumn);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (rng != null) Marshal.ReleaseComObject(rng);
+            }
+        }
+
         public static void FillRange(System.Data.DataTable dataTable, Excel.Range rngOutput)
         {
             Excel.Application excelApp = rngOutput.Application;
-            Excel.Worksheet sheet = excelApp.ActiveSheet;
+            Excel.Worksheet sheet = rngOutput.Parent;
             Excel.Range rng = null;
             const int boundToSizeFactor = 1;
             const int rowBoundIndex = 0;
