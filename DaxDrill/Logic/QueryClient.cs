@@ -165,6 +165,10 @@ namespace DG2NTT.DaxDrill.Logic
                 cache = pt.PivotCache();
                 return cache.OLAP;
             }
+            catch
+            {
+                return false;
+            }
             finally
             {
                 if (pt != null) Marshal.ReleaseComObject(pt);

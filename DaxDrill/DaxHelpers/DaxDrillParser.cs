@@ -98,6 +98,12 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 case Tabular.DataType.Double:
                     commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, item.Value);
                     break;
+                case Tabular.DataType.Boolean:
+                    if (item.Value.ToLower() == "true")
+                        commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, "TRUE");
+                    else
+                        commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, "FALSE");
+                    break;
                 default:
                     commandText = string.Format("{0}[{1}] = \"{2}\"", item.TableName, item.ColumnName, item.Value);
                     break;
