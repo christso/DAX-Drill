@@ -19,6 +19,13 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 {
     public class ExcelHelper
     {
+        public static string AddInPath
+        {
+            get
+            {
+                return (string)XlCall.Excel(XlCall.xlGetName);
+            }
+        }
         public static Excel.Worksheet AddSheet(Excel.Worksheet sh1)
         {
             Excel.Workbook workbook = null;

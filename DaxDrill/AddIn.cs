@@ -15,6 +15,7 @@ using System.Diagnostics;
 using DG2NTT.DaxDrill.UI;
 using DG2NTT.DaxDrill.Logic;
 using DG2NTT.DaxDrill.DaxHelpers;
+using DG2NTT.DaxDrill.Helpers;
 
 namespace DG2NTT.DaxDrill
 {
@@ -181,8 +182,14 @@ namespace DG2NTT.DaxDrill
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
         public static void About()
         {
-            MessageBox.Show("DAX Drill is developed by DG2NTT Pty Ltd");
+            var assemblyHelper = new AssemblyHelper();
+            var version = assemblyHelper.AssemblyVersion;
+
+            MessageBox.Show("DAX Drill is developed by DG2NTT Pty Ltd."
+                + "\nVersion: " + version
+                + "\nPath of add-in: " + ExcelHelper.AddInPath);
         }
+
     }
 
 }
