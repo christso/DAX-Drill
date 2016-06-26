@@ -42,7 +42,6 @@ namespace DG2NTT.DaxDrill
             {
                 rngCell = xlApp.ActiveCell;
                 if (!QueryClient.IsDrillThroughEnabled(rngCell)) return;
-
                 DrillThrough();
             }
             catch (Exception ex)
@@ -91,15 +90,6 @@ namespace DG2NTT.DaxDrill
             {
                 rngCell = xlApp.ActiveCell;
 
-                // create sheet
-                sheets = xlApp.Sheets;
-                sheet = (Excel.Worksheet)sheets.Add();
-
-                rngHead = sheet.Range["A1"];
-                int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
-                rngHead.Value2 = string.Format("Retrieving TOP {0} records", 
-                    maxDrillThroughRecords);
-                
                 // set up connection
                 var queryClient = new QueryClient(rngCell);
                 var connString = ExcelHelper.GetConnectionString(rngCell);
@@ -107,6 +97,18 @@ namespace DG2NTT.DaxDrill
                 var daxClient = new DaxClient();
                 var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
                 var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
+
+                // create sheet
+                sheets = xlApp.Sheets;
+                sheet = (Excel.Worksheet)sheets.Add();
+
+                // show message to user we are retrieving records
+                rngHead = sheet.Range["A1"];
+                int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
+                rngHead.Value2 = string.Format("Retrieving TOP {0} records", 
+                    maxDrillThroughRecords);
+                
+                // retrieve result
                 var dtResult = daxClient.ExecuteTable(commandText, cnn);
 
                 // output result to sheet

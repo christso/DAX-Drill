@@ -55,6 +55,22 @@ namespace DG2NTT.DaxDrill.Logic
             return commandText;
         }
 
+        public bool IsDatabaseCompatible(string connString)
+        {
+            var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
+            bool result = false;
+
+            using (var tabular = new TabularHelper(
+                cnnStringBuilder.DataSource,
+                cnnStringBuilder.InitialCatalog))
+            {
+                tabular.Connect();
+                result = tabular.IsDatabaseCompatible;
+                tabular.Disconnect();
+            }
+            return result;
+        }
+
         public static IEnumerable<DetailColumn> GetDetailColumns(Excel.Range rngCell)
         {
 
@@ -161,9 +177,16 @@ namespace DG2NTT.DaxDrill.Logic
 
             try
             {
-                pt = rngCell.PivotTable;
+                pt = rngCell.PivotTable; // throws error if selected cell is not pivot cel
                 cache = pt.PivotCache();
-                return cache.OLAP;
+                if (!cache.OLAP) return false;
+
+                // check compatibility of Tabular database
+                var queryClient = new QueryClient(rngCell);
+                var connString = ExcelHelper.GetConnectionString(rngCell);
+                if (!queryClient.IsDatabaseCompatible(connString)) return false;
+
+                return true;
             }
             catch
             {

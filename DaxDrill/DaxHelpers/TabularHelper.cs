@@ -10,6 +10,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class TabularHelper : IDisposable
     {
+        private const int MinCompatibilityLevel = 1200; // MSAS 2016 and above
         private readonly string serverName;
         private readonly string databaseName;
         private readonly Server server;
@@ -66,6 +67,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             }
 
             Database database = GetDatabase(databaseName);
+            CheckCompatibility(database);
+
             Measure measure = null;
             foreach (var table in database.Model.Tables)
             {
@@ -79,11 +82,38 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return measure;
         }
 
+        public bool IsDatabaseCompatible
+        {
+            get
+            {
+                if (!server.Connected)
+                {
+                    throw new InvalidOperationException("You must be connected to the server");
+                }
+
+                Database database = GetDatabase(databaseName);
+                return database.CompatibilityLevel >= MinCompatibilityLevel
+                    && database.ModelType == SSAS.ModelType.Tabular;
+            }
+        }
+
+        private static void CheckCompatibility(Database database)
+        {
+            bool isServerCompatible = database.CompatibilityLevel >= MinCompatibilityLevel;
+            bool isDatabaseCompatible = database.ModelType == SSAS.ModelType.Tabular;
+
+            if (!(isServerCompatible && isDatabaseCompatible))
+            {
+                throw new InvalidOperationException("Database model type is not supported for drill-through. "
+                    + "The database must be in Tabular mode, version 1200 and above.");
+            }
+        }
+
         public Database GetDatabase(string databaseName)
         {
             if (!server.Connected)
             {
-                throw new InvalidOperationException("You must be connect to the server");
+                throw new InvalidOperationException("You must be connected to the server");
             }
 
             Database database = server.Databases.FindByName(databaseName);
