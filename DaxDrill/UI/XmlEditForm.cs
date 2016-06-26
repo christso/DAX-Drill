@@ -87,6 +87,8 @@ namespace DG2NTT.DaxDrill.UI
                 SelectDefaultNamespace();
                 txtXpath.Text = "x:*";
                 xmlEditController.LoadXmlFromWorkbook();
+
+                txtXmlText.SelectAll();
             }
             catch (Exception ex)
             {
