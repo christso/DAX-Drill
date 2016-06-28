@@ -4,6 +4,8 @@ This is an Excel XLL add-in for creating custom drill-through action via auto-ge
 
 You can view the wiki [here](https://github.com/DG2NTT/DAX-Drill/wiki).
 
+You can download the binaries [here](https://github.com/DG2NTT/DAX-Drill/releases). 
+
 ###Roadmap
 
 * Support multiple selections in pivot field (currently if you select more than one pivot item in the page field then it will be treated as though you selected all items, i.e. no filter is applied)
