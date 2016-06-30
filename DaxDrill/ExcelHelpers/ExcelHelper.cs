@@ -31,20 +31,10 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.Workbook workbook = null;
             Excel.Sheets sheets = null;
             Excel.Worksheet sh2 = null;
-            try
-            {
-                workbook = (Excel.Workbook)sh1.Parent;
-                sheets = workbook.Sheets;
-                sh2 = sheets.Add();
-                return sh2;
-            }
-            finally
-            {
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-                if (sheets != null) Marshal.ReleaseComObject(sheets);
-                if (sh2 != null) Marshal.ReleaseComObject(sh2);
-            }
-            
+            workbook = (Excel.Workbook)sh1.Parent;
+            sheets = workbook.Sheets;
+            sh2 = sheets.Add();
+            return sh2;
         }
         
         public static string GetConnectionString(Excel.Range rngCell)
@@ -52,18 +42,10 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.PivotTable pt = null;
             Excel.PivotCache cache = null;
             string connString;
-            try
-            {
-                pt = rngCell.PivotTable;
-                cache = pt.PivotCache();
-                connString = cache.Connection;
-                return connString;
-            }
-            finally
-            {
-                if (pt != null) Marshal.ReleaseComObject(pt);
-                if (cache != null) Marshal.ReleaseComObject(cache);
-            }
+            pt = rngCell.PivotTable;
+            cache = pt.PivotCache();
+            connString = cache.Connection;
+            return connString;
         }
 
         public static Excel.WorkbookConnection GetWorkbookConnection(Excel.Range rngCell)
@@ -71,35 +53,19 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.PivotTable pt = null;
             Excel.PivotCache cache = null;
             Excel.WorkbookConnection wbcnn = null;
-            try
-            {
-                pt = rngCell.PivotTable;
-                cache = pt.PivotCache();
-                wbcnn = cache.WorkbookConnection;
-                return wbcnn;
-            }
-            finally
-            {
-                if (pt != null) Marshal.ReleaseComObject(pt);
-                if (cache != null) Marshal.ReleaseComObject(cache);
-            }
+            pt = rngCell.PivotTable;
+            cache = pt.PivotCache();
+            wbcnn = cache.WorkbookConnection;
+            return wbcnn;
         }
 
         public static int GetMaxDrillthroughRecords(Excel.Range rngCell)
         {
             Excel.WorkbookConnection wbcnn = null;
             Excel.OLEDBConnection oledbcnn = null;
-            try
-            {
-                wbcnn = ExcelHelper.GetWorkbookConnection(rngCell);
-                oledbcnn = wbcnn.OLEDBConnection;
-                return oledbcnn.MaxDrillthroughRecords;
-            }
-            finally
-            {
-                if (wbcnn != null) Marshal.ReleaseComObject(wbcnn);
-                if (oledbcnn != null) Marshal.ReleaseComObject(oledbcnn);
-            }
+            wbcnn = ExcelHelper.GetWorkbookConnection(rngCell);
+            oledbcnn = wbcnn.OLEDBConnection;
+            return oledbcnn.MaxDrillthroughRecords;
         }
 
         public static List<string> ReadCustomXmlParts(Excel.Workbook workbook)
@@ -117,7 +83,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
                 Marshal.ReleaseComObject(p);
             }
-                
             return result;
         }
 

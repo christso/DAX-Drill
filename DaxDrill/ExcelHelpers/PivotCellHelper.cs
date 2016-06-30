@@ -26,52 +26,41 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.PivotFields pfs = null;
             Excel.PivotCache cache = null;
 
-            try
+            XlApp = rngCell.Application;
+            pt = rngCell.PivotTable;
+            pc = rngCell.PivotCell;
+
+            Dictionary<string, string> dicCell = new Dictionary<string, string>();
+
+            //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
+            for (int i = PIS_LBOUND; i < pc.RowItems.Count + PIS_LBOUND; i++)
             {
-                XlApp = rngCell.Application;
-                pt = rngCell.PivotTable;
-                pc = rngCell.PivotCell;
+                Excel.PivotItem pi = pc.RowItems[i];
+                Excel.PivotField pf = (Excel.PivotField)pi.Parent;
+                dicCell.Add(pf.Name, pi.SourceName.ToString());
 
-                Dictionary<string, string> dicCell = new Dictionary<string, string>();
+                if (pi != null) Marshal.ReleaseComObject(pi);
+                if (pf != null) Marshal.ReleaseComObject(pf);
+            }
+            for (int i = PIS_LBOUND; i < pc.ColumnItems.Count + PIS_LBOUND; i++)
+            {
+                Excel.PivotItem pi = pc.ColumnItems[i];
+                Excel.PivotField pf = (Excel.PivotField)pi.Parent;
+                dicCell.Add(pf.Name, pi.SourceName.ToString());
 
-                //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
-                for (int i = PIS_LBOUND; i < pc.RowItems.Count + PIS_LBOUND; i++)
-                {
-                    Excel.PivotItem pi = pc.RowItems[i];
-                    Excel.PivotField pf = (Excel.PivotField)pi.Parent;
-                    dicCell.Add(pf.Name, pi.SourceName.ToString());
+                if (pi != null) Marshal.ReleaseComObject(pi);
+                if (pf != null) Marshal.ReleaseComObject(pf);
+            }
 
-                    if (pi != null) Marshal.ReleaseComObject(pi);
-                    if (pf != null) Marshal.ReleaseComObject(pf);
-                }
-                for (int i = PIS_LBOUND; i < pc.ColumnItems.Count + PIS_LBOUND; i++)
-                {
-                    Excel.PivotItem pi = pc.ColumnItems[i];
-                    Excel.PivotField pf = (Excel.PivotField)pi.Parent;
-                    dicCell.Add(pf.Name, pi.SourceName.ToString());
-
-                    if (pi != null) Marshal.ReleaseComObject(pi);
-                    if (pf != null) Marshal.ReleaseComObject(pf);
-                }
-
-                //Filter by page field if not all items are selected
-                pfs = (Excel.PivotFields)(pt.PageFields);
-                cache = pt.PivotCache();
-                if (cache.OLAP)
-                    AddOlapPageFieldFilterToDic(pfs, dicCell);
-                else
-                    AddPageFieldFilterToDic(pfs, dicCell);
+            //Filter by page field if not all items are selected
+            pfs = (Excel.PivotFields)(pt.PageFields);
+            cache = pt.PivotCache();
+            if (cache.OLAP)
+                AddOlapPageFieldFilterToDic(pfs, dicCell);
+            else
+                AddPageFieldFilterToDic(pfs, dicCell);
                 
-                return dicCell;
-            }
-            finally
-            {
-                if (XlApp != null) Marshal.ReleaseComObject(XlApp);
-                if (pt != null) Marshal.ReleaseComObject(pt);
-                if (pc != null) Marshal.ReleaseComObject(pc);
-                if (pfs != null) Marshal.ReleaseComObject(pfs);
-                if (cache != null) Marshal.ReleaseComObject(cache);
-            }
+            return dicCell;
         }
 
         private static void AddOlapPageFieldFilterToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
@@ -96,10 +85,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 catch (COMException ex)
                 {
                     // exception is thrown by Excel if multiple item selection is enabled
-                }
-                finally
-                {
-                    if (pf != null) Marshal.ReleaseComObject(pf);
+                    // TODO: create filters for multiple item selection
                 }
             }
         }
@@ -129,34 +115,23 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.PivotFields rfs = null;
             Excel.PivotFields cfs = null;
 
-            try
-            {
-                XlApp = rngCell.Application;
-                pt = XlApp.ActiveCell.PivotTable;
-                Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
+            XlApp = rngCell.Application;
+            pt = XlApp.ActiveCell.PivotTable;
+            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
 
-                // page fields
-                pfs = (Excel.PivotFields)pt.PageFields;
-                AddHiddenItemsToDictionary(pfs, dic);
+            // page fields
+            pfs = (Excel.PivotFields)pt.PageFields;
+            AddHiddenItemsToDictionary(pfs, dic);
 
-                // row fields
-                rfs = (Excel.PivotFields)pt.RowFields;
-                AddHiddenItemsToDictionary(rfs, dic);
+            // row fields
+            rfs = (Excel.PivotFields)pt.RowFields;
+            AddHiddenItemsToDictionary(rfs, dic);
 
-                //Column Fields
-                cfs = (Excel.PivotFields)pt.ColumnFields;
-                AddHiddenItemsToDictionary(cfs, dic);
+            //Column Fields
+            cfs = (Excel.PivotFields)pt.ColumnFields;
+            AddHiddenItemsToDictionary(cfs, dic);
 
-                return dic;
-            }
-            finally
-            {
-                if (XlApp != null) Marshal.ReleaseComObject(XlApp);
-                if (pt != null) Marshal.ReleaseComObject(pt);
-                if (pfs != null) Marshal.ReleaseComObject(pfs);
-                if (rfs != null) Marshal.ReleaseComObject(rfs);
-                if (cfs != null) Marshal.ReleaseComObject(cfs);
-            }
+            return dic;
         }
 
         private static void AddHiddenItemsToDictionary(Excel.PivotFields pfs, Dictionary<string, List<string>> dic)
@@ -184,27 +159,16 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.Worksheet destSheet = null;
             Excel.Worksheets sheets = null;
 
-            try
-            {
-                XlApp = pt.Application;
-                sourceSheet = (Excel.Worksheet)pt.Parent;
-                sourceSheet.Select();
-                pt.PivotSelect("", Excel.XlPTSelectionMode.xlDataAndLabel, true);
-                sourceRange = (Excel.Range)XlApp.Selection;
-                sourceRange.Copy();
-                sheets = (Excel.Worksheets)XlApp.Sheets;
-                destSheet = (Excel.Worksheet)sheets.Add();
-                destSheet.Paste();
-                return destSheet.Range["A1"];
-            }
-            finally
-            {
-                if (XlApp != null) Marshal.ReleaseComObject(XlApp);
-                if (sourceSheet != null) Marshal.ReleaseComObject(sourceSheet);
-                if (sourceRange != null) Marshal.ReleaseComObject(sourceRange);
-                if (destSheet != null) Marshal.ReleaseComObject(destSheet);
-                if (sheets != null) Marshal.ReleaseComObject(sheets);
-            }
+            XlApp = pt.Application;
+            sourceSheet = (Excel.Worksheet)pt.Parent;
+            sourceSheet.Select();
+            pt.PivotSelect("", Excel.XlPTSelectionMode.xlDataAndLabel, true);
+            sourceRange = (Excel.Range)XlApp.Selection;
+            sourceRange.Copy();
+            sheets = (Excel.Worksheets)XlApp.Sheets;
+            destSheet = (Excel.Worksheet)sheets.Add();
+            destSheet.Paste();
+            return destSheet.Range["A1"];
         }
 
         //Returns list of hidden items of a pivot field (including pagefield)
@@ -216,96 +180,76 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.Worksheet wsCopy = null;
             Excel.Application XlApp = null;
 
-            try
+            XlApp = (Excel.Application)pf.Application;
+
+            #region Change page field to rowfield
+            // This will copy the pivot table into a new temporary worksheet
+            if (pf.Orientation == Excel.XlPivotFieldOrientation.xlPageField)
             {
-                XlApp = (Excel.Application)pf.Application;
+                pt = (Excel.PivotTable)pf.Parent;
+                Excel.Range rngCopy = CopyPivotTable(pt);
+                ptCopy = rngCopy.PivotTable;
 
-                #region Change page field to rowfield
-                // This will copy the pivot table into a new temporary worksheet
-                if (pf.Orientation == Excel.XlPivotFieldOrientation.xlPageField)
-                {
-                    pt = (Excel.PivotTable)pf.Parent;
-                    Excel.Range rngCopy = CopyPivotTable(pt);
-                    ptCopy = rngCopy.PivotTable;
-
-                    Excel.PivotField rf = (Excel.PivotField)ptCopy.PivotFields(pf.Name);
-                    try
-                    {
-                        rf.Orientation = Excel.XlPivotFieldOrientation.xlRowField;
-                    }
-                    catch
-                    {
-                        pt.RefreshTable();
-                    }
-                    rf.Orientation = Excel.XlPivotFieldOrientation.xlRowField;
-                    rf.Position = 1;
-
-                    pfCopy = (Excel.PivotField)ptCopy.PivotFields(rf.Name);
-                    wsCopy = (Excel.Worksheet)rngCopy.Worksheet;
-                }
-                else
-                {
-                    pfCopy = pf;
-
-                }
-                #endregion
-
-                // get hidden items for non-page fields
-                List<string> result = HiddenNonPageFieldItems(pfCopy);
-
-                #region Delete temporary worksheet
-                bool DisplayAlerts = XlApp.DisplayAlerts;
+                Excel.PivotField rf = (Excel.PivotField)ptCopy.PivotFields(pf.Name);
                 try
                 {
-                    XlApp.DisplayAlerts = false;
-                    if ((wsCopy != null))
-                    {
-                        wsCopy.Delete();
-                    }
+                    rf.Orientation = Excel.XlPivotFieldOrientation.xlRowField;
                 }
-                finally
+                catch
                 {
-                    XlApp.DisplayAlerts = DisplayAlerts;
+                    pt.RefreshTable();
                 }
-                #endregion
+                rf.Orientation = Excel.XlPivotFieldOrientation.xlRowField;
+                rf.Position = 1;
 
-                return result;
+                pfCopy = (Excel.PivotField)ptCopy.PivotFields(rf.Name);
+                wsCopy = (Excel.Worksheet)rngCopy.Worksheet;
+            }
+            else
+            {
+                pfCopy = pf;
+
+            }
+            #endregion
+
+            // get hidden items for non-page fields
+            List<string> result = HiddenNonPageFieldItems(pfCopy);
+
+            #region Delete temporary worksheet
+            bool DisplayAlerts = XlApp.DisplayAlerts;
+            try
+            {
+                XlApp.DisplayAlerts = false;
+                if ((wsCopy != null))
+                {
+                    wsCopy.Delete();
+                }
             }
             finally
             {
-                if (ptCopy != null) Marshal.ReleaseComObject(ptCopy);
-                if (pfCopy != null) Marshal.ReleaseComObject(pfCopy);
-                if (pt != null) Marshal.ReleaseComObject(pt);
-                if (wsCopy != null) Marshal.ReleaseComObject(wsCopy);
-                if (XlApp != null) Marshal.ReleaseComObject(XlApp);
+                XlApp.DisplayAlerts = DisplayAlerts;
             }
+            #endregion
+
+            return result;
         }
 
         //Returns list of hidden items of a pivot field (except for pagefield due to Excel bug)
         private static List<string> HiddenNonPageFieldItems(Excel.PivotField pf)
         {
-            Excel.PivotItems pis = null;
+            List<string> result = new List<string>();
 
-            try
+            //Add hidden items to list
+            Excel.PivotItems pis = (Excel.PivotItems)pf.HiddenItems;
+
+            for (int i = 0; i < pis.Count; i++)
             {
-                List<string> result = new List<string>();
-
-                //Add hidden items to list
-                pis = (Excel.PivotItems)pf.HiddenItems;
-
-                for (int i = 0; i < pis.Count; i++)
-                {
-                    Excel.PivotItem pi = pis.Item(i);
-                    result.Add((string)pi.SourceName);
-                    if (pi != null) Marshal.ReleaseComObject(pi);
-                }
-
-                return result;
+                Excel.PivotItem pi = pis.Item(i);
+                result.Add((string)pi.SourceName);
+                if (pi != null) Marshal.ReleaseComObject(pi); // TODO: check if I can remove this
             }
-            finally
-            {
-                if (pis != null) Marshal.ReleaseComObject(pis);
-            }
+
+            return result;
         }
 
         #endregion

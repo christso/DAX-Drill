@@ -21,7 +21,13 @@ namespace DG2NTT.DaxDrill
 {
     public class AddIn : IExcelAddIn
     {
-        private static Excel.Application xlApp = (Excel.Application)ExcelDnaUtil.Application;
+        private static Excel.Application xlApp
+        {
+            get
+            {
+                return (Excel.Application)ExcelDnaUtil.Application;
+            }
+        }
 
         public void AutoClose()
         {
@@ -61,9 +67,20 @@ namespace DG2NTT.DaxDrill
         {
             if (Wb.Application.Workbooks.Count == 1)
             {
-                if (xlApp != null) Marshal.ReleaseComObject(xlApp);
-                Process.GetCurrentProcess().Kill();
+                //uncomment below if you want to clean up using GC
+                CleanUp();
+
+                //uncomment below if you need to kill the Excel process
+                //Process.GetCurrentProcess().Kill();
             }
+        }
+
+        private static void CleanUp()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "DrillThrough")]
@@ -85,47 +102,35 @@ namespace DG2NTT.DaxDrill
             Excel.Sheets sheets = null;
             Excel.Range rngHead = null;
             Excel.Range rngOut = null;
-            Excel.Range rngCell = null;
 
-            try
-            {
-                rngCell = xlApp.ActiveCell;
+            Excel.Range rngCell = xlApp.ActiveCell;
 
-                // set up connection
-                var queryClient = new QueryClient(rngCell);
-                var connString = ExcelHelper.GetConnectionString(rngCell);
-                var commandText = queryClient.GetDAXQuery(connString, rngCell);
-                var daxClient = new DaxClient();
-                var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
-                var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
+            // set up connection
+            var queryClient = new QueryClient(rngCell);
+            var connString = ExcelHelper.GetConnectionString(rngCell);
+            var commandText = queryClient.GetDAXQuery(connString, rngCell);
+            var daxClient = new DaxClient();
+            var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
+            var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
 
-                // create sheet
-                sheets = xlApp.Sheets;
-                sheet = (Excel.Worksheet)sheets.Add();
+            // create sheet
+            sheets = xlApp.Sheets;
+            sheet = (Excel.Worksheet)sheets.Add();
 
-                // show message to user we are retrieving records
-                rngHead = sheet.Range["A1"];
-                int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
-                rngHead.Value2 = string.Format("Retrieving TOP {0} records", 
-                    maxDrillThroughRecords);
+            // show message to user we are retrieving records
+            rngHead = sheet.Range["A1"];
+            int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
+            rngHead.Value2 = string.Format("Retrieving TOP {0} records", 
+                maxDrillThroughRecords);
                 
-                // retrieve result
-                var dtResult = daxClient.ExecuteTable(commandText, cnn);
+            // retrieve result
+            var dtResult = daxClient.ExecuteTable(commandText, cnn);
 
-                // output result to sheet
-                rngOut = sheet.Range["A3"];
-                ExcelHelper.FillRange(dtResult, rngOut);
-                ExcelHelper.FormatRange(dtResult, rngOut);
-                rngHead.Value2 = string.Format("Retrieved TOP {0} records", maxDrillThroughRecords);
-            }
-            finally
-            {
-                if (sheets != null) Marshal.ReleaseComObject(sheets);
-                if (sheet != null) Marshal.ReleaseComObject(sheet);
-                if (rngOut != null) Marshal.ReleaseComObject(rngOut);
-                if (rngHead != null) Marshal.ReleaseComObject(rngHead);
-                if (rngCell != null) Marshal.ReleaseComObject(rngCell);
-            }
+            // output result to sheet
+            rngOut = sheet.Range["A3"];
+            ExcelHelper.FillRange(dtResult, rngOut);
+            ExcelHelper.FormatRange(dtResult, rngOut);
+            rngHead.Value2 = string.Format("Retrieved TOP {0} records", maxDrillThroughRecords);
         }
 
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "DAX Query")]
@@ -151,11 +156,6 @@ namespace DG2NTT.DaxDrill
             {
                 MsgForm.ShowMessage(ex);
             }
-            finally
-            {
-                if (rngCell != null) Marshal.ReleaseComObject(rngCell);
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
         }
 
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "XML Metadata")]
@@ -173,10 +173,6 @@ namespace DG2NTT.DaxDrill
             {
                 MsgForm.ShowMessage(ex);
             }
-            finally
-            {
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
         }
 
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
@@ -189,7 +185,6 @@ namespace DG2NTT.DaxDrill
                 + "\nVersion: " + version
                 + "\nPath of add-in: " + ExcelHelper.AddInPath);
         }
-
     }
 
 }
