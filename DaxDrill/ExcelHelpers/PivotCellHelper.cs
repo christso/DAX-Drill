@@ -99,49 +99,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-        public static Dictionary<string, List<string>> GetPivotCellHiddenQuery(Excel.Range rngCell)
-        {
-            Excel.Application XlApp = null;
-            Excel.PivotTable pt = null;
-            Excel.PivotFields pfs = null;
-            Excel.PivotFields rfs = null;
-            Excel.PivotFields cfs = null;
-
-            XlApp = rngCell.Application;
-            pt = XlApp.ActiveCell.PivotTable;
-            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
-
-            // page fields
-            pfs = (Excel.PivotFields)pt.PageFields;
-            AddHiddenItemsToDictionary(pfs, dic);
-
-            // row fields
-            rfs = (Excel.PivotFields)pt.RowFields;
-            AddHiddenItemsToDictionary(rfs, dic);
-
-            //Column Fields
-            cfs = (Excel.PivotFields)pt.ColumnFields;
-            AddHiddenItemsToDictionary(cfs, dic);
-
-            return dic;
-        }
-
-        private static void AddHiddenItemsToDictionary(Excel.PivotFields pfs, Dictionary<string, List<string>> dic)
-        {
-            for (int i = 0; i < pfs.Count; i++)
-            {
-                var pf = (Excel.PivotField)pfs.Item(i);
-                //Get hidden items for page fields where not all items are visible
-                List<string> hiddenItems = HiddenPivotFieldItems(pf);
-
-                if (hiddenItems.Count > 0)
-                {
-                    //Add list to dictionary
-                    dic.Add(pf.SourceName, hiddenItems);
-                }
-            }
-        }
-
         public static Excel.Range CopyPivotTable(Excel.PivotTable pt)
         {
             Excel.Application XlApp = null;
@@ -160,86 +117,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             destSheet = (Excel.Worksheet)sheets.Add();
             destSheet.Paste();
             return destSheet.Range["A1"];
-        }
-
-        //Returns list of hidden items of a pivot field (including pagefield)
-        private static List<string> HiddenPivotFieldItems(Excel.PivotField pf)
-        {
-            Excel.PivotTable ptCopy = null;
-            Excel.PivotField pfCopy = null;
-            Excel.PivotTable pt = null;
-            Excel.Worksheet wsCopy = null;
-            Excel.Application XlApp = null;
-
-            XlApp = (Excel.Application)pf.Application;
-
-            #region Change page field to rowfield
-            // This will copy the pivot table into a new temporary worksheet
-            if (pf.Orientation == Excel.XlPivotFieldOrientation.xlPageField)
-            {
-                pt = (Excel.PivotTable)pf.Parent;
-                Excel.Range rngCopy = CopyPivotTable(pt);
-                ptCopy = rngCopy.PivotTable;
-
-                Excel.PivotField rf = (Excel.PivotField)ptCopy.PivotFields(pf.Name);
-                try
-                {
-                    rf.Orientation = Excel.XlPivotFieldOrientation.xlRowField;
-                }
-                catch
-                {
-                    pt.RefreshTable();
-                }
-                rf.Orientation = Excel.XlPivotFieldOrientation.xlRowField;
-                rf.Position = 1;
-
-                pfCopy = (Excel.PivotField)ptCopy.PivotFields(rf.Name);
-                wsCopy = (Excel.Worksheet)rngCopy.Worksheet;
-            }
-            else
-            {
-                pfCopy = pf;
-
-            }
-            #endregion
-
-            // get hidden items for non-page fields
-            List<string> result = HiddenNonPageFieldItems(pfCopy);
-
-            #region Delete temporary worksheet
-            bool DisplayAlerts = XlApp.DisplayAlerts;
-            try
-            {
-                XlApp.DisplayAlerts = false;
-                if ((wsCopy != null))
-                {
-                    wsCopy.Delete();
-                }
-            }
-            finally
-            {
-                XlApp.DisplayAlerts = DisplayAlerts;
-            }
-            #endregion
-
-            return result;
-        }
-
-        //Returns list of hidden items of a pivot field (except for pagefield due to Excel bug)
-        private static List<string> HiddenNonPageFieldItems(Excel.PivotField pf)
-        {
-            List<string> result = new List<string>();
-
-            //Add hidden items to list
-            Excel.PivotItems pis = (Excel.PivotItems)pf.HiddenItems;
-
-            for (int i = 0; i < pis.Count; i++)
-            {
-                Excel.PivotItem pi = pis.Item(i);
-                result.Add((string)pi.SourceName);
-            }
-
-            return result;
         }
 
         #endregion

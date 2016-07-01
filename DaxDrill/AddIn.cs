@@ -180,6 +180,30 @@ namespace DG2NTT.DaxDrill
                 + "\nVersion: " + version
                 + "\nPath of add-in: " + ExcelHelper.AddInPath);
         }
+
+        public static void Test()
+        {
+            Excel.Range rngCell = null;
+            Excel.Workbook workbook = null;
+
+            try
+            {
+                rngCell = xlApp.ActiveCell;
+
+                // XML configuration
+                workbook = xlApp.ActiveWorkbook;
+                string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
+
+                // generate command
+                var queryClient = new QueryClient(rngCell);
+                var commandText = queryClient.GetDAXQuery(rngCell);
+                MsgForm.ShowMessage("DAX Query", commandText);
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+        }
     }
 
 }
