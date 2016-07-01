@@ -18,6 +18,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
         public static Dictionary<string, string> GetPivotCellQuery(Excel.Range rngCell)
         {
+            Excel.Application xlApp = rngCell.Application;
             Excel.PivotTable pt = rngCell.PivotTable;
             Excel.PivotCell pc = rngCell.PivotCell; //Field values
 
@@ -38,30 +39,69 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             //Filter by page field if not all items are selected
             Excel.PivotFields pfs = (Excel.PivotFields)(pt.PageFields);
 
-            AddOlapPageFieldFilterToDic(pfs, dicCell);
+            AddPageFieldFiltersToDic(pfs, dicCell);
 
             return dicCell;
         }
 
         
-        private static void AddOlapPageFieldFilterToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
+        private static Excel.PivotTable CopyAsPageInvertedPivotTable(Excel.PivotTable pt)
         {
+            Excel.Application xlApp = pt.Application;
+            Excel.Range rngCell = xlApp.ActiveCell;
+        
+            bool screenUpdating = xlApp.ScreenUpdating;
+            try
+            {
+                xlApp.ScreenUpdating = false;
+                Excel.PivotTable ptCopy = ExcelHelper.CopyAsPageInvertedPivotTable(pt);
+                return ptCopy;
+            }
+            finally
+            {
+                // restore previous state
+                Excel.Worksheet sheet = rngCell.Parent;
+                sheet.Select();
+                rngCell.Select();
+                xlApp.ScreenUpdating = screenUpdating;
+            }
+        }
+
+        private static void AddPageFieldFiltersToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
+        {
+            PivotTableWrapper ptw = new PivotTableWrapper(); // lazy initialization
+
             //Filter by page field if not all items are selected
             foreach (Excel.PivotField pf in pfs)
             {
                 if (ExcelHelper.IsMultiplePageItemsEnabled(pf))
-                    continue;
+                    AddMultiplePageFieldFiltersToDic(pf, dicCell, ptw);
+                else
+                    AddCurrentPageFieldFilterToDic(pf, dicCell);
+            }
+        }
 
-                string pageName = string.Empty;
+        private static void AddMultiplePageFieldFiltersToDic(Excel.PivotField pf, Dictionary<string, string> dicCell,
+            PivotTableWrapper ptw)
+        {
+            if (ptw.PivotTable == null)
+            {
+                Excel.PivotTable pt = pf.Parent;
+                ptw.PivotTable = CopyAsPageInvertedPivotTable(pt); // does null object get assigned?
+            }
+        }
 
-                pageName = pf.CurrentPageName; // note: throws exception if multiple page item selection is enabled
+        private static void AddCurrentPageFieldFilterToDic(Excel.PivotField pf, Dictionary<string, string> dicCell)
+        {
+            string pageName = string.Empty;
 
-                bool isAllItems = true;
-                isAllItems = DaxDrillParser.IsAllItems(pageName);
-                if (!isAllItems)
-                {
-                    dicCell.Add(pf.Name, pageName);
-                }
+            pageName = pf.CurrentPageName; // note: throws COM exception if multiple page item selection is enabled
+
+            bool isAllItems = true;
+            isAllItems = DaxDrillParser.IsAllItems(pageName);
+            if (!isAllItems)
+            {
+                dicCell.Add(pf.Name, pageName);
             }
         }
 

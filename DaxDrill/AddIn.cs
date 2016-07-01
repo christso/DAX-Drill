@@ -187,7 +187,7 @@ namespace DG2NTT.DaxDrill
             try
             {
                 Excel.PivotTable pt = xlApp.ActiveCell.PivotTable;
-                ExcelHelper.CopyAsPagedPivotTable(pt);
+                ExcelHelper.CopyAsPageInvertedPivotTable(pt);
             }
             catch (Exception ex)
             {
