@@ -215,5 +215,24 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.Workbook workbook = workbooks[name];
             return workbook;
         }
+
+        public static Excel.Range CopyPivotTable(Excel.PivotTable pt)
+        {
+            Excel.Application excelApp = pt.Application;
+            var worksheet = (Excel.Worksheet)pt.Parent;
+            worksheet.Select();
+            pt.PivotSelect("", Excel.XlPTSelectionMode.xlDataAndLabel, true);
+            Excel.Range rng = (Excel.Range)excelApp.Selection;
+            rng.Copy();
+            Excel.Worksheet ws = (Excel.Worksheet)excelApp.Sheets.Add();
+            ws.Paste();
+            return ws.Range["A1"];
+        }
+
+        public static void PagerizePivotFields(Excel.PivotTable pt)
+        {
+
+        }
+
     }
 }
