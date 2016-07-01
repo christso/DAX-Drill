@@ -216,10 +216,10 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return workbook;
         }
 
-        public static Excel.PivotTable CopyAsPagedPivotTable(Excel.PivotTable pt)
+        public static Excel.PivotTable CopyAsPageInvertedPivotTable(Excel.PivotTable pt)
         {
             Excel.PivotTable ptCopy = CopyPivotTable(pt);
-            PagerizePivotFields(ptCopy);
+            InvertPivotTablePageOrientation(ptCopy);
             return ptCopy;
         }
 
@@ -233,20 +233,36 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             rng.Copy();
             Excel.Worksheet ws = (Excel.Worksheet)excelApp.Sheets.Add();
             ws.Paste();
-            return rng.PivotTable;
+            return ws.Range["A1"].PivotTable;
         }
 
-        public static void PagerizePivotFields(Excel.PivotTable pt)
+        public static void InvertPivotTablePageOrientation(Excel.PivotTable pt)
         {
             var cubeFields = pt.CubeFields;
-            foreach (Excel.CubeField cubeField in cubeFields)
+            bool manualUpdate = pt.ManualUpdate;
+
+            try
             {
-                if (cubeField.Orientation != Excel.XlPivotFieldOrientation.xlPageField
-                    && cubeField.Orientation != Excel.XlPivotFieldOrientation.xlHidden
-                    && cubeField.Orientation != Excel.XlPivotFieldOrientation.xlDataField)
-                    cubeField.Orientation = Excel.XlPivotFieldOrientation.xlPageField;
+                foreach (Excel.CubeField cubeField in cubeFields)
+                {
+                    if (cubeField.Orientation == Excel.XlPivotFieldOrientation.xlHidden
+                                || cubeField.Orientation == Excel.XlPivotFieldOrientation.xlDataField)
+                        continue;
+
+                    pt.ManualUpdate = false;
+
+                    if (cubeField.Orientation == Excel.XlPivotFieldOrientation.xlPageField)
+                        cubeField.Orientation = Excel.XlPivotFieldOrientation.xlRowField;
+                    else
+                        cubeField.Orientation = Excel.XlPivotFieldOrientation.xlPageField;
+                }
+            }
+            finally
+            {
+                pt.ManualUpdate = manualUpdate;
             }
         }
+        
 
         public static bool IsMultiplePageItemsEnabled(Excel.PivotField pf)
         {

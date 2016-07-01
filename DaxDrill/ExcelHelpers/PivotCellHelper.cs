@@ -18,6 +18,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
         public static Dictionary<string, string> GetPivotCellQuery(Excel.Range rngCell)
         {
+            Excel.Application xlApp = rngCell.Application;
             Excel.PivotTable pt = rngCell.PivotTable;
             Excel.PivotCell pc = rngCell.PivotCell; //Field values
 
@@ -38,30 +39,81 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             //Filter by page field if not all items are selected
             Excel.PivotFields pfs = (Excel.PivotFields)(pt.PageFields);
 
-            AddOlapPageFieldFilterToDic(pfs, dicCell);
+            AddPageFieldFiltersToDic(pfs, dicCell);
 
             return dicCell;
         }
 
         
-        private static void AddOlapPageFieldFilterToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
+        private static Excel.PivotTable CopyAsPageInvertedPivotTable(Excel.PivotTable pt)
         {
+            Excel.Application xlApp = pt.Application;
+            Excel.Range rngCell = xlApp.ActiveCell;
+        
+            bool screenUpdating = xlApp.ScreenUpdating;
+            try
+            {
+                xlApp.ScreenUpdating = false;
+                Excel.PivotTable ptCopy = ExcelHelper.CopyAsPageInvertedPivotTable(pt);
+                return ptCopy;
+            }
+            finally
+            {
+                // restore previous state
+                Excel.Worksheet sheet = rngCell.Parent;
+                sheet.Select();
+                rngCell.Select();
+                xlApp.ScreenUpdating = screenUpdating;
+            }
+        }
+
+        private static void AddPageFieldFiltersToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
+        {
+            PivotTableWrapper ptw = new PivotTableWrapper(); // lazy initialization
+
             //Filter by page field if not all items are selected
             foreach (Excel.PivotField pf in pfs)
             {
                 if (ExcelHelper.IsMultiplePageItemsEnabled(pf))
-                    continue;
+                    AddMultiplePageFieldFiltersToDic(pf, dicCell, ptw);
+                else
+                    AddCurrentPageFieldFilterToDic(pf, dicCell);
+            }
+        }
 
-                string pageName = string.Empty;
+        /// <summary>
+        /// This will add page filters that have multiple selection enabled to the dictionary
+        /// </summary>
+        /// <param name="pf">Page Field which contains multiple selections</param>
+        /// <param name="dicCell">Dictionary to be updated</param>
+        /// <param name="ptwCopy">Object containing the copied PivotTable so that we avoid initializing it on every call</param>
+        private static void AddMultiplePageFieldFiltersToDic(Excel.PivotField pf, Dictionary<string, string> dicCell,
+            PivotTableWrapper ptwCopy)
+        {
+            if (ptwCopy.PivotTable == null)
+            {
+                Excel.PivotTable pt = pf.Parent;
+                ptwCopy.PivotTable = CopyAsPageInvertedPivotTable(pt);
+            }
 
-                pageName = pf.CurrentPageName; // note: throws exception if multiple page item selection is enabled
+            Excel.PivotField pfCopy = ptwCopy.PivotTable.PivotFields(pf.SourceName);
+            foreach (Excel.PivotItem pi in pfCopy.VisibleItems)
+            {
+                dicCell.Add(pfCopy.Name, pi.SourceName.ToString());
+            }
+        }
 
-                bool isAllItems = true;
-                isAllItems = DaxDrillParser.IsAllItems(pageName);
-                if (!isAllItems)
-                {
-                    dicCell.Add(pf.Name, pageName);
-                }
+        private static void AddCurrentPageFieldFilterToDic(Excel.PivotField pf, Dictionary<string, string> dicCell)
+        {
+            string pageName = string.Empty;
+
+            pageName = pf.CurrentPageName; // note: throws COM exception if multiple page item selection is enabled
+
+            bool isAllItems = true;
+            isAllItems = DaxDrillParser.IsAllItems(pageName);
+            if (!isAllItems)
+            {
+                dicCell.Add(pf.Name, pageName);
             }
         }
 
