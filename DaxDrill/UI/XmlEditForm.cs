@@ -98,16 +98,8 @@ namespace DG2NTT.DaxDrill.UI
 
         public void RefreshNamespaceControl()
         {
-            Excel.Workbook workbook = null;
-            try
-            {
-                workbook = ExcelHelper.FindWorkbook(WorkbookText);
-                RefreshNamespaceControl(workbook);
-            }
-            finally
-            {
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
+            Excel.Workbook workbook = ExcelHelper.FindWorkbook(WorkbookText);
+            RefreshNamespaceControl(workbook);
         }
 
         public void RefreshNamespaceControl(Excel.Workbook workbook)
@@ -125,39 +117,19 @@ namespace DG2NTT.DaxDrill.UI
 
         public void SelectActiveWorkbook()
         {
-            Excel.Application excelApp = null;
-            Excel.Workbook workbook = null;
-
-            try
-            {
-                excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                workbook = excelApp.ActiveWorkbook;
-                cbWorkbooks.Text = workbook.Name;
-            }
-            finally
-            {
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
+            Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
+            Excel.Workbook workbook = excelApp.ActiveWorkbook;
+            cbWorkbooks.Text = workbook.Name;
         }
 
         public void RefreshWorkbooksControl()
         {
-            Excel.Application excelApp = null;
-            Excel.Workbook workbook = null;
+            Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
 
-            try
-            {
-                excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                
-                workbook = excelApp.ActiveWorkbook;
-                var wbList = ExcelHelper.ListWorkbooks(excelApp);
-                cbWorkbooks.Items.Clear();
-                cbWorkbooks.Items.AddRange(wbList.ToArray());
-            }
-            finally
-            {
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
+            Excel.Workbook workbook = excelApp.ActiveWorkbook;
+            var wbList = ExcelHelper.ListWorkbooks(excelApp);
+            cbWorkbooks.Items.Clear();
+            cbWorkbooks.Items.AddRange(wbList.ToArray());
         }
 
 

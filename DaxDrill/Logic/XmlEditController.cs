@@ -23,30 +23,15 @@ namespace DG2NTT.DaxDrill.Logic
         public void LoadXmlFromWorkbook()
         {
             Excel.Workbook workbook = null;
-            try
-            {
-                workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
-                string xmlString = ExcelHelper.ReadCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XpathText);
-                xmlEditForm.XmlText = xmlString;
-            }
-            finally
-            {
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
+            workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
+            string xmlString = ExcelHelper.ReadCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XpathText);
+            xmlEditForm.XmlText = xmlString;
         }
 
         public void SaveXmlToWorkbook()
         {
-            Excel.Workbook workbook = null;
-            try
-            {
-                workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
-                ExcelHelper.UpdateCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText);
-            }
-            finally
-            {
-                if (workbook != null) Marshal.ReleaseComObject(workbook);
-            }
+            Excel.Workbook workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
+            ExcelHelper.UpdateCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText);
         }
     }
 }

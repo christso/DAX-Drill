@@ -38,18 +38,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 Excel.PivotItem pi = pc.RowItems[i];
                 Excel.PivotField pf = (Excel.PivotField)pi.Parent;
                 dicCell.Add(pf.Name, pi.SourceName.ToString());
-
-                if (pi != null) Marshal.ReleaseComObject(pi);
-                if (pf != null) Marshal.ReleaseComObject(pf);
             }
             for (int i = PIS_LBOUND; i < pc.ColumnItems.Count + PIS_LBOUND; i++)
             {
                 Excel.PivotItem pi = pc.ColumnItems[i];
                 Excel.PivotField pf = (Excel.PivotField)pi.Parent;
                 dicCell.Add(pf.Name, pi.SourceName.ToString());
-
-                if (pi != null) Marshal.ReleaseComObject(pi);
-                if (pf != null) Marshal.ReleaseComObject(pf);
             }
 
             //Filter by page field if not all items are selected
@@ -102,8 +96,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                     Excel.PivotItem pi = (Excel.PivotItem)pf.CurrentPage;
                     dicCell.Add(pf.Name, pi.SourceName.ToString());
                 }
-                if (currentPage != null) Marshal.ReleaseComObject(currentPage);
-                if (pf != null) Marshal.ReleaseComObject(pf);
             }
         }
 
@@ -147,7 +139,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                     //Add list to dictionary
                     dic.Add(pf.SourceName, hiddenItems);
                 }
-                if (pf != null) Marshal.ReleaseComObject(pf);
             }
         }
 
@@ -246,7 +237,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             {
                 Excel.PivotItem pi = pis.Item(i);
                 result.Add((string)pi.SourceName);
-                if (pi != null) Marshal.ReleaseComObject(pi); // TODO: check if I can remove this
             }
 
             return result;

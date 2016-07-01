@@ -61,10 +61,8 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
         public static int GetMaxDrillthroughRecords(Excel.Range rngCell)
         {
-            Excel.WorkbookConnection wbcnn = null;
-            Excel.OLEDBConnection oledbcnn = null;
-            wbcnn = ExcelHelper.GetWorkbookConnection(rngCell);
-            oledbcnn = wbcnn.OLEDBConnection;
+            Excel.WorkbookConnection wbcnn = ExcelHelper.GetWorkbookConnection(rngCell);
+            Excel.OLEDBConnection oledbcnn = wbcnn.OLEDBConnection;
             return oledbcnn.MaxDrillthroughRecords;
         }
 
@@ -80,8 +78,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 //p.BuiltIn will be true for internal buildin excel parts 
                 if (p != null && !p.BuiltIn)
                     result.Add(p.XML);
-
-                Marshal.ReleaseComObject(p);
             }
             return result;
         }
@@ -89,36 +85,23 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         public static string ReadCustomXmlPart(Excel.Workbook workbook, string xNameSpace,
             string xPath)
         {
-            Office.CustomXMLParts ps = null;
+            Office.CustomXMLParts ps = workbook.CustomXMLParts;
+            ps = ps.SelectByNamespace(xNameSpace);
 
-            try
+            for (int i = 1; i <= ps.Count; i++)
             {
-                ps = workbook.CustomXMLParts;
-                ps = ps.SelectByNamespace(xNameSpace);
+                Office.CustomXMLPart p = ps[i];
+                var nsmgr = p.NamespaceManager;
+                nsmgr.AddNamespace("x", xNameSpace);
+                Office.CustomXMLNode node = p.SelectSingleNode(xPath);
 
-                for (int i = 1; i <= ps.Count; i++)
+                if (node != null)
                 {
-                    Office.CustomXMLPart p = ps[i];
-                    var nsmgr = p.NamespaceManager;
-                    nsmgr.AddNamespace("x", xNameSpace);
-                    Office.CustomXMLNode node = p.SelectSingleNode(xPath);
-
-                    Marshal.ReleaseComObject(nsmgr);
-                    Marshal.ReleaseComObject(p);
-
-                    if (node != null)
-                    {
-                        var xml = node.XML;
-                        Marshal.ReleaseComObject(node);
-                        return xml;
-                    }
+                    var xml = node.XML;
+                    return xml;
                 }
-                return string.Empty;
             }
-            finally
-            {
-                if (ps != null) Marshal.ReleaseComObject(ps);
-            }
+            return string.Empty;
         }
 
         /*
@@ -131,7 +114,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                   "</employee>" +
                   "</employees>"
         */
-
         public static void UpdateCustomXmlPart(Excel.Workbook workbook, string namespaceName, string xmlString)
         {
             DeleteCustomXmlPart(workbook, namespaceName);
@@ -164,133 +146,74 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         public static void FormatRange(System.Data.DataTable dataTable, Excel.Range rngOutput, int headerFlag = 1)
         {
             const int xlBaseIndex = 1;
-            Excel.Range rng = null;
-            
-            try
-            {
-                // get data range
-                int colCnt = dataTable.Columns.Count;
-                int rowCnt = dataTable.Rows.Count;
-                rng = rngOutput.Resize[rowCnt + headerFlag, colCnt];
 
-                // format columns
-                foreach (System.Data.DataColumn column in dataTable.Columns)
-                {
-                    // format date
-                    if (column.DataType == typeof(DateTime))
-                    {
-                        Excel.Range rngColumn = null;
-                        try
-                        {
-                            rngColumn = rng.Columns[column.Ordinal + xlBaseIndex];
-                            rngColumn.NumberFormat = "dd-mmm-yy";
-                        }
-                        finally
-                        {
-                            if (rngColumn != null) Marshal.ReleaseComObject(rngColumn);
-                        }
-                    }
-                }
-            }
-            finally
+            // get data range
+            int colCnt = dataTable.Columns.Count;
+            int rowCnt = dataTable.Rows.Count;
+            Excel.Range rng = rngOutput.Resize[rowCnt + headerFlag, colCnt];
+
+            // format columns
+            foreach (System.Data.DataColumn column in dataTable.Columns)
             {
-                if (rng != null) Marshal.ReleaseComObject(rng);
+                // format date
+                if (column.DataType == typeof(DateTime))
+                {
+                    Excel.Range rngColumn = rng.Columns[column.Ordinal + xlBaseIndex];
+                    rngColumn.NumberFormat = "dd-mmm-yy";
+                }
             }
         }
 
         public static void FillRange(System.Data.DataTable dataTable, Excel.Range rngOutput)
         {
-            Excel.Application excelApp = rngOutput.Application;
-            Excel.Worksheet sheet = rngOutput.Parent;
-            Excel.Range rng = null;
             const int boundToSizeFactor = 1;
             const int rowBoundIndex = 0;
             const int columnBoundIndex = 1;
 
-            try
-            {
-
-                object[,] arr = Utils.CreateArray(dataTable);
-                rng = rngOutput.Resize[arr.GetUpperBound(rowBoundIndex) + boundToSizeFactor,
-                    arr.GetUpperBound(columnBoundIndex) + boundToSizeFactor];
-                rng.Value2 = arr;
-
-            }
-            finally
-            {
-                if (excelApp != null) Marshal.ReleaseComObject(excelApp);
-                if (sheet != null) Marshal.ReleaseComObject(sheet);
-                if (rng != null) Marshal.ReleaseComObject(rng);
-            }
+            object[,] arr = Utils.CreateArray(dataTable);
+            Excel.Range rng = rngOutput.Resize[arr.GetUpperBound(rowBoundIndex) + boundToSizeFactor,
+                arr.GetUpperBound(columnBoundIndex) + boundToSizeFactor];
+            rng.Value2 = arr;
         }
 
         public static List<string> ListWorkbooks(Excel.Application excelApp)
         {
-            Excel.Workbooks workbooks = null;
-            try
+            Excel.Workbooks workbooks = excelApp.Workbooks;
+            var wbList = new List<string>();
+            for (int i = 1; i <= workbooks.Count; i++)
             {
-                workbooks = excelApp.Workbooks;
-                var wbList = new List<string>();
-                for (int i = 1; i <= workbooks.Count; i++)
-                {
-                    Excel.Workbook wb = workbooks[i];
-                    wbList.Add(wb.Name);
-                    Marshal.ReleaseComObject(wb);
-                }
-                return wbList;
+                Excel.Workbook wb = workbooks[i];
+                wbList.Add(wb.Name);
             }
-            finally
-            {
-                if (workbooks != null) Marshal.ReleaseComObject(workbooks);
-            }
+            return wbList;
         }
 
         public static List<string> ListXmlNamespaces(Excel.Workbook workbook)
         {
-            Office.CustomXMLParts ps = null;
-            try
+            var result = new List<string>();
+            Office.CustomXMLParts ps = workbook.CustomXMLParts;
+            for (int i = 1; i <= workbook.CustomXMLParts.Count; i++)
             {
-                var result = new List<string>();
-                ps = workbook.CustomXMLParts;
-                for (int i = 1; i <= workbook.CustomXMLParts.Count; i++)
-                {
-                    Office.CustomXMLPart p = ps[i];
+                Office.CustomXMLPart p = ps[i];
 
-                    //p.BuiltIn will be true for internal buildin excel parts 
-                    if (p != null && !p.BuiltIn)
-                        result.Add(p.NamespaceURI);
-
-                    Marshal.ReleaseComObject(p);
-                }
-
-                return result;
+                //p.BuiltIn will be true for internal buildin excel parts 
+                if (p != null && !p.BuiltIn)
+                    result.Add(p.NamespaceURI);
             }
-            finally
-            {
-                if (ps != null) Marshal.ReleaseComObject(ps);
-            }
+
+            return result;
         }
 
         public static Excel.Workbook FindWorkbook(string name)
         {
-            Excel.Application excelApp = null;
-            Excel.Workbook workbook = null;
-            Excel.Workbooks workbooks = null;
-            try
+            Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
+            Excel.Workbooks workbooks = excelApp.Workbooks;
+            if (string.IsNullOrWhiteSpace(name))
             {
-                excelApp = (Excel.Application)ExcelDnaUtil.Application;
-                workbooks = excelApp.Workbooks;
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    throw new InvalidOperationException("Workbook cannot be empty");
-                }
-                workbook = workbooks[name];
-                return workbook;
+                throw new InvalidOperationException("Workbook cannot be empty");
             }
-            finally
-            {
-                if (workbooks != null) Marshal.ReleaseComObject(workbooks);
-            }
+            Excel.Workbook workbook = workbooks[name];
+            return workbook;
         }
     }
 }
