@@ -18,83 +18,49 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
         public static Dictionary<string, string> GetPivotCellQuery(Excel.Range rngCell)
         {
-            Excel.Application XlApp = null;
-            //Field values
-            Excel.PivotCell pc = null;
-            //Aggregate value the user is drilling through
-            Excel.PivotTable pt = null;
-            Excel.PivotFields pfs = null;
-            Excel.PivotCache cache = null;
-
-            XlApp = rngCell.Application;
-            pt = rngCell.PivotTable;
-            pc = rngCell.PivotCell;
+            Excel.PivotTable pt = rngCell.PivotTable;
+            Excel.PivotCell pc = rngCell.PivotCell; //Field values
 
             Dictionary<string, string> dicCell = new Dictionary<string, string>();
 
             //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
-            for (int i = PIS_LBOUND; i < pc.RowItems.Count + PIS_LBOUND; i++)
+            foreach (Excel.PivotItem pi in pc.RowItems)
             {
-                Excel.PivotItem pi = pc.RowItems[i];
                 Excel.PivotField pf = (Excel.PivotField)pi.Parent;
                 dicCell.Add(pf.Name, pi.SourceName.ToString());
             }
-            for (int i = PIS_LBOUND; i < pc.ColumnItems.Count + PIS_LBOUND; i++)
+            foreach (Excel.PivotItem pi in pc.ColumnItems)
             {
-                Excel.PivotItem pi = pc.ColumnItems[i];
                 Excel.PivotField pf = (Excel.PivotField)pi.Parent;
                 dicCell.Add(pf.Name, pi.SourceName.ToString());
             }
 
             //Filter by page field if not all items are selected
-            pfs = (Excel.PivotFields)(pt.PageFields);
-            cache = pt.PivotCache();
-            if (cache.OLAP)
-                AddOlapPageFieldFilterToDic(pfs, dicCell);
-            else
-                AddPageFieldFilterToDic(pfs, dicCell);
-                
+            Excel.PivotFields pfs = (Excel.PivotFields)(pt.PageFields);
+
+            AddOlapPageFieldFilterToDic(pfs, dicCell);
+
             return dicCell;
         }
 
+        
         private static void AddOlapPageFieldFilterToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
         {
             //Filter by page field if not all items are selected
-            for (int i = PIS_LBOUND; i < pfs.Count + PIS_LBOUND; i++)
+            foreach (Excel.PivotField pf in pfs)
             {
-                Excel.PivotField pf = pfs.Item(i);
-                bool isAllItems = true;
+                if (ExcelHelper.IsMultiplePageItemsEnabled(pf))
+                    continue;
+
                 string pageName = string.Empty;
 
-                try
-                {
-                    pageName = pf.CurrentPageName; // error maybe thrown
-                    isAllItems = DaxDrillParser.IsAllItems(pageName);
+                pageName = pf.CurrentPageName; // note: throws exception if multiple page item selection is enabled
 
-                    if (!isAllItems)
-                    {
-                        dicCell.Add(pf.Name, pageName);
-                    }
-                }
-                catch (COMException ex)
+                bool isAllItems = true;
+                isAllItems = DaxDrillParser.IsAllItems(pageName);
+                if (!isAllItems)
                 {
-                    // exception is thrown by Excel if multiple item selection is enabled
-                    // TODO: create filters for multiple item selection
-                }
-            }
-        }
-
-        private static void AddPageFieldFilterToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
-        {
-            //Filter by page field if not all items are selected
-            for (int i = PIS_LBOUND; i < pfs.Count + PIS_LBOUND; i++)
-            {
-                Excel.PivotField pf = pfs.Item(i);
-                var currentPage = (Excel.PivotItem)pf.CurrentPage;
-                if (currentPage.Name != "(All)")
-                {
-                    Excel.PivotItem pi = (Excel.PivotItem)pf.CurrentPage;
-                    dicCell.Add(pf.Name, pi.SourceName.ToString());
+                    dicCell.Add(pf.Name, pageName);
                 }
             }
         }

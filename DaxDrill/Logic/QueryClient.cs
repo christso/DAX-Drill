@@ -41,7 +41,7 @@ namespace DG2NTT.DaxDrill.Logic
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
 
             int maxRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
-            var detailColumns = QueryClient.GetDetailColumns(rngCell);
+            var detailColumns = QueryClient.GetCustomDetailColumns(rngCell);
 
             using (var tabular = new TabularHelper(
                 cnnStringBuilder.DataSource,
@@ -71,7 +71,7 @@ namespace DG2NTT.DaxDrill.Logic
             return result;
         }
 
-        public static IEnumerable<DetailColumn> GetDetailColumns(Excel.Range rngCell)
+        public static IEnumerable<DetailColumn> GetCustomDetailColumns(Excel.Range rngCell)
         {
             Excel.WorkbookConnection wbcnn = null;
             Excel.Workbook workbook = null;

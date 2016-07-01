@@ -216,7 +216,14 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return workbook;
         }
 
-        public static Excel.Range CopyPivotTable(Excel.PivotTable pt)
+        public static Excel.PivotTable CopyAsPagedPivotTable(Excel.PivotTable pt)
+        {
+            Excel.PivotTable ptCopy = CopyPivotTable(pt);
+            PagerizePivotFields(ptCopy);
+            return ptCopy;
+        }
+
+        public static Excel.PivotTable CopyPivotTable(Excel.PivotTable pt)
         {
             Excel.Application excelApp = pt.Application;
             var worksheet = (Excel.Worksheet)pt.Parent;
@@ -226,13 +233,25 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             rng.Copy();
             Excel.Worksheet ws = (Excel.Worksheet)excelApp.Sheets.Add();
             ws.Paste();
-            return ws.Range["A1"];
+            return rng.PivotTable;
         }
 
         public static void PagerizePivotFields(Excel.PivotTable pt)
         {
-
+            var cubeFields = pt.CubeFields;
+            foreach (Excel.CubeField cubeField in cubeFields)
+            {
+                if (cubeField.Orientation != Excel.XlPivotFieldOrientation.xlPageField
+                    && cubeField.Orientation != Excel.XlPivotFieldOrientation.xlHidden
+                    && cubeField.Orientation != Excel.XlPivotFieldOrientation.xlDataField)
+                    cubeField.Orientation = Excel.XlPivotFieldOrientation.xlPageField;
+            }
         }
 
+        public static bool IsMultiplePageItemsEnabled(Excel.PivotField pf)
+        {
+            return pf.Orientation == Excel.XlPivotFieldOrientation.xlPageField
+                && pf.VisibleItems.Count == 0;
+        }
     }
 }
