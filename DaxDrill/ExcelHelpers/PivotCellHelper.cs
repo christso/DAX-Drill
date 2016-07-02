@@ -18,22 +18,44 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         {
             Excel.PivotTable pt = rngCell.PivotTable;
             Excel.PivotCell pc = rngCell.PivotCell; //Field values
+            Excel.PivotFields pgfs = (Excel.PivotFields)(pt.PageFields);
 
             var pivotCellDic = new PivotCellDictionary();
-            Dictionary<string, string> singDic = pivotCellDic.SingleSelectDictionary;
 
-            //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
-            AddAxisFiltersToDic(pc, singDic);
+            #region Filter by Single Selection
 
-            //Filter by page fields
-            Excel.PivotFields pfs = (Excel.PivotFields)(pt.PageFields);
-            AddPageFieldFiltersToDic(pfs, pivotCellDic);
+            AddSingleAxisFiltersToDic(pc, pivotCellDic);
+            AddSinglePageFieldFiltersToDic(pgfs, pivotCellDic);
+
+            #endregion
+
+            #region Filter by Multiple Selection
+
+            PivotTableWrapper ptw = new PivotTableWrapper(); // lazy initialization
+            AddMultiAxisFiltersToDic(pc, pivotCellDic, ptw);
+            AddMultiplePageFieldFiltersToDic(pgfs, pivotCellDic, ptw);
+
+            #endregion
 
             return pivotCellDic;
         }
 
-        private static void AddAxisFiltersToDic(Excel.PivotCell pc, Dictionary<string, string> singDic)
+        private static void AddMultiAxisFiltersToDic(Excel.PivotCell pc, PivotCellDictionary pivotCellDic, PivotTableWrapper ptw)
         {
+            Excel.PivotFields pfs = pc.PivotTable.RowFields;
+            foreach (Excel.PivotField pf in pfs)
+            {
+                // skip fields which are not below the current level of the hierarchy
+                if (pf.Position <= pc.PivotField.Position) continue;
+
+
+            }
+        }
+
+        private static void AddSingleAxisFiltersToDic(Excel.PivotCell pc, PivotCellDictionary pivotCellDic)
+        {
+            Dictionary<string, string> singDic = pivotCellDic.SingleSelectDictionary;
+
             //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
             foreach (Excel.PivotItem pi in pc.RowItems)
             {
@@ -69,17 +91,24 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-        private static void AddPageFieldFiltersToDic(Excel.PivotFields pfs, PivotCellDictionary pivotCellDic)
+        private static void AddMultiplePageFieldFiltersToDic(Excel.PivotFields pfs, PivotCellDictionary pivotCellDic,
+            PivotTableWrapper ptw)
         {
-            PivotTableWrapper ptw = new PivotTableWrapper(); // lazy initialization
-
             //Filter by page field if not all items are selected
             foreach (Excel.PivotField pf in pfs)
             {
                 if (ExcelHelper.IsMultiplePageItemsEnabled(pf))
-                    AddMultiplePageFieldFiltersToDic(pf, pivotCellDic, ptw);
-                else
-                    AddCurrentPageFieldFilterToDic(pf, pivotCellDic.SingleSelectDictionary);
+                    AddMultiplePageFieldFilterToDic(pf, pivotCellDic, ptw);
+            }
+        }
+
+        private static void AddSinglePageFieldFiltersToDic(Excel.PivotFields pfs, PivotCellDictionary pivotCellDic)
+        {
+            //Filter by page field if not all items are selected
+            foreach (Excel.PivotField pf in pfs)
+            {
+                if (!ExcelHelper.IsMultiplePageItemsEnabled(pf))
+                    AddCurrentPageFieldFilterToDic(pf, pivotCellDic);
             }
         }
 
@@ -89,7 +118,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         /// <param name="pf">Page Field which contains multiple selections</param>
         /// <param name="pivotCellDic">Dictionary to be updated</param>
         /// <param name="ptwCopy">Object containing the copied PivotTable so that we avoid initializing it on every call</param>
-        private static void AddMultiplePageFieldFiltersToDic(Excel.PivotField pf, PivotCellDictionary pivotCellDic,
+        private static void AddMultiplePageFieldFilterToDic(Excel.PivotField pf, PivotCellDictionary pivotCellDic,
             PivotTableWrapper ptwCopy)
         {
             // logic
@@ -121,8 +150,10 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-        private static void AddCurrentPageFieldFilterToDic(Excel.PivotField pf, Dictionary<string, string> dicCell)
+        private static void AddCurrentPageFieldFilterToDic(Excel.PivotField pf, PivotCellDictionary pivotCellDic)
         {
+            var dicCell = pivotCellDic.SingleSelectDictionary;
+
             string pageName = string.Empty;
 
             pageName = pf.CurrentPageName; // note: throws COM exception if multiple page item selection is enabled
