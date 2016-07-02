@@ -41,7 +41,6 @@ namespace DG2NTT.DaxDrill
             xlApp.SheetBeforeDoubleClick += SheetBeforeDoubleClick;
         }
 
-        // double click stops working after 15 times
         private void SheetBeforeDoubleClick(object Sh, Excel.Range Target, ref bool Cancel)
         {
             try
@@ -57,7 +56,6 @@ namespace DG2NTT.DaxDrill
             Cancel = true;
         }
 
-        // kill Excel process in case objects are not properly released
         private void XlApp_WorkbookDeactivate(Excel.Workbook Wb)
         {
             if (Wb.Application.Workbooks.Count == 1)
@@ -93,11 +91,6 @@ namespace DG2NTT.DaxDrill
 
         public static void DrillThroughThreadSafe()
         {
-            Excel.Worksheet sheet = null;
-            Excel.Sheets sheets = null;
-            Excel.Range rngHead = null;
-            Excel.Range rngOut = null;
-
             Excel.Range rngCell = xlApp.ActiveCell;
 
             // set up connection
@@ -109,11 +102,11 @@ namespace DG2NTT.DaxDrill
             var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
 
             // create sheet
-            sheets = xlApp.Sheets;
-            sheet = (Excel.Worksheet)sheets.Add();
+            Excel.Sheets sheets = xlApp.Sheets;
+            Excel.Worksheet sheet = (Excel.Worksheet)sheets.Add();
 
             // show message to user we are retrieving records
-            rngHead = sheet.Range["A1"];
+            Excel.Range rngHead = sheet.Range["A1"];
             int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
             rngHead.Value2 = string.Format("Retrieving TOP {0} records", 
                 maxDrillThroughRecords);
@@ -122,7 +115,7 @@ namespace DG2NTT.DaxDrill
             var dtResult = daxClient.ExecuteTable(commandText, cnn);
 
             // output result to sheet
-            rngOut = sheet.Range["A3"];
+            Excel.Range rngOut = sheet.Range["A3"];
             ExcelHelper.FillRange(dtResult, rngOut);
             ExcelHelper.FormatRange(dtResult, rngOut);
             rngHead.Value2 = string.Format("Retrieved TOP {0} records", maxDrillThroughRecords);
@@ -131,15 +124,12 @@ namespace DG2NTT.DaxDrill
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "DAX Query")]
         public static void DrillThroughQuery()
         {
-            Excel.Range rngCell = null;
-            Excel.Workbook workbook = null;
-
             try
             {
-                rngCell = xlApp.ActiveCell;
+                Excel.Range rngCell = xlApp.ActiveCell;
 
                 // XML configuration
-                workbook = xlApp.ActiveWorkbook;
+                Excel.Workbook workbook = xlApp.ActiveWorkbook;
                 string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
                 
                 // generate command
@@ -156,10 +146,9 @@ namespace DG2NTT.DaxDrill
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "XML Metadata")]
         public static void ShowMetadataEditor()
         {
-            Excel.Workbook workbook = null;
             try
             {
-                workbook = xlApp.ActiveWorkbook;
+                Excel.Workbook workbook = xlApp.ActiveWorkbook;
                 var form = XmlEditForm.GetStatic();
                 var controller = new XmlEditController(form);
                 form.ShowForm();

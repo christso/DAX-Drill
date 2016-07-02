@@ -32,24 +32,11 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             #region Filter by Multiple Selection
 
             PivotTableWrapper ptw = new PivotTableWrapper(); // lazy initialization
-            AddMultiAxisFiltersToDic(pc, pivotCellDic, ptw);
             AddMultiplePageFieldFiltersToDic(pgfs, pivotCellDic, ptw);
 
             #endregion
 
             return pivotCellDic;
-        }
-
-        private static void AddMultiAxisFiltersToDic(Excel.PivotCell pc, PivotCellDictionary pivotCellDic, PivotTableWrapper ptw)
-        {
-            Excel.PivotFields pfs = pc.PivotTable.RowFields;
-            foreach (Excel.PivotField pf in pfs)
-            {
-                // skip fields which are not below the current level of the hierarchy
-                if (pf.Position <= pc.PivotField.Position) continue;
-
-
-            }
         }
 
         private static void AddSingleAxisFiltersToDic(Excel.PivotCell pc, PivotCellDictionary pivotCellDic)
@@ -100,6 +87,34 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 if (ExcelHelper.IsMultiplePageItemsEnabled(pf))
                     AddMultiplePageFieldFilterToDic(pf, pivotCellDic, ptw);
             }
+            
+            //Clean up temp objects
+            CleanUpPivotTableCopy(ptw);
+        }
+
+        private static void CleanUpPivotTableCopy(PivotTableWrapper ptw)
+        {
+            if (ptw == null || ptw.PivotTable == null || ptw.PivotTable == null)
+                return;
+
+            Excel.Worksheet sheet = null;
+            Excel.Application xlApp = null;
+
+            bool displayAlerts = false;
+
+            try
+            {
+                sheet = ptw.PivotTable.Parent;
+                xlApp = sheet.Application;
+                displayAlerts = xlApp.DisplayAlerts;
+
+                xlApp.DisplayAlerts = false;
+                sheet.Delete();
+            }
+            finally
+            {
+                xlApp.DisplayAlerts = displayAlerts;
+            }
         }
 
         private static void AddSinglePageFieldFiltersToDic(Excel.PivotFields pfs, PivotCellDictionary pivotCellDic)
@@ -133,21 +148,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             {
                 pivotCellDic.AddMultiSelectItem(pfCopy.Name, pi.SourceName.ToString());
             }
-
-            // delete copy of pivot table
-            Excel.Worksheet sheet = ptwCopy.PivotTable.Parent;
-            Excel.Application xlApp = sheet.Application;
-
-            bool displayAlerts = xlApp.DisplayAlerts;
-            try
-            {
-                xlApp.DisplayAlerts = false;
-                sheet.Delete();
-            }
-            finally
-            {
-                xlApp.DisplayAlerts = displayAlerts;
-            }
         }
 
         private static void AddCurrentPageFieldFilterToDic(Excel.PivotField pf, PivotCellDictionary pivotCellDic)
@@ -168,20 +168,14 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
         public static Excel.Range CopyPivotTable(Excel.PivotTable pt)
         {
-            Excel.Application XlApp = null;
-            Excel.Worksheet sourceSheet = null;
-            Excel.Range sourceRange = null;
-            Excel.Worksheet destSheet = null;
-            Excel.Worksheets sheets = null;
-
-            XlApp = pt.Application;
-            sourceSheet = (Excel.Worksheet)pt.Parent;
+            Excel.Application XlApp = pt.Application;
+            Excel.Worksheet sourceSheet = (Excel.Worksheet)pt.Parent;
             sourceSheet.Select();
             pt.PivotSelect("", Excel.XlPTSelectionMode.xlDataAndLabel, true);
-            sourceRange = (Excel.Range)XlApp.Selection;
+            Excel.Range  sourceRange = (Excel.Range)XlApp.Selection;
             sourceRange.Copy();
-            sheets = (Excel.Worksheets)XlApp.Sheets;
-            destSheet = (Excel.Worksheet)sheets.Add();
+            Excel.Worksheets sheets = (Excel.Worksheets)XlApp.Sheets;
+            Excel.Worksheet destSheet = (Excel.Worksheet)sheets.Add();
             destSheet.Paste();
             return destSheet.Range["A1"];
         }
