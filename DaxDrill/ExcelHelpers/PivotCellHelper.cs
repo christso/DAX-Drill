@@ -12,19 +12,28 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 {
     public class PivotCellHelper
     {
-        public const int PIS_LBOUND = 1;
-
         #region Static Members
 
         public static PivotCellDictionary GetPivotCellQuery(Excel.Range rngCell)
         {
-            Excel.Application xlApp = rngCell.Application;
             Excel.PivotTable pt = rngCell.PivotTable;
             Excel.PivotCell pc = rngCell.PivotCell; //Field values
 
             var pivotCellDic = new PivotCellDictionary();
             Dictionary<string, string> singDic = pivotCellDic.SingleSelectDictionary;
 
+            //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
+            AddAxisFiltersToDic(pc, singDic);
+
+            //Filter by page fields
+            Excel.PivotFields pfs = (Excel.PivotFields)(pt.PageFields);
+            AddPageFieldFiltersToDic(pfs, pivotCellDic);
+
+            return pivotCellDic;
+        }
+
+        private static void AddAxisFiltersToDic(Excel.PivotCell pc, Dictionary<string, string> singDic)
+        {
             //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
             foreach (Excel.PivotItem pi in pc.RowItems)
             {
@@ -36,14 +45,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 Excel.PivotField pf = (Excel.PivotField)pi.Parent;
                 singDic.Add(pf.Name, pi.SourceName.ToString());
             }
-
-            //Filter by page fields
-            Excel.PivotFields pfs = (Excel.PivotFields)(pt.PageFields);
-            AddPageFieldFiltersToDic(pfs, pivotCellDic);
-
-            return pivotCellDic;
         }
-
         
         private static Excel.PivotTable CopyAsPageInvertedPivotTable(Excel.PivotTable pt)
         {
