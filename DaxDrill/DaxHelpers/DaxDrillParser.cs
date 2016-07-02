@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DG2NTT.DaxDrill.ExcelHelpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,15 +14,15 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         /// Builds DAX query based on location on pivot table (specified in parameters)
         /// </summary>
         /// <param name="tabular">Tabular connection helper</param>
-        /// <param name="excelDic">Dictionary representing Pivot Table context filters</param>
+        /// <param name="pivotCellDic">Dictionary representing Pivot Table context filters</param>
         /// <param name="measureName">Name of DAX measure to be used in drillthrough</param>
         /// <param name="maxRecords">Maximum records to be retrieved</param>
         /// <param name="detailColumns">List of columns to be included in drill-through</param>
         /// <returns></returns>
-        public static string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName,
+        public static string BuildQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName,
             int maxRecords, IEnumerable<DetailColumn> detailColumns)
         {
-            string filterText = BuildFilterCommandText(excelDic, tabular);
+            string filterText = BuildFilterCommandText(pivotCellDic, tabular);
             var measure = tabular.GetMeasure(measureName);
 
             // create inner clause
@@ -45,9 +46,9 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public static string BuildQueryText(TabularHelper tabular, Dictionary<string, string> excelDic, string measureName, int maxRecords)
+        public static string BuildQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
         {
-            return BuildQueryText(tabular, excelDic, measureName, maxRecords, null);
+            return BuildQueryText(tabular, pivotCellDic, measureName, maxRecords, null);
         }
 
         #region Static Members
@@ -68,9 +69,23 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        public static string BuildFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
+        public static string BuildFilterCommandText(PivotCellDictionary excelDic, TabularHelper tabular)
         {
-            var daxFilter = ConvertExcelDrillToDaxFilter(excelDic);
+            string singCmdText = BuildSingleSelectFilterCommandText(excelDic.SingleSelectDictionary, tabular);
+            string multiCmdText = BuildMultiSelectFilterCommandText(excelDic.MultiSelectDictionary, tabular);
+
+            string result = singCmdText;
+
+            if (!string.IsNullOrEmpty(multiCmdText))
+            {
+                result += ",\n" + multiCmdText;
+            }
+            return result;
+        }
+
+        private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
+        {
+            var daxFilter = ConvertSingleExcelDrillToDaxFilter(excelDic);
 
             string commandText = "";
             foreach (var item in daxFilter)
@@ -82,6 +97,31 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 commandText += BuildColumnCommandText(column, item);
             }
 
+            return commandText;
+        }
+
+        private static string BuildMultiSelectFilterCommandText(Dictionary<string, List<string>> excelDic, TabularHelper tabular)
+        {
+            string commandText = "";
+            foreach (KeyValuePair<string, List<string>> pair in excelDic)
+            {
+                if (commandText != "")
+                    commandText += ",\n";
+
+                var daxFilter = ConvertMultiExcelDrillToDaxFilter(pair.Key, pair.Value);
+
+                string childCommandText = "";
+                foreach (var item in daxFilter)
+                {
+                    if (childCommandText != "")
+                        childCommandText += " || ";
+                    var table = tabular.GetTable(item.TableName);
+                    var column = table.Columns.Find(item.ColumnName);
+                    childCommandText += BuildColumnCommandText(column, item);
+                }
+
+                commandText += childCommandText;
+            }
             return commandText;
         }
 
@@ -111,7 +151,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public static List<DaxFilter> ConvertExcelDrillToDaxFilter(
+        public static List<DaxFilter> ConvertSingleExcelDrillToDaxFilter(
             Dictionary<string, string> inputDic)
         {
 
@@ -122,6 +162,21 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 string column = GetColumnFromPivotField(pair.Key);
                 string table = GetTableFromPivotField(pair.Key);
                 string value = GetValueFromPivotItem(pair.Value);
+                output.Add(new DaxFilter() { TableName = table, ColumnName = column, Value = value });
+            }
+            return output;
+        }
+
+        public static List<DaxFilter> ConvertMultiExcelDrillToDaxFilter(string key, List<string> listValues)
+        {
+            var output = new List<DaxFilter>();
+
+            string column = GetColumnFromPivotField(key);
+            string table = GetTableFromPivotField(key);
+
+            foreach (string listValue in listValues)
+            {
+                string value = GetValueFromPivotItem(listValue);
                 output.Add(new DaxFilter() { TableName = table, ColumnName = column, Value = value });
             }
             return output;

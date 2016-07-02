@@ -263,11 +263,32 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
         
-
         public static bool IsMultiplePageItemsEnabled(Excel.PivotField pf)
         {
-            return pf.Orientation == Excel.XlPivotFieldOrientation.xlPageField
-                && pf.VisibleItems.Count == 0;
+            // Excel throws error if you try to access CurrentPageName on a page field that has multiple selections
+            // This function handles the error
+            try
+            {
+                return pf.CurrentPageName == null;
+            }
+            catch
+            {
+                return pf.Orientation == Excel.XlPivotFieldOrientation.xlPageField;
+            }
+        }
+
+        public static void SuppressExcelActionAlerts(Excel.Application xlApp, Action action)
+        {
+            bool displayAlerts = xlApp.DisplayAlerts;
+            try
+            {
+                xlApp.DisplayAlerts = false;
+                action();
+            }
+            finally
+            {
+                xlApp.DisplayAlerts = displayAlerts;
+            }
         }
     }
 }

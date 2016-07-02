@@ -16,32 +16,32 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
 
         #region Static Members
 
-        public static Dictionary<string, string> GetPivotCellQuery(Excel.Range rngCell)
+        public static PivotCellDictionary GetPivotCellQuery(Excel.Range rngCell)
         {
             Excel.Application xlApp = rngCell.Application;
             Excel.PivotTable pt = rngCell.PivotTable;
             Excel.PivotCell pc = rngCell.PivotCell; //Field values
 
-            Dictionary<string, string> dicCell = new Dictionary<string, string>();
+            var pivotCellDic = new PivotCellDictionary();
+            Dictionary<string, string> singDic = pivotCellDic.SingleSelectDictionary;
 
             //Filter by Row and ColumnFields - note, we don't need a loop here but will use one just in case
             foreach (Excel.PivotItem pi in pc.RowItems)
             {
                 Excel.PivotField pf = (Excel.PivotField)pi.Parent;
-                dicCell.Add(pf.Name, pi.SourceName.ToString());
+                singDic.Add(pf.Name, pi.SourceName.ToString());
             }
             foreach (Excel.PivotItem pi in pc.ColumnItems)
             {
                 Excel.PivotField pf = (Excel.PivotField)pi.Parent;
-                dicCell.Add(pf.Name, pi.SourceName.ToString());
+                singDic.Add(pf.Name, pi.SourceName.ToString());
             }
 
-            //Filter by page field if not all items are selected
+            //Filter by page fields
             Excel.PivotFields pfs = (Excel.PivotFields)(pt.PageFields);
+            AddPageFieldFiltersToDic(pfs, pivotCellDic);
 
-            AddPageFieldFiltersToDic(pfs, dicCell);
-
-            return dicCell;
+            return pivotCellDic;
         }
 
         
@@ -67,7 +67,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-        private static void AddPageFieldFiltersToDic(Excel.PivotFields pfs, Dictionary<string, string> dicCell)
+        private static void AddPageFieldFiltersToDic(Excel.PivotFields pfs, PivotCellDictionary pivotCellDic)
         {
             PivotTableWrapper ptw = new PivotTableWrapper(); // lazy initialization
 
@@ -75,9 +75,9 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             foreach (Excel.PivotField pf in pfs)
             {
                 if (ExcelHelper.IsMultiplePageItemsEnabled(pf))
-                    AddMultiplePageFieldFiltersToDic(pf, dicCell, ptw);
+                    AddMultiplePageFieldFiltersToDic(pf, pivotCellDic, ptw);
                 else
-                    AddCurrentPageFieldFilterToDic(pf, dicCell);
+                    AddCurrentPageFieldFilterToDic(pf, pivotCellDic.SingleSelectDictionary);
             }
         }
 
@@ -85,11 +85,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         /// This will add page filters that have multiple selection enabled to the dictionary
         /// </summary>
         /// <param name="pf">Page Field which contains multiple selections</param>
-        /// <param name="dicCell">Dictionary to be updated</param>
+        /// <param name="pivotCellDic">Dictionary to be updated</param>
         /// <param name="ptwCopy">Object containing the copied PivotTable so that we avoid initializing it on every call</param>
-        private static void AddMultiplePageFieldFiltersToDic(Excel.PivotField pf, Dictionary<string, string> dicCell,
+        private static void AddMultiplePageFieldFiltersToDic(Excel.PivotField pf, PivotCellDictionary pivotCellDic,
             PivotTableWrapper ptwCopy)
         {
+            // logic
             if (ptwCopy.PivotTable == null)
             {
                 Excel.PivotTable pt = pf.Parent;
@@ -99,7 +100,22 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Excel.PivotField pfCopy = ptwCopy.PivotTable.PivotFields(pf.SourceName);
             foreach (Excel.PivotItem pi in pfCopy.VisibleItems)
             {
-                dicCell.Add(pfCopy.Name, pi.SourceName.ToString());
+                pivotCellDic.AddMultiSelectItem(pfCopy.Name, pi.SourceName.ToString());
+            }
+
+            // delete copy of pivot table
+            Excel.Worksheet sheet = ptwCopy.PivotTable.Parent;
+            Excel.Application xlApp = sheet.Application;
+
+            bool displayAlerts = xlApp.DisplayAlerts;
+            try
+            {
+                xlApp.DisplayAlerts = false;
+                sheet.Delete();
+            }
+            finally
+            {
+                xlApp.DisplayAlerts = displayAlerts;
             }
         }
 
@@ -135,6 +151,22 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             destSheet = (Excel.Worksheet)sheets.Add();
             destSheet.Paste();
             return destSheet.Range["A1"];
+        }
+
+        private class PivotTableWrapper
+        {
+            private Excel.PivotTable pivotTable;
+            public Excel.PivotTable PivotTable
+            {
+                get
+                {
+                    return this.pivotTable;
+                }
+                set
+                {
+                    this.pivotTable = value;
+                }
+            }
         }
 
         #endregion

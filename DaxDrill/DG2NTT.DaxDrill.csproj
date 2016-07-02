@@ -80,7 +80,7 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="ExcelHelpers\PivotTableWrapper.cs" />
+    <Compile Include="ExcelHelpers\PivotCellDictionary.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
     <Compile Include="Logic\QueryClient.cs" />
     <Compile Include="DaxHelpers\DetailColumn.cs" />

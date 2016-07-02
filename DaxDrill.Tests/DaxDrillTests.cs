@@ -8,6 +8,7 @@ using System.Xml;
 using ADOMD = Microsoft.AnalysisServices.AdomdClient;
 using DG2NTT.DaxDrill.DaxHelpers;
 using Microsoft.AnalysisServices.Tabular;
+using DG2NTT.DaxDrill.ExcelHelpers;
 
 namespace DG2NTT.DaxDrill.Tests
 {
@@ -41,11 +42,13 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
 
             #region Parse
+            var pivotCellDic = new PivotCellDictionary();
+            pivotCellDic.SingleSelectDictionary = excelDic;
             string commandText;
             using (var tabular = new TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
-                commandText = DaxDrillParser.BuildFilterCommandText(excelDic, tabular);
+                commandText = DaxDrillParser.BuildFilterCommandText(pivotCellDic, tabular);
                 tabular.Disconnect();
             }
             #endregion
@@ -61,23 +64,27 @@ UsageDate[Usage_MonthAbbrev] = "May"
         {
             #region Arrange
 
-            var excelDic = new Dictionary<string, string>();
-            excelDic.Add("[Usage].[Inbound or Outbound].[Inbound or Outbound]",
+            var singDic = new Dictionary<string, string>();
+            singDic.Add("[Usage].[Inbound or Outbound].[Inbound or Outbound]",
                 "[Usage].[Inbound or Outbound].&[Inbound]");
-            excelDic.Add("[Usage].[Call Type].[Call Type]",
+            singDic.Add("[Usage].[Call Type].[Call Type]",
                 "[Usage].[Call Type].&[MOC]");
-            excelDic.Add("[UsageDate].[Usage_Year].[Usage_Year]",
+            singDic.Add("[UsageDate].[Usage_Year].[Usage_Year]",
                 "[UsageDate].[Usage_Year].&[2014]");
-            excelDic.Add("[UsageDate].[Usage_MonthAbbrev].[Usage_MonthAbbrev]",
+            singDic.Add("[UsageDate].[Usage_MonthAbbrev].[Usage_MonthAbbrev]",
                 "[UsageDate].[Usage_MonthAbbrev].&[May]");
             #endregion
 
             #region Parse
             string commandText;
+
+            var pivotCellDic = new PivotCellDictionary();
+            pivotCellDic.SingleSelectDictionary = singDic;
+
             using (var tabular = new TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
-                commandText = DaxDrillParser.BuildQueryText(tabular, excelDic, "Gross Billed Sum", 99999);
+                commandText = DaxDrillParser.BuildQueryText(tabular, pivotCellDic, "Gross Billed Sum", 99999);
                 tabular.Disconnect();
             }
             #endregion
@@ -93,18 +100,21 @@ UsageDate[Usage_MonthAbbrev] = "May"
         {
             #region Arrange
 
-            var excelDic = new Dictionary<string, string>();
-            excelDic.Add("[Usage].[Inbound or Outbound].[Inbound or Outbound]",
+            var singDic = new Dictionary<string, string>();
+            singDic.Add("[Usage].[Inbound or Outbound].[Inbound or Outbound]",
                 "[Usage].[Inbound or Outbound].&[Inbound]");
-            excelDic.Add("[Usage].[Call Type].[Call Type]",
+            singDic.Add("[Usage].[Call Type].[Call Type]",
                 "[Usage].[Call Type].&[MOC]");
-            excelDic.Add("[UsageDate].[Usage_Year].[Usage_Year]",
+            singDic.Add("[UsageDate].[Usage_Year].[Usage_Year]",
                 "[UsageDate].[Usage_Year].&[2014]");
-            excelDic.Add("[UsageDate].[Usage_MonthAbbrev].[Usage_MonthAbbrev]",
+            singDic.Add("[UsageDate].[Usage_MonthAbbrev].[Usage_MonthAbbrev]",
                 "[UsageDate].[Usage_MonthAbbrev].&[May]");
             #endregion
 
             #region Parse
+            var pivotCellDic = new PivotCellDictionary();
+            pivotCellDic.SingleSelectDictionary = singDic;
+
             var parser = new DaxDrillParser();
             string commandText;
             using (var tabular = new TabularHelper("localhost", "Roaming"))
@@ -113,7 +123,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
                 var selectedColumns = new List<DetailColumn>();
                 selectedColumns.Add(new DetailColumn() { Name = "Call Type", Expression = "Usage[Call Type]" });
                 selectedColumns.Add(new DetailColumn() { Name = "Call Type Description", Expression = "Usage[Call Type Description]" });
-                commandText = DaxDrillParser.BuildQueryText(tabular, excelDic, "Gross Billed Sum", 99999, selectedColumns);
+                commandText = DaxDrillParser.BuildQueryText(tabular, pivotCellDic, "Gross Billed Sum", 99999, selectedColumns);
                 tabular.Disconnect();
             }
             #endregion
