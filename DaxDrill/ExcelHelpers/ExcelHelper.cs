@@ -290,5 +290,19 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 xlApp.DisplayAlerts = displayAlerts;
             }
         }
+
+        public static bool IsPivotDataCell(Excel.Range rngCell)
+        {
+            try
+            {
+                Excel.PivotCell pc = rngCell.PivotCell;
+                Excel.PivotField pf = pc.PivotField;
+                return pf.Orientation == Excel.XlPivotFieldOrientation.xlDataField;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

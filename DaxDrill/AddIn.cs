@@ -92,6 +92,7 @@ namespace DG2NTT.DaxDrill
         public static void DrillThroughThreadSafe()
         {
             Excel.Range rngCell = xlApp.ActiveCell;
+            if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
 
             // set up connection
             var queryClient = new QueryClient(rngCell);
@@ -127,6 +128,7 @@ namespace DG2NTT.DaxDrill
             try
             {
                 Excel.Range rngCell = xlApp.ActiveCell;
+                if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
 
                 // XML configuration
                 Excel.Workbook workbook = xlApp.ActiveWorkbook;
