@@ -31,7 +31,7 @@ namespace DG2NTT.DaxDrill.Helpers
         }
         private static Assembly _executingAssembly = null;
 
-        public string AssemblyTitle
+        public static string AssemblyTitle
         {
             get
             {
@@ -48,7 +48,7 @@ namespace DG2NTT.DaxDrill.Helpers
             }
         }
 
-        public string AssemblyVersion
+        public static string AssemblyVersion
         {
             get
             {
@@ -56,7 +56,7 @@ namespace DG2NTT.DaxDrill.Helpers
             }
         }
 
-        public string AssemblyDescription
+        public static string AssemblyDescription
         {
             get
             {
@@ -69,7 +69,7 @@ namespace DG2NTT.DaxDrill.Helpers
             }
         }
 
-        public string AssemblyProduct
+        public static string AssemblyProduct
         {
             get
             {
@@ -82,7 +82,7 @@ namespace DG2NTT.DaxDrill.Helpers
             }
         }
 
-        public string AssemblyCopyright
+        public static string AssemblyCopyright
         {
             get
             {
@@ -95,7 +95,7 @@ namespace DG2NTT.DaxDrill.Helpers
             }
         }
 
-        public string AssemblyCompany
+        public static string AssemblyCompany
         {
             get
             {
@@ -108,7 +108,7 @@ namespace DG2NTT.DaxDrill.Helpers
             }
         }
 
-        public string AssemblyLocation
+        public static string AssemblyLocation
         {
             get
             {

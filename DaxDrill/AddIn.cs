@@ -164,12 +164,15 @@ namespace DG2NTT.DaxDrill
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "About")]
         public static void About()
         {
-            var assemblyHelper = new AssemblyHelper();
-            var version = assemblyHelper.AssemblyVersion;
+            try
+            {
 
-            MessageBox.Show("DAX Drill is developed by DG2NTT Pty Ltd."
-                + "\nVersion: " + version
-                + "\nPath of add-in: " + ExcelHelper.AddInPath);
+                AboutBox.ShowForm();
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
         }
     }
 
