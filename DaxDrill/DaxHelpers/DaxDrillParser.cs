@@ -76,9 +76,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             string result = singCmdText;
 
-            if (!string.IsNullOrEmpty(multiCmdText) && !string.IsNullOrEmpty(singCmdText))
+            if (!string.IsNullOrEmpty(multiCmdText))
             {
-                result += ",\n" + multiCmdText;
+                if (!string.IsNullOrEmpty(singCmdText))
+                    result += ",\n";
+                result += multiCmdText;
             }
             return result;
         }
