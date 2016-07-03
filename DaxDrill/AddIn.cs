@@ -171,22 +171,6 @@ namespace DG2NTT.DaxDrill
                 + "\nVersion: " + version
                 + "\nPath of add-in: " + ExcelHelper.AddInPath);
         }
-
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
-        public static void Test()
-        {
-            try
-            {
-                Excel.PivotTable pt = xlApp.ActiveCell.PivotTable;
-                ExcelHelper.CopyAsPageInvertedPivotTable(pt);
-            }
-            catch (Exception ex)
-            {
-                MsgForm.ShowMessage(ex);
-            }
-        }
-
-
     }
 
 }
