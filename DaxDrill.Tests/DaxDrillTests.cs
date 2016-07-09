@@ -284,7 +284,26 @@ UsageDate[Usage_MonthAbbrev] = "May"
 		</columns>
 	</table>
 	<table id=""RoamingMeasure"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
-		<query>Usage</query>
+		<query>FILTER
+(
+	UNION (
+		SELECTCOLUMNS (
+			DiscRelease,
+			""Roaming Measure"", ""Discount Release"",
+			""Accrual Period"", DiscRelease[Accrual Period],
+			""TAP Code"", DiscRelease[TAP Code],
+			""Amount Aud"", DiscRelease[Net Release Aud]
+		),
+		SELECTCOLUMNS (
+			Usage,
+			""Roaming Measure"", ""Discount Accrual"",
+			""Accrual Period"", Usage[Usage Date],
+			""TAP Code"", Usage[Their PMN TADIG Code],
+			""Amount Aud"", Usage[Gross Billed]		
+		)
+	),
+	[Roaming Measure] = VALUES ( RoamingMeasure[Roaming Measure] )
+)</query>
 	</table>
 </daxdrill>";
 
@@ -297,7 +316,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             nsmgr.AddNamespace("x", nsString);
 
             //string xpath = "..";
-            string xpath = string.Format("/x:daxdrill/x:table[@id='{0}']", "RoamingMeasure");
+            string xpath = string.Format("/x:daxdrill/x:table[@id='{0}']/x:query", "RoamingMeasure");
 
             XmlNode node = root.SelectSingleNode(xpath, nsmgr);
 

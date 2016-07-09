@@ -10,6 +10,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxDrillParser
     {
+        public static string BuildQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
+        {
+            return BuildQueryText(tabular, pivotCellDic, measureName, maxRecords, null);
+        }
+
         /// <summary>
         /// Builds DAX query based on location on pivot table (specified in parameters)
         /// </summary>
@@ -22,11 +27,18 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         public static string BuildQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName,
             int maxRecords, IEnumerable<DetailColumn> detailColumns)
         {
-            string filterText = BuildFilterCommandText(pivotCellDic, tabular);
             var measure = tabular.GetMeasure(measureName);
+            string commandText = BuildCustomQueryText(tabular, pivotCellDic, measure.Table.Name, maxRecords, detailColumns);
+            return commandText;
+        }
+
+        public static string BuildCustomQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string tableQuery,
+            int maxRecords, IEnumerable<DetailColumn> detailColumns)
+        {
+            string filterText = BuildFilterCommandText(pivotCellDic, tabular);
 
             // create inner clause
-            string commandText = string.Format("TOPN ( {1}, {0} )", measure.Table.Name, maxRecords);
+            string commandText = string.Format("TOPN ( {1}, {0} )", tableQuery, maxRecords);
 
             // nest into SELECTCOLUMNS function
             if (detailColumns != null && detailColumns.Count() > 0)
@@ -45,13 +57,6 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             return commandText;
         }
-
-        public static string BuildQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
-        {
-            return BuildQueryText(tabular, pivotCellDic, measureName, maxRecords, null);
-        }
-
-        #region Static Members
 
         /// <summary>
         /// Creates a comma-delimited string of column filter arguments
@@ -223,7 +228,5 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         {
             return GetColumnFromPivotField(input);
         }
-
-        #endregion
     }
 }

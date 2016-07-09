@@ -97,7 +97,7 @@ namespace DG2NTT.DaxDrill
             // set up connection
             var queryClient = new QueryClient(rngCell);
             var connString = ExcelHelper.GetConnectionString(rngCell);
-            var commandText = queryClient.GetDAXQuery(connString, rngCell);
+            var commandText = queryClient.GetDAXQuery(connString);
             var daxClient = new DaxClient();
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
             var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
@@ -132,7 +132,7 @@ namespace DG2NTT.DaxDrill
 
                 // generate command
                 var queryClient = new QueryClient(rngCell);
-                var commandText = queryClient.GetDAXQuery(rngCell);
+                var commandText = queryClient.GetDAXQuery();
                 MsgForm.ShowMessage("DAX Query", commandText);
             }
             catch (Exception ex)
@@ -170,5 +170,4 @@ namespace DG2NTT.DaxDrill
             }
         }
     }
-
 }

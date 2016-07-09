@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
+using Office = Microsoft.Office.Core;
 
 namespace DG2NTT.DaxDrill.Logic
 {
@@ -18,26 +19,20 @@ namespace DG2NTT.DaxDrill.Logic
         public QueryClient(Excel.Range rngCell)
         {
             this.rngCell = rngCell;
- 
         }
 
-        public string GetDaxQuery()
-        {
-            return GetDAXQuery(this.rngCell);
-        }
-
-        public string GetDAXQuery(Excel.Range rngCell)
+        public string GetDAXQuery()
         {
             var connString = ExcelHelper.GetConnectionString(rngCell);
-            return GetDAXQuery(connString, rngCell);
+            return GetDAXQuery(connString);
         }
 
-        public string GetDAXQuery(string connString, Excel.Range rngCell)
+        public string GetDAXQuery(string connString)
         {
             var pivotCellDic = PivotCellHelper.GetPivotCellQuery(rngCell);
 
             string commandText = "";
-            string measureName = GetMeasureName(rngCell);
+   
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
 
             int maxRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
@@ -48,9 +43,26 @@ namespace DG2NTT.DaxDrill.Logic
                 cnnStringBuilder.InitialCatalog))
             {
                 tabular.Connect();
-                commandText = DaxDrillParser.BuildQueryText(tabular, 
-                    pivotCellDic, 
-                    measureName, maxRecords, detailColumns);
+
+                // use Table Query if it exists
+                // otherwise get the Table Name from the Measure
+
+                string tableQuery = GetCustomTableQuery(rngCell);
+
+                if (string.IsNullOrEmpty(tableQuery))
+                {
+                    string measureName = GetMeasureName(rngCell);
+                    commandText = DaxDrillParser.BuildQueryText(tabular,
+                        pivotCellDic,
+                        measureName, maxRecords, detailColumns);
+                }
+                else
+                {
+                    commandText = DaxDrillParser.BuildCustomQueryText(tabular,
+                        pivotCellDic,
+                        tableQuery, maxRecords, detailColumns);
+                }
+
                 tabular.Disconnect();
             }
 
@@ -92,6 +104,21 @@ namespace DG2NTT.DaxDrill.Logic
             List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(Constants.DaxDrillXmlSchemaSpace, xmlString, wbcnn.Name, measure.Table.Name);
 
             return columns;
+        }
+
+        public static string GetCustomTableQuery(Excel.Range rngCell)
+        {
+            Excel.Worksheet sheet = (Excel.Worksheet)rngCell.Parent;
+            Excel.Workbook workbook = (Excel.Workbook)sheet.Parent;
+
+            Measure measure = QueryClient.GetMeasure(rngCell);
+            Office.CustomXMLNode node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
+                string.Format("{0}[@id='{1}']/x:query", Constants.TableXpath, measure.Table.Name));
+
+            if (node != null)
+                return node.Text;
+
+            return string.Empty;
         }
 
         private static Measure GetMeasure(Excel.Range rngCell)
@@ -140,11 +167,6 @@ namespace DG2NTT.DaxDrill.Logic
             {
                 return false;
             }
-        }
-
-        private string GetTableXpath(string id)
-        {
-            return string.Format("{0}[@id='{1}']", Constants.TableXpath, id);
         }
     }
 }

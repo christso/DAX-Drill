@@ -85,6 +85,15 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         public static string ReadCustomXmlPart(Excel.Workbook workbook, string xNameSpace,
             string xPath)
         {
+            Office.CustomXMLNode node = GetCustomXmlNode(workbook, xNameSpace, xPath);
+            if (node != null)
+                return node.XML;
+            return string.Empty;
+        }
+
+        public static Office.CustomXMLNode GetCustomXmlNode(Excel.Workbook workbook, string xNameSpace,
+            string xPath)
+        {
             Office.CustomXMLParts ps = workbook.CustomXMLParts;
             ps = ps.SelectByNamespace(xNameSpace);
 
@@ -94,14 +103,10 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 var nsmgr = p.NamespaceManager;
                 nsmgr.AddNamespace("x", xNameSpace);
                 Office.CustomXMLNode node = p.SelectSingleNode(xPath);
-
                 if (node != null)
-                {
-                    var xml = node.XML;
-                    return xml;
-                }
+                    return node;
             }
-            return string.Empty;
+            return null;
         }
 
         /*
