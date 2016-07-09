@@ -8,10 +8,10 @@ namespace DG2NTT.DaxDrill.Tests
 {
     class Program
     {
-        private static ExcelTests tests = new ExcelTests();
+        private static DaxDrillTests tests = new DaxDrillTests();
         static void Main(string[] args)
         {
-            tests.TemplateTest();
+            tests.ParseXmlFromRoot();
             Console.ReadKey();
         }
     }

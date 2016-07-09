@@ -10,7 +10,8 @@ namespace DG2NTT.DaxDrill
     {
         public const string DaxDrillXmlSchemaSpace = "http://schemas.microsoft.com/daxdrill";
         public const string AppName = "DAX Drill";
-        public const string TableXpath = "/x:table";
+        public const string TableXpath = "/x:daxdrill/x:table";
+        public const string RootXmlNode = "daxdrill";
         public const int DefaultMaxDrillThroughRecords = 99999;
     }
 }

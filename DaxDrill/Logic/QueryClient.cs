@@ -80,21 +80,20 @@ namespace DG2NTT.DaxDrill.Logic
             Excel.Worksheet sheet = null;
 
             wbcnn = ExcelHelper.GetWorkbookConnection(rngCell);
-                
+
             sheet = (Excel.Worksheet)rngCell.Parent;
             workbook = (Excel.Workbook)sheet.Parent;
 
             Measure measure = QueryClient.GetMeasure(rngCell);
 
             string xmlString = ExcelHelper.ReadCustomXmlPart(
-                workbook, Constants.DaxDrillXmlSchemaSpace, 
+                workbook, Constants.DaxDrillXmlSchemaSpace,
                 Constants.TableXpath);
-            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(
-                            wbcnn.Name, measure.Table.Name, xmlString, Constants.DaxDrillXmlSchemaSpace);
+            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(Constants.DaxDrillXmlSchemaSpace, xmlString, wbcnn.Name, measure.Table.Name);
 
             return columns;
         }
-        
+
         private static Measure GetMeasure(Excel.Range rngCell)
         {
             var cnnString = ExcelHelper.GetConnectionString(rngCell);
@@ -143,5 +142,9 @@ namespace DG2NTT.DaxDrill.Logic
             }
         }
 
+        private string GetTableXpath(string id)
+        {
+            return string.Format("{0}[@id='{1}']", Constants.TableXpath, id);
+        }
     }
 }

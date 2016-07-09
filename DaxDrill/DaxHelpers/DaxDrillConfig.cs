@@ -50,7 +50,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return columns;
         }
 
-        public static List<DetailColumn> GetColumnsFromTableXml(string connectionName, string tableName, string xmlString, string nsString)
+        public static List<DetailColumn> GetColumnsFromTableXml(string nsString,
+            string xmlString, string connectionName, string tableName)
         {
             XmlDocument doc = new XmlDocument();
             if (string.IsNullOrWhiteSpace(xmlString))
@@ -60,6 +61,22 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
             nsmgr.AddNamespace("x", nsString);
 
+            string xpath = GetColumnsXpathFromTableXml(root, connectionName, tableName);
+
+            XmlNode columnsNode = null;
+            if (!string.IsNullOrEmpty(xpath))
+                columnsNode = root.SelectSingleNode(xpath, nsmgr);
+            if (columnsNode == null)
+                return null;
+
+            var columns = GetColumnsFromColumnsXmlNode(columnsNode, nsmgr);
+            return columns;
+        }
+
+        public static string GetColumnsXpathFromTableXml(XmlNode root, string connectionName,
+            string tableName)
+        {
+
             string xpath = string.Empty;
             if (root.Name == "columns")
                 xpath = "/x:columns";
@@ -68,14 +85,10 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                     tableName, connectionName);
             else if (root.Name == "table")
                 xpath = string.Format("/x:table[@id=\"{0}\"]/x:columns", tableName);
-
-            XmlNode columnsNode = root.SelectSingleNode(xpath, nsmgr);
-            if (columnsNode == null)
-                return null;
-
-            var columns = GetColumnsFromColumnsXmlNode(columnsNode, nsmgr);
-            return columns;
+            else if (root.Name == Constants.RootXmlNode)
+                xpath = string.Format("/x:{1}/x:table[@id=\"{0}\"]/x:columns", 
+                    tableName, Constants.RootXmlNode);
+            return xpath;
         }
-
     }
 }

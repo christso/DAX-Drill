@@ -130,10 +130,6 @@ namespace DG2NTT.DaxDrill
                 Excel.Range rngCell = xlApp.ActiveCell;
                 if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
 
-                // XML configuration
-                Excel.Workbook workbook = xlApp.ActiveWorkbook;
-                string xml = ExcelHelper.ReadCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "/x:columns");
-                
                 // generate command
                 var queryClient = new QueryClient(rngCell);
                 var commandText = queryClient.GetDAXQuery(rngCell);
@@ -150,7 +146,6 @@ namespace DG2NTT.DaxDrill
         {
             try
             {
-                Excel.Workbook workbook = xlApp.ActiveWorkbook;
                 var form = XmlEditForm.GetStatic();
                 var controller = new XmlEditController(form);
                 form.ShowForm();

@@ -165,7 +165,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         }
 
         [Test]
-        public void ParseXml()
+        public void ParseXmlFromTable()
         {
             #region Arrange
 
@@ -194,8 +194,56 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             #region Act
 
-            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(
-                "localhost Roaming Model", "Usage", xmlString, nsString);
+            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(nsString, xmlString, "localhost Roaming Model", "Usage");
+
+            #endregion
+
+            #region Assert
+            foreach (var column in columns)
+            {
+                Console.WriteLine(column.Name + " = " + column.Expression);
+            }
+
+            Assert.AreEqual(3, columns.Count);
+            Assert.AreEqual("Usage[Call Type]", columns.Where(x => x.Name == "Call Type").Select(x => x.Expression).FirstOrDefault());
+            Assert.AreEqual("Usage[Call Type Description]", columns.Where(x => x.Name == "Call Type Description").Select(x => x.Expression).FirstOrDefault());
+            Assert.AreEqual("Usage[Gross Billed]", columns.Where(x => x.Name == "Gross Billed").Select(x => x.Expression).FirstOrDefault());
+            #endregion
+        }
+
+        public void ParseXmlFromRoot()
+        {
+            #region Arrange
+
+            const string nsString = "http://schemas.microsoft.com/daxdrill";
+            var xmlString =
+@"<daxdrill xmlns=""http://schemas.microsoft.com/daxdrill"">
+	<table id=""Usage"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
+		<columns>
+		   <column>
+			  <name>Call Type</name>
+			  <expression>Usage[Call Type]</expression>
+		   </column>
+		   <column>
+			  <name>Call Type Description</name>
+			  <expression>Usage[Call Type Description]</expression>
+		   </column>
+		   <column>
+			  <name>Gross Billed</name>
+			  <expression>Usage[Gross Billed]</expression>
+		   </column>
+		</columns>
+	</table>
+	<table id=""RoamingMeasure"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
+		<query>Usage</query>
+	</table>
+</daxdrill>";
+
+            #endregion
+
+            #region Act
+
+            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(nsString, xmlString, "localhost Roaming Model", "Usage");
 
             #endregion
 
@@ -216,25 +264,29 @@ UsageDate[Usage_MonthAbbrev] = "May"
         {
             #region Arrange
 
-            const string nsString = "dg2ntt.daxdrill";
+            const string nsString = "http://schemas.microsoft.com/daxdrill";
             var xmlString =
-@"<table id=""Usage"" connection_id=""localhost Roaming Model"" xmlns=""{0}"">
-	<columns>
-	   <column>
-		  <name>Call Type</name>
-		  <expression>Usage[Call Type]</expression>
-	   </column>
-	   <column>
-		  <name>Call Type Description</name>
-		  <expression>Usage[Call Type Description]</expression>
-	   </column>
-	   <column>
-		  <name>Gross Billed</name>
-		  <expression>Usage[Gross Billed]</expression>
-	   </column>
-	</columns>
-</table>"
-            .Replace("{0}", nsString);
+@"<daxdrill xmlns=""http://schemas.microsoft.com/daxdrill"">
+	<table id=""Usage"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
+		<columns>
+		   <column>
+			  <name>Call Type</name>
+			  <expression>Usage[Call Type]</expression>
+		   </column>
+		   <column>
+			  <name>Call Type Description</name>
+			  <expression>Usage[Call Type Description]</expression>
+		   </column>
+		   <column>
+			  <name>Gross Billed</name>
+			  <expression>Usage[Gross Billed]</expression>
+		   </column>
+		</columns>
+	</table>
+	<table id=""RoamingMeasure"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
+		<query>Usage</query>
+	</table>
+</daxdrill>";
 
             #endregion
 
@@ -244,7 +296,10 @@ UsageDate[Usage_MonthAbbrev] = "May"
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
             nsmgr.AddNamespace("x", nsString);
 
-            XmlNode node = root.SelectSingleNode("..", nsmgr);
+            //string xpath = "..";
+            string xpath = string.Format("/x:daxdrill/x:table[@id='{0}']", "RoamingMeasure");
+
+            XmlNode node = root.SelectSingleNode(xpath, nsmgr);
 
             Console.WriteLine(node.InnerXml);
         }
