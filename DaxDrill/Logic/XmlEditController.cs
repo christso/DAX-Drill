@@ -24,14 +24,17 @@ namespace DG2NTT.DaxDrill.Logic
         {
             Excel.Workbook workbook = null;
             workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
-            string xmlString = ExcelHelper.ReadCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XpathText);
+            string xmlString = ExcelHelper.ReadCustomXmlNode(workbook, xmlEditForm.NamespaceText, xmlEditForm.XpathText);
             xmlEditForm.XmlText = xmlString;
         }
 
         public void SaveXmlToWorkbook()
         {
             Excel.Workbook workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
-            ExcelHelper.UpdateCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText);
+            if (xmlEditForm.XpathText == ".." || string.IsNullOrWhiteSpace(xmlEditForm.XpathText))
+                ExcelHelper.UpdateCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText);
+            else
+                ExcelHelper.UpdateCustomXmlNode(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText, xmlEditForm.XpathText);
         }
     }
 }

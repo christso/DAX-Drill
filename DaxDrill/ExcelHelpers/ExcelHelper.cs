@@ -82,7 +82,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return result;
         }
 
-        public static string ReadCustomXmlPart(Excel.Workbook workbook, string xNameSpace,
+        public static string ReadCustomXmlNode(Excel.Workbook workbook, string xNameSpace,
             string xPath)
         {
             Office.CustomXMLNode node = GetCustomXmlNode(workbook, xNameSpace, xPath);
@@ -97,11 +97,13 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             Office.CustomXMLParts ps = workbook.CustomXMLParts;
             ps = ps.SelectByNamespace(xNameSpace);
 
+
             for (int i = 1; i <= ps.Count; i++)
             {
                 Office.CustomXMLPart p = ps[i];
                 var nsmgr = p.NamespaceManager;
                 nsmgr.AddNamespace("x", xNameSpace);
+
                 Office.CustomXMLNode node = p.SelectSingleNode(xPath);
                 if (node != null)
                     return node;
@@ -125,6 +127,20 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             AddCustomXmlPart(workbook, namespaceName, xmlString);
         }
 
+        public static void UpdateCustomXmlNode(Excel.Workbook workbook, string namespaceName, string xmlString, string xPath)
+        {
+            Office.CustomXMLParts ps = workbook.CustomXMLParts.SelectByNamespace(namespaceName);
+
+            foreach (Office.CustomXMLPart p in ps)
+            {
+                var nsmgr = p.NamespaceManager;
+                nsmgr.AddNamespace("x", namespaceName);
+
+                Office.CustomXMLNode oldNode = p.SelectSingleNode(xPath);
+                oldNode.ParentNode.ReplaceChildSubtree(xmlString, oldNode);
+            }
+        }
+        
         public static void DeleteCustomXmlPart(Excel.Workbook workbook, string namespaceName)
         {
             IEnumerator e = workbook.CustomXMLParts.GetEnumerator();

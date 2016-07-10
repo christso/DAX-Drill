@@ -98,7 +98,7 @@ namespace DG2NTT.DaxDrill.Logic
 
             Measure measure = QueryClient.GetMeasure(rngCell);
 
-            string xmlString = ExcelHelper.ReadCustomXmlPart(
+            string xmlString = ExcelHelper.ReadCustomXmlNode(
                 workbook, Constants.DaxDrillXmlSchemaSpace,
                 Constants.TableXpath);
             List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(Constants.DaxDrillXmlSchemaSpace, xmlString, wbcnn.Name, measure.Table.Name);

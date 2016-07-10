@@ -16,6 +16,8 @@ using DG2NTT.DaxDrill.UI;
 using DG2NTT.DaxDrill.Logic;
 using DG2NTT.DaxDrill.DaxHelpers;
 using DG2NTT.DaxDrill.Helpers;
+using System.Collections;
+using Office = Microsoft.Office.Core;
 
 namespace DG2NTT.DaxDrill
 {
@@ -161,7 +163,6 @@ namespace DG2NTT.DaxDrill
         {
             try
             {
-
                 AboutBox.ShowForm();
             }
             catch (Exception ex)

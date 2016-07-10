@@ -126,12 +126,10 @@ namespace DG2NTT.DaxDrill.UI
         {
             Excel.Application excelApp = (Excel.Application)ExcelDnaUtil.Application;
 
-            Excel.Workbook workbook = excelApp.ActiveWorkbook;
             var wbList = ExcelHelper.ListWorkbooks(excelApp);
             cbWorkbooks.Items.Clear();
             cbWorkbooks.Items.AddRange(wbList.ToArray());
         }
-
 
         #endregion
 
