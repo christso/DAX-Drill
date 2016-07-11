@@ -260,17 +260,36 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
         }
 
-        public void ParseMDX()
+        public void ParseMDX1()
         {
             string mdxString = @"SELECT NON EMPTY Hierarchize({DrilldownLevel({[UsageDate].[Usage_MonthAbbrev].[All]},,,INCLUDE_CALC_MEMBERS)}) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Usage].[Inbound or Outbound].[All],[Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers}, {([Usage].[Call Type].[All])}), [Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers, [Usage].[Call Type])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[UsageDate].[Usage_Year].&[2010],[UsageDate].[Usage_Year].&[2011],[UsageDate].[Usage_Year].&[2012],[UsageDate].[Usage_Year].&[2013],[UsageDate].[Usage_Year].&[2014],[UsageDate].[Usage_Year].&[2015],[UsageDate].[Usage_Year].&[2016],[UsageDate].[Usage_Year].&[2017],[UsageDate].[Usage_Year].&[2018],[UsageDate].[Usage_Year].&[2019],[UsageDate].[Usage_Year].&[2020]},{[Usage].[Country].&[Algeria],[Usage].[Country].&[American samoa]}) ON COLUMNS  FROM [Model]) WHERE ([Measures].[Gross Billed Sum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
             var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
+            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
 
-            foreach (var daxFilter in daxFilters)
+            foreach (var pair in daxDic)
             {
-                Console.WriteLine("{0} | {1} | {2}", daxFilter.TableName,
-                daxFilter.ColumnName, daxFilter.Value);
+                Console.WriteLine(pair.Key + " ---------");
+                foreach (var value in pair.Value)
+                {
+                    Console.WriteLine(value);
+                }
             }
-            
+        }
+
+        public void ParseMDX2()
+        {
+            string mdxString = @"SELECT NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[UsageDate].[Usage_Year].[All],[UsageDate].[Usage_Year].[Usage_Year].AllMembers}, {([UsageDate].[Usage_MonthAbbrev].[All])}), [UsageDate].[Usage_Year].[Usage_Year].AllMembers, [UsageDate].[Usage_MonthAbbrev])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Usage].[Inbound or Outbound].[All],[Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers}, {([Usage].[Call Type].[All])}), [Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers, [Usage].[Call Type])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[Usage].[Call Type].&[MOC], [Usage].[Call Type].&[GPRS]}) ON COLUMNS  FROM [Model]) WHERE ([Usage].[Country].[All],[Measures].[Gross Billed Sum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
+            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
+            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
+
+            foreach (var pair in daxDic)
+            {
+                Console.WriteLine(pair.Key + " ---------");
+                foreach (var value in pair.Value)
+                {
+                    Console.WriteLine(value);
+                }
+            }
         }
 
         public void ParsePivotItemFromValue()

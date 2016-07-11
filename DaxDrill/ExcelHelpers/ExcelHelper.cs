@@ -286,6 +286,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         
         public static bool IsMultiplePageItemsEnabled(Excel.PivotField pf)
         {
+
             // Excel throws error if you try to access CurrentPageName on a page field that has multiple selections
             // This function handles the error
             try

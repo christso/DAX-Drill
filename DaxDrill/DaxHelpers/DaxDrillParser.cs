@@ -186,12 +186,40 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
+        public static Dictionary<string, List<string>> ConvertDaxFilterListToDictionary(List<DaxFilter> daxFilters)
+        {
+            var dic = new Dictionary<string, List<string>>();
+            return ConvertDaxFilterListToDictionary(daxFilters, dic);
+        }
+
+        public static Dictionary<string, List<string>> ConvertDaxFilterListToDictionary(List<DaxFilter> daxFilters, Dictionary<string, List<string>> dic)
+        {
+            foreach (var df in daxFilters)
+            {
+                string key = "[" + df.TableName + "].[" + df.ColumnName + "]";
+                List<string> value = null;
+
+                if (!dic.TryGetValue(key, out value))
+                {
+                    value = new List<string>();
+                    dic.Add(key, value);
+                }
+                value.Add(key + ".&[" + df.Value + "]");
+            }
+            return dic;
+        }
+
         public static List<DaxFilter> ConvertExcelMdxToDaxFilter(string mdxString)
         {
             const string pattern = "FROM (SELECT (";
 
+            var result = new List<DaxFilter>();
+
             // start reading from the end of the pattern
-            int startIndex = mdxString.IndexOf(pattern) + pattern.Length;
+            int startIndex = mdxString.IndexOf(pattern);
+            if (startIndex < 0) return result;
+            startIndex += pattern.Length;
+
             mdxString = mdxString.Substring(startIndex, mdxString.Length - startIndex);
 
             // stop reading after the first occurrence of ")"
@@ -203,11 +231,10 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             string[] itemStringArray = mdxString.Split(',');
 
-            var result = new List<DaxFilter>();
 
             foreach (string itemString in itemStringArray)
             {
-                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString);
+                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString.Trim());
                 result.Add(daxFilter);
             }
             return result;
@@ -249,10 +276,17 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         // "[Usage].[Inbound or Outbound].&[Inbound]
         public static string GetValueFromPivotItem(string input)
         {
-            var itemIndex = input.IndexOf('&');
-            string output = input.Substring(itemIndex, input.Length - itemIndex);
-            output = output.Substring(2, output.Length - 3);
-            return output;
+            try
+            {
+                var itemIndex = input.IndexOf('&');
+                string output = input.Substring(itemIndex, input.Length - itemIndex);
+                output = output.Substring(2, output.Length - 3);
+                return output;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message + string.Format("\r\nCould not parse '{0}'", input), ex);
+            }
         }
 
         public static bool IsAllItems(string input)
