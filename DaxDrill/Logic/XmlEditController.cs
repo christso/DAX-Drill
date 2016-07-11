@@ -31,7 +31,7 @@ namespace DG2NTT.DaxDrill.Logic
         public void SaveXmlToWorkbook()
         {
             Excel.Workbook workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
-            if (xmlEditForm.XpathText == ".." || string.IsNullOrWhiteSpace(xmlEditForm.XpathText))
+            if (xmlEditForm.XpathText == "x:*" || string.IsNullOrWhiteSpace(xmlEditForm.XpathText))
                 ExcelHelper.UpdateCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText);
             else
                 ExcelHelper.UpdateCustomXmlNode(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText, xmlEditForm.XpathText);
