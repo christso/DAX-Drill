@@ -263,44 +263,24 @@ UsageDate[Usage_MonthAbbrev] = "May"
         public void ParseMDX()
         {
             string mdxString = @"SELECT NON EMPTY Hierarchize({DrilldownLevel({[UsageDate].[Usage_MonthAbbrev].[All]},,,INCLUDE_CALC_MEMBERS)}) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Usage].[Inbound or Outbound].[All],[Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers}, {([Usage].[Call Type].[All])}), [Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers, [Usage].[Call Type])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[UsageDate].[Usage_Year].&[2010],[UsageDate].[Usage_Year].&[2011],[UsageDate].[Usage_Year].&[2012],[UsageDate].[Usage_Year].&[2013],[UsageDate].[Usage_Year].&[2014],[UsageDate].[Usage_Year].&[2015],[UsageDate].[Usage_Year].&[2016],[UsageDate].[Usage_Year].&[2017],[UsageDate].[Usage_Year].&[2018],[UsageDate].[Usage_Year].&[2019],[UsageDate].[Usage_Year].&[2020]},{[Usage].[Country].&[Algeria],[Usage].[Country].&[American samoa]}) ON COLUMNS  FROM [Model]) WHERE ([Measures].[Gross Billed Sum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
-            const string pattern = "FROM (SELECT (";
+            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
 
-            // start reading from the end of the pattern
-            int startIndex = mdxString.IndexOf(pattern) + pattern.Length;
-            mdxString = mdxString.Substring(startIndex, mdxString.Length - startIndex);
-            
-            // stop reading after the first occurrence of ")"
-            int endIndex = mdxString.IndexOf(')');
-            mdxString = mdxString.Substring(0, endIndex);
-
-            // remove the outer character "{" and "}"
-            mdxString = mdxString.Replace("{", "").Replace("}", "");
-
-            string[] itemStringArray = mdxString.Split(',');
-
-
-            /* Result of itemStringArray
-[UsageDate].[Usage_Year].&[2010]
-[UsageDate].[Usage_Year].&[2011]
-[UsageDate].[Usage_Year].&[2012]
-[UsageDate].[Usage_Year].&[2013]
-[UsageDate].[Usage_Year].&[2014]
-[UsageDate].[Usage_Year].&[2015]
-[UsageDate].[Usage_Year].&[2016]
-[UsageDate].[Usage_Year].&[2017]
-[UsageDate].[Usage_Year].&[2018]
-[UsageDate].[Usage_Year].&[2019]
-[UsageDate].[Usage_Year].&[2020]
-[Usage].[Country].&[Algeria]
-[Usage].[Country].&[American samoa]
-            */
-
-
-            foreach (string itemString in itemStringArray)
+            foreach (var daxFilter in daxFilters)
             {
-                Console.WriteLine(itemString);
+                Console.WriteLine("{0} | {1} | {2}", daxFilter.TableName,
+                daxFilter.ColumnName, daxFilter.Value);
             }
             
+        }
+
+        public void ParsePivotItemFromValue()
+        {
+            string piValue = "[Usage].[Inbound or Outbound].&[Inbound]";
+
+            var daxFilter = DaxDrillParser.CreateDaxFilter(piValue);
+
+            Console.WriteLine("{0} | {1} | {2}", daxFilter.TableName,
+                daxFilter.ColumnName, daxFilter.Value);
         }
 
         public void XmlTest()

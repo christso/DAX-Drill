@@ -186,10 +186,45 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
+        public static List<DaxFilter> ConvertExcelMdxToDaxFilter(string mdxString)
+        {
+            const string pattern = "FROM (SELECT (";
+
+            // start reading from the end of the pattern
+            int startIndex = mdxString.IndexOf(pattern) + pattern.Length;
+            mdxString = mdxString.Substring(startIndex, mdxString.Length - startIndex);
+
+            // stop reading after the first occurrence of ")"
+            int endIndex = mdxString.IndexOf(')');
+            mdxString = mdxString.Substring(0, endIndex);
+
+            // remove the outer character "{" and "}"
+            mdxString = mdxString.Replace("{", "").Replace("}", "");
+
+            string[] itemStringArray = mdxString.Split(',');
+
+            var result = new List<DaxFilter>();
+
+            foreach (string itemString in itemStringArray)
+            {
+                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString);
+                result.Add(daxFilter);
+            }
+            return result;
+        }
+
         public static DaxFilter CreateDaxFilter(string piKey, string piValue)
         {
             string column = GetColumnFromPivotField(piKey);
             string table = GetTableFromPivotField(piKey);
+            string value = GetValueFromPivotItem(piValue);
+            return new DaxFilter() { TableName = table, ColumnName = column, Value = value };
+        }
+
+        public static DaxFilter CreateDaxFilter(string piValue)
+        {
+            string column = GetColumnFromPivotField(piValue);
+            string table = GetTableFromPivotField(piValue);
             string value = GetValueFromPivotItem(piValue);
             return new DaxFilter() { TableName = table, ColumnName = column, Value = value };
         }
