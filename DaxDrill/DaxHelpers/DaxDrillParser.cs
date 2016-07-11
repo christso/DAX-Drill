@@ -166,10 +166,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             foreach (var pair in inputDic)
             {
-                string column = GetColumnFromPivotField(pair.Key);
-                string table = GetTableFromPivotField(pair.Key);
-                string value = GetValueFromPivotItem(pair.Value);
-                output.Add(new DaxFilter() { TableName = table, ColumnName = column, Value = value });
+                output.Add(CreateDaxFilter(pair.Key, pair.Value));
             }
             return output;
         }
@@ -187,6 +184,14 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 output.Add(new DaxFilter() { TableName = table, ColumnName = column, Value = value });
             }
             return output;
+        }
+
+        public static DaxFilter CreateDaxFilter(string piKey, string piValue)
+        {
+            string column = GetColumnFromPivotField(piKey);
+            string table = GetTableFromPivotField(piKey);
+            string value = GetValueFromPivotItem(piValue);
+            return new DaxFilter() { TableName = table, ColumnName = column, Value = value };
         }
 
         public static string GetTableFromPivotField(string input)
