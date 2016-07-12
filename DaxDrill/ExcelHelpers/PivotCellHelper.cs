@@ -63,7 +63,8 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 string pageName = pf.DataRange.Value2;
                 if (pageName != "All" && pageName != "(Multiple Items)")
                 {
-                    dicCell.Add(pf.Name, pf.CubeField.Name + ".&[" + pageName + "]");
+                    var cubeField = pf.CubeField;
+                    dicCell.Add(pf.Name, cubeField.Name + ".&[" + pageName + "]");
                 }
             }
         }

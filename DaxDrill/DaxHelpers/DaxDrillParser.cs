@@ -280,6 +280,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             {
                 var itemIndex = input.IndexOf('&');
                 string output = input.Substring(itemIndex, input.Length - itemIndex);
+                if (output.Length == 1) return string.Empty;
                 output = output.Substring(2, output.Length - 3);
                 return output;
             }
