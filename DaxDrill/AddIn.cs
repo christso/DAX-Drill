@@ -47,15 +47,17 @@ namespace DG2NTT.DaxDrill
         {
             try
             {
+                Cancel = false;
                 Excel.Range rngCell = xlApp.ActiveCell;
+                if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
                 if (!QueryClient.IsDrillThroughEnabled(rngCell)) return;
                 DrillThrough();
+                Cancel = true;
             }
             catch (Exception ex)
             {
                 MsgForm.ShowMessage(ex);
             }
-            Cancel = true;
         }
 
         private void XlApp_WorkbookDeactivate(Excel.Workbook Wb)
