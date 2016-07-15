@@ -100,7 +100,7 @@ namespace DG2NTT.DaxDrill.Logic
 
             string xmlString = ExcelHelper.ReadCustomXmlNode(
                 workbook, Constants.DaxDrillXmlSchemaSpace,
-                Constants.TableXpath);
+                string.Format("{0}[@id='{1}']", Constants.TableXpath, measure.Table.Name));
             List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(Constants.DaxDrillXmlSchemaSpace, xmlString, wbcnn.Name, measure.Table.Name);
 
             return columns;
