@@ -326,5 +326,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 return false;
             }
         }
+
+        public static void SetPivotFieldPage(Excel.PivotField pf, string currentPageName)
+        {
+            pf.ClearAllFilters();
+            var pageName = DaxDrillParser.CreatePivotFieldPageName(pf.Name, currentPageName);
+            pf.CurrentPageName = pageName;
+        }
     }
 }

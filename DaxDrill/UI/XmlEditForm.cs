@@ -31,7 +31,6 @@ namespace DG2NTT.DaxDrill.UI
             xmlEditController = new XmlEditController(this);
         }
 
-        private const string AppName = Constants.AppName;
         private readonly XmlEditController xmlEditController;
 
         #region Public Members

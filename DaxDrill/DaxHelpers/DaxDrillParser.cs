@@ -264,7 +264,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
-        // [Usage].[Inbound or Outbound].[Inbound or Outbound]
+        // input: [Usage].[Inbound or Outbound].[Inbound or Outbound]
         public static string GetColumnFromPivotField(string input)
         {
             string[] split = input.Split('.');
@@ -288,6 +288,13 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             {
                 throw new Exception(ex.Message + string.Format("\r\nCould not parse '{0}'", input), ex);
             }
+        }
+
+        public static string CreatePivotFieldPageName(string pivotFieldName, string currentPageName)
+        {
+            string column = DaxDrillParser.GetColumnFromPivotField(pivotFieldName);
+            string table = DaxDrillParser.GetTableFromPivotField(pivotFieldName);
+            return string.Format("[{0}].[{1}].&[{2}]", table, column, currentPageName);
         }
 
         public static bool IsAllItems(string input)

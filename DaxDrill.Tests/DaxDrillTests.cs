@@ -364,5 +364,11 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             Console.WriteLine(node.InnerXml);
         }
+
+        public void SetPivotFieldPage()
+        {
+            var pageName = DaxDrillParser.CreatePivotFieldPageName("[PrdDate].[Prd_MonthAbbrev].[Prd_MonthAbbrev]", "May");
+            Console.WriteLine(pageName);
+        }
     }
 }

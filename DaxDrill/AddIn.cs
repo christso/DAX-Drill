@@ -151,7 +151,20 @@ namespace DG2NTT.DaxDrill
             try
             {
                 var form = XmlEditForm.GetStatic();
-                var controller = new XmlEditController(form);
+                form.ShowForm();
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+        }
+
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Pivot Field Page Editor")]
+        public static void ShowPivotPageFieldEditor()
+        {
+            try
+            {
+                var form = PivotFieldPageEditForm.GetStatic();
                 form.ShowForm();
             }
             catch (Exception ex)

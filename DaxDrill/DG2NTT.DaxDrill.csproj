@@ -82,6 +82,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="ExcelHelpers\PivotCellDictionary.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
+    <Compile Include="Logic\PivotFieldPageEditController.cs" />
     <Compile Include="Logic\QueryClient.cs" />
     <Compile Include="DaxHelpers\DetailColumn.cs" />
     <Compile Include="DaxHelpers\DaxFilter.cs" />
@@ -105,6 +106,12 @@
     <Compile Include="DaxHelpers\DaxClient.cs" />
     <Compile Include="DaxHelpers\TabularConnectionStringBuilder.cs" />
     <Compile Include="DaxHelpers\TabularHelper.cs" />
+    <Compile Include="UI\PivotFieldPageEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\PivotFieldPageEditForm.Designer.cs">
+      <DependentUpon>PivotFieldPageEditForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utils.cs" />
     <Compile Include="Logic\XmlEditController.cs" />
     <Compile Include="UI\XmlEditForm.cs">
@@ -130,6 +137,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\MsgForm.resx">
       <DependentUpon>MsgForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PivotFieldPageEditForm.resx">
+      <DependentUpon>PivotFieldPageEditForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\XmlEditForm.resx">
       <DependentUpon>XmlEditForm.cs</DependentUpon>
