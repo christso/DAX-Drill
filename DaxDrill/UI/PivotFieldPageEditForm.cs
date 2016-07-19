@@ -52,6 +52,8 @@ namespace DG2NTT.DaxDrill.UI
                 }
 
                 form.WindowState = System.Windows.Forms.FormWindowState.Normal;
+
+                pivotFieldPageEditController.GetPivotFieldPage();
             }
             catch (Exception ex)
             {
@@ -84,5 +86,9 @@ namespace DG2NTT.DaxDrill.UI
 
         #endregion
 
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+        }
     }
 }

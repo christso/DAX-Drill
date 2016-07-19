@@ -313,6 +313,20 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
+        public static bool IsPivotPageField(Excel.Range rngCell)
+        {
+            try
+            {
+                Excel.PivotCell pc = rngCell.PivotCell;
+                Excel.PivotField pf = pc.PivotField;
+                return pf.Orientation == Excel.XlPivotFieldOrientation.xlPageField;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool IsPivotDataCell(Excel.Range rngCell)
         {
             try

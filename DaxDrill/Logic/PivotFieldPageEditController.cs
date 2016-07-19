@@ -21,9 +21,34 @@ namespace DG2NTT.DaxDrill.Logic
 
         public void SetPivotFieldPage()
         {
-            var xlApp = (Excel.Application)ExcelDnaUtil.Application;
-            Excel.PivotField pf = xlApp.ActiveCell.PivotField;
-            ExcelHelper.SetPivotFieldPage(pf, pivotFieldPageEditForm.PageItemValue);
+            try
+            {
+                var xlApp = (Excel.Application)ExcelDnaUtil.Application;
+                Excel.PivotField pf = xlApp.ActiveCell.PivotField;
+                ExcelHelper.SetPivotFieldPage(pf, pivotFieldPageEditForm.PageItemValue);
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+        }
+
+        public void GetPivotFieldPage()
+        {
+            try
+            {
+                var xlApp = (Excel.Application)ExcelDnaUtil.Application;
+                var rngCell = (Excel.Range)xlApp.ActiveCell;
+                var pf = (Excel.PivotField)rngCell.PivotField;
+                if (ExcelHelper.IsPivotPageField(rngCell))
+                    pivotFieldPageEditForm.PageItemValue = DaxHelpers.DaxDrillParser.GetValueFromPivotItem(pf.CurrentPageName);
+                else
+                    pivotFieldPageEditForm.PageItemValue = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
         }
     }
 }

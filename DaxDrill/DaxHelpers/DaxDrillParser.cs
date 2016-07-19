@@ -278,10 +278,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         {
             try
             {
-                var itemIndex = input.IndexOf('&');
-                string output = input.Substring(itemIndex, input.Length - itemIndex);
+                string[] split = input.Split('.');
+                string output = split[2];
                 if (output.Length == 1) return string.Empty;
-                output = output.Substring(2, output.Length - 3);
+                output = output.Replace("&", "");
+                output = output.Substring(1, output.Length - 2);
                 return output;
             }
             catch (Exception ex)

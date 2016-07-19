@@ -144,8 +144,11 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var tableCommandText = DaxDrillParser.GetTableFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
             Assert.AreEqual("Usage", tableCommandText);
 
-            var pivotItemCommandText = DaxDrillParser.GetValueFromPivotItem("[Usage].[Inbound or Outbound].&[Inbound]");
-            Assert.AreEqual("Inbound", pivotItemCommandText);
+            var pivotItemCommandText1 = DaxDrillParser.GetValueFromPivotItem("[Usage].[Inbound or Outbound].&[Inbound]");
+            Assert.AreEqual("Inbound", pivotItemCommandText1);
+
+            var pivotItemCommandText2 = DaxDrillParser.GetValueFromPivotItem("[Usage].[Inbound or Outbound].[Inbound]");
+            Assert.AreEqual("Inbound", pivotItemCommandText2);
 
             #endregion
         }
