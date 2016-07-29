@@ -311,5 +311,14 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         {
             return GetColumnFromPivotField(input);
         }
+        public static string RemoveBrackets(string columnText)
+        {
+            int first = columnText.IndexOf('[');
+            if (first >= 0 && columnText.Substring(columnText.Length - 1) == "]")
+            {
+                columnText = columnText.Substring(first + 1, columnText.Length - first - 2);
+            }
+            return columnText;
+        }
     }
 }

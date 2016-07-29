@@ -18,7 +18,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             ADOMD.AdomdDataAdapter dataAdapter = new ADOMD.AdomdDataAdapter(qry, cnn);
             DataTable tabularResults = new DataTable();
             dataAdapter.Fill(tabularResults);
-            
+            foreach (System.Data.DataColumn column in tabularResults.Columns)
+            {
+                column.ColumnName = DaxDrillParser.RemoveBrackets(column.ColumnName);
+            }
+
             return tabularResults;
         }
 
@@ -28,5 +32,6 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             ADOMD.AdomdDataReader reader = cmd.ExecuteReader();
             return reader;
         }
+
     }
 }
