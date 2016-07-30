@@ -8,7 +8,7 @@ using AnalysisServices2014::Microsoft.AnalysisServices;
 
 namespace DG2NTT.DaxDrill.Tabular
 {
-    public class TabularHelper_2014
+    public class TabularHelper_2014 : IDisposable
     {
         private const string cubeName = "Model";
         private const int MaxCompatibilityLevel = 1199; // MSAS 2016 and above
@@ -166,43 +166,45 @@ namespace DG2NTT.DaxDrill.Tabular
             return new TabularItems.Table(table);
         }
 
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
 
-        public void GetColumn(string tableName, string columnName)
+        protected virtual void Dispose(bool disposing)
         {
-            if (!server.Connected)
+            if (!disposedValue)
             {
-                throw new InvalidOperationException("You must be connect to the server");
+                if (disposing)
+                {
+                    // dispose managed state (managed objects).
+                    if (server != null)
+                    {
+                        if (server.Connected)
+                            server.Disconnect();
+                        server.Dispose();
+                    }
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
             }
-
-            Database database = server.Databases.FindByName(databaseName);
-            CheckCompatibility();
-
-            if (database == null)
-                throw new InvalidOperationException(string.Format(
-                    "Database '{0}' does not exist on server '{1}'",
-                    databaseName, server.Name));
-
-            Cube cube = database.Cubes.FindByName(cubeName);
-            if (cube == null)
-                throw new InvalidOperationException(string.Format(
-                    "Cube  '{0}' does not exist in database '{1}'",
-                    cubeName, database));
-
-            CubeDimension table = cube.Dimensions.FindByName(tableName);
-            if (table == null)
-                throw new InvalidOperationException(string.Format(
-                    "Table '{0}' because it does not exist in cube '{1}'",
-                    tableName, cubeName));
-
-            CubeAttribute cattr = table.Attributes.Find(columnName);
-            DimensionAttribute dattr = cattr.Attribute;
-            var dataType = dattr.KeyColumns[0].DataType;
-            //numeric :
-            // format string  = null
-            // NameColumn.DataSize = -1
-            // dataType = Double
-            // WChar
-
         }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~TabularHelper_2014() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

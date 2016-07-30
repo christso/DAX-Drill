@@ -96,12 +96,12 @@ namespace DG2NTT.DaxDrill.Logic
             sheet = (Excel.Worksheet)rngCell.Parent;
             workbook = (Excel.Workbook)sheet.Parent;
 
-            Measure measure = QueryClient.GetMeasure(rngCell);
+            TabularItems.Measure measure = QueryClient.GetMeasure(rngCell);
 
             string xmlString = ExcelHelper.ReadCustomXmlNode(
                 workbook, Constants.DaxDrillXmlSchemaSpace,
-                string.Format("{0}[@id='{1}']", Constants.TableXpath, measure.Table.Name));
-            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(Constants.DaxDrillXmlSchemaSpace, xmlString, wbcnn.Name, measure.Table.Name);
+                string.Format("{0}[@id='{1}']", Constants.TableXpath, measure.TableName));
+            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(Constants.DaxDrillXmlSchemaSpace, xmlString, wbcnn.Name, measure.TableName);
 
             return columns;
         }
@@ -111,9 +111,9 @@ namespace DG2NTT.DaxDrill.Logic
             Excel.Worksheet sheet = (Excel.Worksheet)rngCell.Parent;
             Excel.Workbook workbook = (Excel.Workbook)sheet.Parent;
 
-            Measure measure = QueryClient.GetMeasure(rngCell);
+            TabularItems.Measure measure = QueryClient.GetMeasure(rngCell);
             Office.CustomXMLNode node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
-                string.Format("{0}[@id='{1}']/x:query", Constants.TableXpath, measure.Table.Name));
+                string.Format("{0}[@id='{1}']/x:query", Constants.TableXpath, measure.TableName));
 
             if (node != null)
                 return node.Text;
@@ -121,13 +121,13 @@ namespace DG2NTT.DaxDrill.Logic
             return string.Empty;
         }
 
-        private static Measure GetMeasure(Excel.Range rngCell)
+        private static TabularItems.Measure GetMeasure(Excel.Range rngCell)
         {
             var cnnString = ExcelHelper.GetConnectionString(rngCell);
             var cnnBuilder = new TabularConnectionStringBuilder(cnnString);
 
             string measureName = GetMeasureName(rngCell);
-            Measure measure = null;
+            TabularItems.Measure measure = null;
             using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(cnnBuilder.DataSource, cnnBuilder.InitialCatalog))
             {
                 tabular.Connect();

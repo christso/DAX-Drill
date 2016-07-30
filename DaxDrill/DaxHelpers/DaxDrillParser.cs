@@ -28,7 +28,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             int maxRecords, IEnumerable<DetailColumn> detailColumns)
         {
             var measure = tabular.GetMeasure(measureName);
-            string commandText = BuildCustomQueryText(tabular, pivotCellDic, measure.Table.Name, maxRecords, detailColumns);
+            string commandText = BuildCustomQueryText(tabular, pivotCellDic, measure.TableName, maxRecords, detailColumns);
             return commandText;
         }
 

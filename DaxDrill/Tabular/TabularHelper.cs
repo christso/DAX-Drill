@@ -59,7 +59,7 @@ namespace DG2NTT.DaxDrill.Tabular
             server.Disconnect();
         }
 
-        public Measure GetMeasure(string measureName)
+        public TabularItems.Measure GetMeasure(string measureName)
         {
             if (!server.Connected)
             {
@@ -79,7 +79,7 @@ namespace DG2NTT.DaxDrill.Tabular
             if (measure == null)
                 throw new InvalidOperationException("Measure " + measureName + " was not found in database " + this.databaseName);
 
-            return measure;
+            return new TabularItems.Measure(measure);
         }
 
         public bool IsDatabaseCompatible

@@ -158,14 +158,14 @@ UsageDate[Usage_MonthAbbrev] = "May"
         public void GetMeasure()
         {
             string measureName = "Gross Billed Sum";
-            Measure measure = null;
+            TabularItems.Measure measure = null;
             using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 measure = tabular.GetMeasure(measureName);
                 tabular.Disconnect();
             }
-            Console.WriteLine("Measure = {0}, Table = {1}", measure.Name, measure.Table.Name);
+            Console.WriteLine("Measure = {0}, Table = {1}", measure.Name, measure.TableName);
         }
 
         [Test]
@@ -389,7 +389,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         {
             var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("FINSERV01", "HRR_Snap");
             tabular.Connect();
-            Measure measure = tabular.GetMeasure("HRR_ExGST_Sum");
+            TabularItems.Measure measure = tabular.GetMeasure("HRR_ExGST_Sum");
             Console.WriteLine(measure.Name);
         }
 
@@ -474,14 +474,6 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var tabular = new TabularHelper_2014("FINSERV01", "CashFlow");
             tabular.Connect();
             Console.WriteLine("Is Database Compatible = {0}", tabular.IsDatabaseCompatible);
-        }
-
-        public void GetColumn_2014()
-        {
-            var tabular = new TabularHelper_2014("FINSERV01", "CashFlow");
-            tabular.Connect();
-            //tabular.GetColumn("TranDate", "Tran_Year");
-            tabular.GetColumn("TranDate", "Tran_MonthAbbrev");
         }
     }
 }
