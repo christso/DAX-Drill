@@ -11,9 +11,20 @@ namespace DG2NTT.DaxDrill.TabularItems
 {
     public class Measure
     {
-        public Measure()
+        public Measure(SSAS12.Cube cube, string measureName)
         {
-            
+            foreach (SSAS12.Command command in cube.DefaultMdxScript.Commands)
+            {
+                System.Reflection.MemberInfo member = typeof(SSAS12.Command).GetMember("Annotations").FirstOrDefault();
+                SSAS12.AnnotationCollection annotations = (SSAS12.AnnotationCollection)((System.Reflection.PropertyInfo)member).GetValue(command);
+                if (annotations.Count == 2
+                    && annotations[0].Value.Value == measureName)
+                {
+                    this.name = measureName;
+                    this.tableName = annotations[1].Value.Value;
+                    break;
+                }
+            }
         }
 
         public Measure(SSAS14.Measure measure)

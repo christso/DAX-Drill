@@ -80,26 +80,13 @@ namespace DG2NTT.DaxDrill.Tabular
                 throw new InvalidOperationException(string.Format(
                     "Cube  '{0}' does not exist in database '{1}'",
                     cubeName, database));
-            
-            TabularItems.Measure measure = null;
-            foreach (Command command in cube.DefaultMdxScript.Commands)
-            {
-                System.Reflection.MemberInfo member = typeof(Command).GetMember("Annotations").FirstOrDefault();
-                AnnotationCollection annotations = (AnnotationCollection)((System.Reflection.PropertyInfo)member).GetValue(command);
-                if (annotations.Count == 2
-                    && annotations[0].Value.Value == measureName)
-                {
-                    measure = new TabularItems.Measure();
-                    measure.Name = measureName;
-                    measure.TableName = annotations[1].Value.Value;
-                }
-            }
+
+            TabularItems.Measure measure = new TabularItems.Measure(cube, measureName);
 
             if (measure == null)
                 throw new InvalidOperationException("Measure " + measureName + " was not found in database " + this.databaseName);
             return measure;
         }
-
 
         public bool IsDatabaseCompatible
         {
