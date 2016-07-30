@@ -1,28 +1,27 @@
-﻿extern alias AnalysisServices2014;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AnalysisServices2014::Microsoft.AnalysisServices;
+using Microsoft.AnalysisServices.Tabular;
+using SSAS = Microsoft.AnalysisServices;
 
 namespace DG2NTT.DaxDrill.Tabular
 {
-    public class TabularHelper_2014 : IDisposable, ITabularHelper
+    public class TabularHelper_2016 : IDisposable, ITabularHelper
     {
-        private const string cubeName = "Model";
-        private const int MaxCompatibilityLevel = 1199; // MSAS 2016 and above
+        private const int MinCompatibilityLevel = 1200; // MSAS 2016 and above
         private readonly string serverName;
         private readonly string databaseName;
         private readonly Server server;
         private readonly string connectionString;
 
-        public TabularHelper_2014(string serverName, string databaseName)
+        public TabularHelper_2016(string serverName, string databaseName)
         {
             this.serverName = serverName;
             this.databaseName = databaseName;
             this.connectionString = string.Format(
-                "Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={1};Data Source={0};", serverName, databaseName);
+"Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={1};Data Source={0};", serverName, databaseName);
             this.server = new Server();
         }
 
@@ -67,25 +66,20 @@ namespace DG2NTT.DaxDrill.Tabular
                 throw new InvalidOperationException("You must be connect to the server");
             }
 
-            Database database = server.Databases.FindByName(databaseName);
-            CheckCompatibility();
+            Database database = GetDatabase(databaseName);
+            CheckCompatibility(database);
 
-            if (database == null)
-                throw new InvalidOperationException(string.Format(
-                    "Database '{0}' does not exist on server '{1}'",
-                    databaseName, server.Name));
-
-            Cube cube = database.Cubes.FindByName(cubeName);
-            if (cube == null)
-                throw new InvalidOperationException(string.Format(
-                    "Cube  '{0}' does not exist in database '{1}'",
-                    cubeName, database));
-
-            TabularItems.Measure measure = new TabularItems.Measure(cube, measureName);
-
+            Measure measure = null;
+            foreach (var table in database.Model.Tables)
+            {
+                measure = table.Measures.Find(measureName);
+                if (measure != null)
+                    break;
+            }
             if (measure == null)
                 throw new InvalidOperationException("Measure " + measureName + " was not found in database " + this.databaseName);
-            return measure;
+
+            return new TabularItems.Measure(measure);
         }
 
         public bool IsDatabaseCompatible
@@ -98,22 +92,20 @@ namespace DG2NTT.DaxDrill.Tabular
                 }
 
                 Database database = GetDatabase(databaseName);
-
-                System.Reflection.MemberInfo databaseMemInf = typeof(Database).GetMember("ModelType").FirstOrDefault();
-                var modelType = (Microsoft.AnalysisServices.ModelType)((System.Reflection.PropertyInfo)databaseMemInf).GetValue(database);
-
-                bool isServerCompatible = database.CompatibilityLevel <= MaxCompatibilityLevel;
-                bool isDatabaseCompatible = modelType == Microsoft.AnalysisServices.ModelType.Tabular;
-                return isServerCompatible && isDatabaseCompatible;
+                return database.CompatibilityLevel >= MinCompatibilityLevel
+                    && database.ModelType == SSAS.ModelType.Tabular;
             }
         }
 
-        private void CheckCompatibility()
+        private static void CheckCompatibility(Database database)
         {
-            if (!IsDatabaseCompatible)
+            bool isServerCompatible = database.CompatibilityLevel >= MinCompatibilityLevel;
+            bool isDatabaseCompatible = database.ModelType == SSAS.ModelType.Tabular;
+
+            if (!(isServerCompatible && isDatabaseCompatible))
             {
                 throw new InvalidOperationException("Database model type is not supported for drill-through. "
-                    + "The database must be in Tabular mode, version 1199 and below.");
+                    + "The database must be in Tabular mode, version 1200 and above.");
             }
         }
 
@@ -138,17 +130,11 @@ namespace DG2NTT.DaxDrill.Tabular
         {
             Database database = GetDatabase(this.databaseName);
 
-            Cube cube = database.Cubes.FindByName(cubeName);
-            if (cube == null)
-                throw new InvalidOperationException(string.Format(
-                    "Cube  '{0}' does not exist in database '{1}'",
-                    cubeName, database));
-
-            CubeDimension table = cube.Dimensions.FindByName(tableName);
+            var table = database.Model.Tables.Find(tableName);
             if (table == null)
                 throw new InvalidOperationException(string.Format(
-                    "Table '{0}' because it does not exist in cube '{1}'",
-                    tableName, cubeName));
+                    "Error retrieving table '{0}' because it does not exist in database '{1}'",
+                    tableName, databaseName));
 
             return new TabularItems.Table(table);
         }
@@ -179,7 +165,7 @@ namespace DG2NTT.DaxDrill.Tabular
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~TabularHelper_2014() {
+        // ~TabularHelper() {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);
         // }
@@ -193,5 +179,6 @@ namespace DG2NTT.DaxDrill.Tabular
             // GC.SuppressFinalize(this);
         }
         #endregion
+
     }
 }

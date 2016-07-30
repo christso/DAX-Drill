@@ -89,6 +89,7 @@
     <Compile Include="TabularItems\ColumnCollection.cs" />
     <Compile Include="TabularItems\Measure.cs" />
     <Compile Include="TabularItems\Table.cs" />
+    <Compile Include="Tabular\ITabularHelper.cs" />
     <Compile Include="Tabular\TabularHelper_2014.cs" />
     <Compile Include="ExcelHelpers\PivotCellDictionary.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="ExcelHelpers\ExcelHelper.cs" />
     <Compile Include="ExcelHelpers\PivotCellHelper.cs" />
     <Compile Include="DaxHelpers\DaxDrillParser.cs" />
+    <Compile Include="Tabular\TabularHelper_2016.cs" />
     <Compile Include="UI\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>
