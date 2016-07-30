@@ -138,7 +138,7 @@ namespace DG2NTT.DaxDrill
                 var queryClient = new QueryClient(rngCell);
                 var commandText = queryClient.GetDAXQuery();
                 MsgForm.ShowMessage("DAX Query", commandText);
-            }
+            } 
             catch (Exception ex)
             {
                 MsgForm.ShowMessage(ex);
