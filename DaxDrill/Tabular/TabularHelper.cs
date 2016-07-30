@@ -47,7 +47,8 @@ namespace DG2NTT.DaxDrill.Tabular
         public void Connect()
         {
             tabular16.Connect();
-            tabular14.Connect();
+            if (!tabular16.IsDatabaseCompatible)
+                tabular14.Connect();
         }
 
         public void Disconnect()
@@ -68,7 +69,7 @@ namespace DG2NTT.DaxDrill.Tabular
         {
             get
             {
-                return tabular14.IsDatabaseCompatible || tabular16.IsDatabaseCompatible;
+                return tabular16.IsDatabaseCompatible || tabular14.IsDatabaseCompatible;
             }
         }
 

@@ -159,7 +159,7 @@ namespace DG2NTT.DaxDrill.Logic
                 // check compatibility of Tabular database
                 var queryClient = new QueryClient(rngCell);
                 var connString = ExcelHelper.GetConnectionString(rngCell);
-                if (!queryClient.IsDatabaseCompatible(connString)) return false;
+                //if (!queryClient.IsDatabaseCompatible(connString)) return false;
 
                 return true;
             }

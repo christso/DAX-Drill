@@ -57,7 +57,8 @@ namespace DG2NTT.DaxDrill.Tabular
 
         public void Disconnect()
         {
-            server.Disconnect();
+            if (server.Connected)
+                server.Disconnect();
         }
 
         public TabularItems.Measure GetMeasure(string measureName)
