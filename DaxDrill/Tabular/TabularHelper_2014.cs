@@ -147,6 +147,26 @@ namespace DG2NTT.DaxDrill.Tabular
             return database;
         }
 
+        public TabularItems.Table GetTable(string tableName)
+        {
+            Database database = GetDatabase(this.databaseName);
+
+            Cube cube = database.Cubes.FindByName(cubeName);
+            if (cube == null)
+                throw new InvalidOperationException(string.Format(
+                    "Cube  '{0}' does not exist in database '{1}'",
+                    cubeName, database));
+
+            CubeDimension table = cube.Dimensions.FindByName(tableName);
+            if (table == null)
+                throw new InvalidOperationException(string.Format(
+                    "Table '{0}' because it does not exist in cube '{1}'",
+                    tableName, cubeName));
+
+            return new TabularItems.Table(table);
+        }
+
+
         public void GetColumn(string tableName, string columnName)
         {
             if (!server.Connected)
