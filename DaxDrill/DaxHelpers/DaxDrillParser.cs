@@ -132,7 +132,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public static string BuildColumnCommandText(SSAS.Column column, DaxFilter item)
+        public static string BuildColumnCommandText(TabularItems.Column column, DaxFilter item)
         {
             string commandText;
             switch (column.DataType)

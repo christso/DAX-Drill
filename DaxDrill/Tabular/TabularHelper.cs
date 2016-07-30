@@ -126,7 +126,7 @@ namespace DG2NTT.DaxDrill.Tabular
             return database;
         }
 
-        public Table GetTable(string tableName)
+        public TabularItems.Table GetTable(string tableName)
         {
             Database database = GetDatabase(this.databaseName);
 
@@ -136,7 +136,7 @@ namespace DG2NTT.DaxDrill.Tabular
                     "Error retrieving table '{0}' because it does not exist in database '{1}'",
                     tableName, databaseName));
 
-            return table;
+            return new TabularItems.Table(table);
         }
 
         #region IDisposable Support

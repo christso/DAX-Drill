@@ -475,5 +475,13 @@ UsageDate[Usage_MonthAbbrev] = "May"
             tabular.Connect();
             Console.WriteLine("Is Database Compatible = {0}", tabular.IsDatabaseCompatible);
         }
+
+        public void GetColumn_2014()
+        {
+            var tabular = new TabularHelper_2014("FINSERV01", "CashFlow");
+            tabular.Connect();
+            //tabular.GetColumn("TranDate", "Tran_Year");
+            tabular.GetColumn("TranDate", "Tran_MonthAbbrev");
+        }
     }
 }

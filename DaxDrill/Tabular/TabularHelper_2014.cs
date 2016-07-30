@@ -68,6 +68,8 @@ namespace DG2NTT.DaxDrill.Tabular
             }
 
             Database database = server.Databases.FindByName(databaseName);
+            CheckCompatibility();
+
             if (database == null)
                 throw new InvalidOperationException(string.Format(
                     "Database '{0}' does not exist on server '{1}'",
@@ -119,6 +121,15 @@ namespace DG2NTT.DaxDrill.Tabular
             }
         }
 
+        private void CheckCompatibility()
+        {
+            if (!IsDatabaseCompatible)
+            {
+                throw new InvalidOperationException("Database model type is not supported for drill-through. "
+                    + "The database must be in Tabular mode, version 1199 and below.");
+            }
+        }
+
         public Database GetDatabase(string databaseName)
         {
             if (!server.Connected)
@@ -136,5 +147,42 @@ namespace DG2NTT.DaxDrill.Tabular
             return database;
         }
 
+        public void GetColumn(string tableName, string columnName)
+        {
+            if (!server.Connected)
+            {
+                throw new InvalidOperationException("You must be connect to the server");
+            }
+
+            Database database = server.Databases.FindByName(databaseName);
+            CheckCompatibility();
+
+            if (database == null)
+                throw new InvalidOperationException(string.Format(
+                    "Database '{0}' does not exist on server '{1}'",
+                    databaseName, server.Name));
+
+            Cube cube = database.Cubes.FindByName(cubeName);
+            if (cube == null)
+                throw new InvalidOperationException(string.Format(
+                    "Cube  '{0}' does not exist in database '{1}'",
+                    cubeName, database));
+
+            CubeDimension table = cube.Dimensions.FindByName(tableName);
+            if (table == null)
+                throw new InvalidOperationException(string.Format(
+                    "Table '{0}' because it does not exist in cube '{1}'",
+                    tableName, cubeName));
+
+            CubeAttribute cattr = table.Attributes.Find(columnName);
+            DimensionAttribute dattr = cattr.Attribute;
+            var dataType = dattr.KeyColumns[0].DataType;
+            //numeric :
+            // format string  = null
+            // NameColumn.DataSize = -1
+            // dataType = Double
+            // WChar
+
+        }
     }
 }

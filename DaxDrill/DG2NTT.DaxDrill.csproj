@@ -85,7 +85,10 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="TabularItems\Column.cs" />
+    <Compile Include="TabularItems\ColumnCollection.cs" />
     <Compile Include="TabularItems\Measure.cs" />
+    <Compile Include="TabularItems\Table.cs" />
     <Compile Include="Tabular\TabularHelper_2014.cs" />
     <Compile Include="ExcelHelpers\PivotCellDictionary.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
