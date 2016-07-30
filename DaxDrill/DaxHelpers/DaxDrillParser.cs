@@ -280,8 +280,9 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             {
                 input = input.Replace("&[", "[");
                 string[] split = input.Split(new string[] { ".[" }, StringSplitOptions.None);
+                if (split.Length <= 2)
+                    return string.Empty;
                 string output = split[2];
-                if (output.Length == 1) return string.Empty;
                 output = output.Substring(0, output.Length - 1);
                 return output;
             }
