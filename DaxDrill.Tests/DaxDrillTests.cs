@@ -9,6 +9,7 @@ using ADOMD = Microsoft.AnalysisServices.AdomdClient;
 using DG2NTT.DaxDrill.DaxHelpers;
 using Microsoft.AnalysisServices.Tabular;
 using DG2NTT.DaxDrill.ExcelHelpers;
+using DG2NTT.DaxDrill.Tabular;
 
 namespace DG2NTT.DaxDrill.Tests
 {
@@ -45,7 +46,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var pivotCellDic = new PivotCellDictionary();
             pivotCellDic.SingleSelectDictionary = excelDic;
             string commandText;
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 commandText = DaxDrillParser.BuildFilterCommandText(pivotCellDic, tabular);
@@ -81,7 +82,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var pivotCellDic = new PivotCellDictionary();
             pivotCellDic.SingleSelectDictionary = singDic;
 
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 commandText = DaxDrillParser.BuildQueryText(tabular, pivotCellDic, "Gross Billed Sum", 99999);
@@ -117,7 +118,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             var parser = new DaxDrillParser();
             string commandText;
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 var selectedColumns = new List<DetailColumn>();
@@ -158,7 +159,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         {
             string measureName = "Gross Billed Sum";
             Measure measure = null;
-            using (var tabular = new TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
             {
                 tabular.Connect();
                 measure = tabular.GetMeasure(measureName);
@@ -384,5 +385,95 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
         }
 
+        public void GetMeasure_SSAS2016()
+        {
+            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("FINSERV01", "HRR_Snap");
+            tabular.Connect();
+            Measure measure = tabular.GetMeasure("HRR_ExGST_Sum");
+            Console.WriteLine(measure.Name);
+        }
+
+        public void GetMeasure_SSAS2014()
+        {
+            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2014("FINSERV01", "CashFlow");
+            tabular.Connect();
+            var measure = tabular.GetMeasure("Func Amt Sum");
+
+            Console.WriteLine(measure.Name);
+        }
+
+        public void GetTable_SSAS2016()
+        {
+            var commandText = "EVALUATE TOPN( 100, HRR_Snap )";
+            string serverName = "FINSERV01";
+            string connectionString = string.Format(
+                "Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={1};Data Source={0};", serverName, "HRR_Snap");
+
+            var cnn = new ADOMD.AdomdConnection(connectionString);
+            var daxClient = new DaxClient();
+            var dtResult = daxClient.ExecuteTable(commandText, cnn);
+
+            var columnNames = "";
+            foreach (System.Data.DataColumn column in dtResult.Columns)
+            {
+                if (string.IsNullOrEmpty(columnNames))
+                    columnNames += ",";
+                columnNames += column.ColumnName;
+
+            }
+            Console.WriteLine(columnNames);
+
+            foreach (System.Data.DataRow row in dtResult.Rows)
+            {
+                var rowText = "";
+                foreach (object item in row.ItemArray)
+                {
+                    if (!string.IsNullOrEmpty(rowText))
+                        rowText += ",";
+                    rowText += Convert.ToString(item);
+                }
+                Console.WriteLine(rowText);
+            }
+        }
+
+        public void GetTable_SSAS2014()
+        {
+            var commandText = "EVALUATE TOPN( 100, CashFlow )";
+            string serverName = "FINSERV01";
+            string connectionString = string.Format(
+                "Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={1};Data Source={0};", serverName, "CashFlow");
+
+            var cnn = new ADOMD.AdomdConnection(connectionString);
+            var daxClient = new DaxClient();
+            var dtResult = daxClient.ExecuteTable(commandText, cnn);
+
+            var columnNames = "";
+            foreach (System.Data.DataColumn column in dtResult.Columns)
+            {
+                if (string.IsNullOrEmpty(columnNames))
+                    columnNames += ",";
+                columnNames += column.ColumnName;
+                
+            }
+            Console.WriteLine(columnNames);
+
+            foreach (System.Data.DataRow row in dtResult.Rows)
+            {
+                var rowText = "";
+                foreach (object item in row.ItemArray)
+                {
+                    if (!string.IsNullOrEmpty(rowText))
+                        rowText += ",";
+                    rowText += Convert.ToString(item);
+                }
+                Console.WriteLine(rowText);
+            }
+        }
+        public void IsDatabaseCompatible_2014()
+        {
+            var tabular = new TabularHelper_2014("FINSERV01", "CashFlow");
+            tabular.Connect();
+            Console.WriteLine("Is Database Compatible = {0}", tabular.IsDatabaseCompatible);
+        }
     }
 }

@@ -35,6 +35,11 @@
       <HintPath>..\packages\ExcelDna.Integration.0.33.9\lib\ExcelDna.Integration.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.AnalysisServices, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AnalysisServices.11.0.2100.60\lib\net40\Microsoft.AnalysisServices.DLL</HintPath>
+      <Private>True</Private>
+      <Aliases>AnalysisServices2014</Aliases>
+    </Reference>
     <Reference Include="Microsoft.AnalysisServices.AdomdClient, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AnalysisServices.AdomdClient.12.0.2000.8\lib\net40\Microsoft.AnalysisServices.AdomdClient.dll</HintPath>
       <Private>True</Private>
@@ -80,6 +85,8 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="TabularItems\Measure.cs" />
+    <Compile Include="Tabular\TabularHelper_2014.cs" />
     <Compile Include="ExcelHelpers\PivotCellDictionary.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
     <Compile Include="Logic\PivotFieldPageEditController.cs" />
@@ -105,7 +112,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DaxHelpers\DaxClient.cs" />
     <Compile Include="DaxHelpers\TabularConnectionStringBuilder.cs" />
-    <Compile Include="DaxHelpers\TabularHelper.cs" />
+    <Compile Include="Tabular\TabularHelper.cs" />
     <Compile Include="UI\PivotFieldPageEditForm.cs">
       <SubType>Form</SubType>
     </Compile>

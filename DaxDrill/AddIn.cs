@@ -185,5 +185,25 @@ namespace DG2NTT.DaxDrill
                 MsgForm.ShowMessage(ex);
             }
         }
+
+
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
+        public static void Test()
+        {
+            try
+            {
+                Excel.Range rngCell = xlApp.ActiveCell;
+                if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
+
+                // generate command
+                var queryClient = new QueryClient(rngCell);
+                var commandText = queryClient.GetDAXQuery();
+                MsgForm.ShowMessage("DAX Query", commandText);
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+        }
     }
 }

@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tabular = Microsoft.AnalysisServices.Tabular;
+using SSAS = Microsoft.AnalysisServices.Tabular;
 
 namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxDrillParser
     {
-        public static string BuildQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
+        public static string BuildQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
         {
             return BuildQueryText(tabular, pivotCellDic, measureName, maxRecords, null);
         }
@@ -24,7 +24,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         /// <param name="maxRecords">Maximum records to be retrieved</param>
         /// <param name="detailColumns">List of columns to be included in drill-through</param>
         /// <returns></returns>
-        public static string BuildQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName,
+        public static string BuildQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName,
             int maxRecords, IEnumerable<DetailColumn> detailColumns)
         {
             var measure = tabular.GetMeasure(measureName);
@@ -32,7 +32,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public static string BuildCustomQueryText(TabularHelper tabular, PivotCellDictionary pivotCellDic, string tableQuery,
+        public static string BuildCustomQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string tableQuery,
             int maxRecords, IEnumerable<DetailColumn> detailColumns)
         {
             string filterText = BuildFilterCommandText(pivotCellDic, tabular);
@@ -74,7 +74,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        public static string BuildFilterCommandText(PivotCellDictionary excelDic, TabularHelper tabular)
+        public static string BuildFilterCommandText(PivotCellDictionary excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
         {
             string singCmdText = BuildSingleSelectFilterCommandText(excelDic.SingleSelectDictionary, tabular);
             string multiCmdText = BuildMultiSelectFilterCommandText(excelDic.MultiSelectDictionary, tabular);
@@ -90,7 +90,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, TabularHelper tabular)
+        private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
         {
             var daxFilter = ConvertSingleExcelDrillToDaxFilter(excelDic);
 
@@ -107,7 +107,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        private static string BuildMultiSelectFilterCommandText(Dictionary<string, List<string>> excelDic, TabularHelper tabular)
+        private static string BuildMultiSelectFilterCommandText(Dictionary<string, List<string>> excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
         {
             string commandText = "";
             foreach (KeyValuePair<string, List<string>> pair in excelDic)
@@ -132,20 +132,20 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public static string BuildColumnCommandText(Tabular.Column column, DaxFilter item)
+        public static string BuildColumnCommandText(SSAS.Column column, DaxFilter item)
         {
             string commandText;
             switch (column.DataType)
             {
-                case Tabular.DataType.String:
+                case SSAS.DataType.String:
                     commandText = string.Format("{0}[{1}] = \"{2}\"", item.TableName, item.ColumnName, item.Value);
                     break;
-                case Tabular.DataType.Int64:
-                case Tabular.DataType.Decimal:
-                case Tabular.DataType.Double:
+                case SSAS.DataType.Int64:
+                case SSAS.DataType.Decimal:
+                case SSAS.DataType.Double:
                     commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, item.Value);
                     break;
-                case Tabular.DataType.Boolean:
+                case SSAS.DataType.Boolean:
                     if (item.Value.ToLower() == "true")
                         commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, "TRUE");
                     else

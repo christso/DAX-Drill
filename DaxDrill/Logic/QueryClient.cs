@@ -38,7 +38,7 @@ namespace DG2NTT.DaxDrill.Logic
             int maxRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
             var detailColumns = QueryClient.GetCustomDetailColumns(rngCell);
 
-            using (var tabular = new TabularHelper(
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(
                 cnnStringBuilder.DataSource,
                 cnnStringBuilder.InitialCatalog))
             {
@@ -74,7 +74,7 @@ namespace DG2NTT.DaxDrill.Logic
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
             bool result = false;
 
-            using (var tabular = new TabularHelper(
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(
                 cnnStringBuilder.DataSource,
                 cnnStringBuilder.InitialCatalog))
             {
@@ -128,7 +128,7 @@ namespace DG2NTT.DaxDrill.Logic
 
             string measureName = GetMeasureName(rngCell);
             Measure measure = null;
-            using (var tabular = new TabularHelper(cnnBuilder.DataSource, cnnBuilder.InitialCatalog))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(cnnBuilder.DataSource, cnnBuilder.InitialCatalog))
             {
                 tabular.Connect();
                 measure = tabular.GetMeasure(measureName);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AnalysisServices.Tabular;
 using SSAS = Microsoft.AnalysisServices;
 
-namespace DG2NTT.DaxDrill.DaxHelpers
+namespace DG2NTT.DaxDrill.Tabular
 {
     public class TabularHelper : IDisposable
     {
