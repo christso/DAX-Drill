@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿extern alias AnalysisServices2014;
+
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,7 @@ using DG2NTT.DaxDrill.DaxHelpers;
 using Microsoft.AnalysisServices.Tabular;
 using DG2NTT.DaxDrill.ExcelHelpers;
 using DG2NTT.DaxDrill.Tabular;
+using SSAS12 = AnalysisServices2014::Microsoft.AnalysisServices;
 
 namespace DG2NTT.DaxDrill.Tests
 {
@@ -392,6 +395,21 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var measure = tabular.GetMeasureFromDMV("Func Amt Sum");
 
             Console.WriteLine(measure.TableName);
+        }
+
+        public void GetColumnDataType_SSAS2014()
+        {
+            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2014("FINSERV01", "ApPayments");
+            tabular.Connect();
+
+
+            var table = tabular.GetTable("Account");
+            foreach (SSAS12.CubeAttribute attr in table.BaseTable12.Attributes)
+            {
+                //if (attr.Attribute.Name == "Is Cash")
+                Console.WriteLine("{0} | {1}", attr.Attribute.Name, attr.Attribute.KeyColumns[0].DataType.ToString());
+            }
+
         }
 
         public void GetMeasure_SSAS2016()

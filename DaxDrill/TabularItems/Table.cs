@@ -24,7 +24,14 @@ namespace DG2NTT.DaxDrill.TabularItems
         private SSAS12.CubeDimension table12;
         private SSAS14.Table table14;
         private ColumnCollection columns;
-        private string tableName;
+
+        public SSAS12.CubeDimension BaseTable12
+        {
+            get
+            {
+                return this.table12;
+            }
+        }
 
         public ColumnCollection Columns
         {
@@ -76,6 +83,7 @@ namespace DG2NTT.DaxDrill.TabularItems
                 case System.Data.OleDb.OleDbType.Decimal:
                 case System.Data.OleDb.OleDbType.DBDate:
                 case System.Data.OleDb.OleDbType.Integer:
+                case System.Data.OleDb.OleDbType.BigInt:
                     destDataType = SSAS14.DataType.Double;
                     break;
                 case System.Data.OleDb.OleDbType.Boolean:

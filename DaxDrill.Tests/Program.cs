@@ -11,7 +11,7 @@ namespace DG2NTT.DaxDrill.Tests
         private static DaxDrillTests tests = new DaxDrillTests();
         static void Main(string[] args)
         {
-            tests.GetMeasureDMV();
+            tests.GetColumnDataType_SSAS2014();
             Console.ReadKey();
         }
     }
