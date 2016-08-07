@@ -27,6 +27,12 @@ namespace DG2NTT.DaxDrill.TabularItems
             }
         }
 
+        public Measure(string tableName, string measureName)
+        {
+            this.name = measureName;
+            this.tableName = tableName;
+        }
+
         public Measure(SSAS14.Measure measure)
         {
             this.tableName = measure.Table.Name;

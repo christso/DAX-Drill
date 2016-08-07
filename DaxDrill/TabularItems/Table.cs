@@ -24,6 +24,7 @@ namespace DG2NTT.DaxDrill.TabularItems
         private SSAS12.CubeDimension table12;
         private SSAS14.Table table14;
         private ColumnCollection columns;
+        private string tableName;
 
         public ColumnCollection Columns
         {

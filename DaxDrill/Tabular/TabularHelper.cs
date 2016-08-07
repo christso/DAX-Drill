@@ -62,14 +62,15 @@ namespace DG2NTT.DaxDrill.Tabular
             if (tabular16.IsDatabaseCompatible)
                 return tabular16.GetMeasure(measureName);
             else
-                return tabular14.GetMeasure(measureName);
+                return tabular16.GetMeasureFromDMV(measureName);
         }
 
         public bool IsDatabaseCompatible
         {
             get
             {
-                return tabular16.IsDatabaseCompatible || tabular14.IsDatabaseCompatible;
+                Database database = tabular16.GetDatabase(this.DatabaseName);
+                return database.ModelType == SSAS.ModelType.Tabular;
             }
         }
 

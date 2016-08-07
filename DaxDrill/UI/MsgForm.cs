@@ -79,7 +79,6 @@ namespace DG2NTT.DaxDrill.UI
 
         #endregion
 
-        private Size _originalSize;
         public MsgForm()
         {
             //
@@ -90,7 +89,6 @@ namespace DG2NTT.DaxDrill.UI
             //
             // Add constructor code after the InitializeComponent() call.
             //
-            _originalSize = Size;
         }
 
         #region Form Events
@@ -100,22 +98,6 @@ namespace DG2NTT.DaxDrill.UI
             Hide();
         }
 
-        private void ErrFormResize(object sender, EventArgs eventArgs)
-        {
-            if (WindowState == FormWindowState.Minimized) return;
-            //prevent form from being resized to smaller than the minimum
-            if (Size.Width < _originalSize.Width)
-                Size = new Size(_originalSize.Width, Size.Height);
-            if (Size.Height < _originalSize.Height)
-                Size = new Size(Size.Width, _originalSize.Height);
-
-            //resize controls
-            txtStackTrace.Size = new Size(Size.Width - 41, Size.Height - 126);
-            lblMessage.Size = new Size(Size.Width - 40, lblMessage.Size.Height);
-
-            //relocate controls
-            btnOk.Location = new Point(Size.Width - 104, Size.Height - 68);
-        }
         #endregion
     }
 }

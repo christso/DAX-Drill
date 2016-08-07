@@ -8,7 +8,7 @@ using AnalysisServices2014::Microsoft.AnalysisServices;
 
 namespace DG2NTT.DaxDrill.Tabular
 {
-    public class TabularHelper_2014 : IDisposable, ITabularHelper
+    public class TabularHelper_2014 : IDisposable
     {
         private const string cubeName = "Model";
         private const int MaxCompatibilityLevel = 1199; // MSAS 2016 and above
@@ -69,7 +69,6 @@ namespace DG2NTT.DaxDrill.Tabular
             }
 
             Database database = server.Databases.FindByName(databaseName);
-            CheckCompatibility();
 
             if (database == null)
                 throw new InvalidOperationException(string.Format(
@@ -79,7 +78,7 @@ namespace DG2NTT.DaxDrill.Tabular
             Cube cube = database.Cubes.FindByName(cubeName);
             if (cube == null)
                 throw new InvalidOperationException(string.Format(
-                    "Cube  '{0}' does not exist in database '{1}'",
+                    "Cube '{0}' does not exist in database '{1}'",
                     cubeName, database));
 
             TabularItems.Measure measure = new TabularItems.Measure(cube, measureName);
@@ -106,15 +105,6 @@ namespace DG2NTT.DaxDrill.Tabular
                 bool isServerCompatible = database.CompatibilityLevel <= MaxCompatibilityLevel;
                 bool isDatabaseCompatible = modelType == Microsoft.AnalysisServices.ModelType.Tabular;
                 return isServerCompatible && isDatabaseCompatible;
-            }
-        }
-
-        private void CheckCompatibility()
-        {
-            if (!IsDatabaseCompatible)
-            {
-                throw new InvalidOperationException("Database model type is not supported for drill-through. "
-                    + "The database must be in Tabular mode, version 1199 and below.");
             }
         }
 

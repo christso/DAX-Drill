@@ -385,6 +385,15 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
         }
 
+        public void GetMeasureDMV()
+        {
+            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2016("FINSERV01", "CashFlow");
+            tabular.Connect();
+            var measure = tabular.GetMeasureFromDMV("Func Amt Sum");
+
+            Console.WriteLine(measure.TableName);
+        }
+
         public void GetMeasure_SSAS2016()
         {
             var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("FINSERV01", "HRR_Snap");
@@ -468,12 +477,6 @@ UsageDate[Usage_MonthAbbrev] = "May"
                 }
                 Console.WriteLine(rowText);
             }
-        }
-        public void IsDatabaseCompatible_2014()
-        {
-            var tabular = new TabularHelper_2014("FINSERV01", "CashFlow");
-            tabular.Connect();
-            Console.WriteLine("Is Database Compatible = {0}", tabular.IsDatabaseCompatible);
         }
     }
 }

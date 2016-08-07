@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AnalysisServices.Tabular;
 using SSAS = Microsoft.AnalysisServices;
+using ADOMD = Microsoft.AnalysisServices.AdomdClient;
 
 namespace DG2NTT.DaxDrill.Tabular
 {
@@ -63,11 +64,12 @@ namespace DG2NTT.DaxDrill.Tabular
         {
             if (!server.Connected)
             {
-                throw new InvalidOperationException("You must be connect to the server");
+                throw new InvalidOperationException("You must be connected to the server");
             }
 
             Database database = GetDatabase(databaseName);
-            CheckCompatibility(database);
+            if (database.Model == null)
+                return GetMeasureFromDMV(measureName); // use DMV method if default method fails
 
             Measure measure = null;
             foreach (var table in database.Model.Tables)
@@ -80,6 +82,46 @@ namespace DG2NTT.DaxDrill.Tabular
                 throw new InvalidOperationException("Measure " + measureName + " was not found in database " + this.databaseName);
 
             return new TabularItems.Measure(measure);
+        }
+
+        public TabularItems.Measure GetMeasureFromDMV(string measureName)
+        {
+            if (!server.Connected)
+            {
+                throw new InvalidOperationException("You must be connected to the server");
+            }
+
+            var dmv = string.Format(
+@"SELECT [CATALOG_NAME] as [DATABASE],
+    CUBE_NAME AS [CUBE],[MEASUREGROUP_NAME] AS [TABLE],[MEASURE_CAPTION] AS [MEASURE],
+    [MEASURE_IS_VISIBLE]
+FROM $SYSTEM.MDSCHEMA_MEASURES
+WHERE CUBE_NAME  ='Model'
+	AND MEASURE_CAPTION = '{0}'",
+                    measureName);
+
+            var daxClient = new DaxHelpers.DaxClient();
+            System.Data.DataTable dtResult = null;
+            using (var cnn = new ADOMD.AdomdConnection(connectionString))
+            {
+                cnn.Open();
+                dtResult = daxClient.ExecuteTable(dmv, cnn);
+                cnn.Close();
+            }
+
+            TabularItems.Measure measure = null;
+            foreach (System.Data.DataRow drow in dtResult.Rows)
+            {
+                if (Convert.ToString(drow["MEASURE"]) == measureName)
+                {
+                    measure = new TabularItems.Measure(Convert.ToString(drow["TABLE"]), measureName);
+                    break;
+                }
+            }
+
+            if (measure == null)
+                throw new InvalidOperationException("Measure " + measureName + " was not found in database " + this.databaseName);
+            return measure;
         }
 
         public bool IsDatabaseCompatible
@@ -96,19 +138,7 @@ namespace DG2NTT.DaxDrill.Tabular
                     && database.ModelType == SSAS.ModelType.Tabular;
             }
         }
-
-        private static void CheckCompatibility(Database database)
-        {
-            bool isServerCompatible = database.CompatibilityLevel >= MinCompatibilityLevel;
-            bool isDatabaseCompatible = database.ModelType == SSAS.ModelType.Tabular;
-
-            if (!(isServerCompatible && isDatabaseCompatible))
-            {
-                throw new InvalidOperationException("Database model type is not supported for drill-through. "
-                    + "The database must be in Tabular mode, version 1200 and above.");
-            }
-        }
-
+        
         public Database GetDatabase(string databaseName)
         {
             if (!server.Connected)
@@ -138,7 +168,7 @@ namespace DG2NTT.DaxDrill.Tabular
 
             return new TabularItems.Table(table);
         }
-
+        
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 

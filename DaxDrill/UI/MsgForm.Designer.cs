@@ -84,7 +84,6 @@ namespace DG2NTT.DaxDrill.UI
             this.Name = "ErrForm";
             this.Text = "DAX Drill Error";
             this.TopMost = true;
-            this.Resize += new System.EventHandler(this.ErrFormResize);
             this.ResumeLayout(false);
             this.PerformLayout();
 
