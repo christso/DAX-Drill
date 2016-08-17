@@ -222,8 +222,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             mdxString = mdxString.Substring(startIndex, mdxString.Length - startIndex);
 
-            // stop reading after the first occurrence of ")"
-            int endIndex = mdxString.IndexOf(')');
+            // stop reading after the first occurrence of ") ON"
+            int endIndex = mdxString.IndexOf(") ON");
             mdxString = mdxString.Substring(0, endIndex);
 
             // remove the outer character "{" and "}"

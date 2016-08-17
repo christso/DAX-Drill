@@ -299,6 +299,22 @@ UsageDate[Usage_MonthAbbrev] = "May"
             }
         }
 
+        public void ParseMDX3()
+        {
+            string mdxString = @"SELECT NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[AsAtDate].[Year].[Year].AllMembers}, {([AsAtDate].[Month].[All])}), [AsAtDate].[Year].[Year].AllMembers, [AsAtDate].[Month])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Activity].[Fin Activity].[All],[Activity].[Fin Activity].[Fin Activity].AllMembers}, {([ApTradeCreditor].[Supplier].[All])}), {[Activity].[Fin Activity].&[Other Capex]}, [ApTradeCreditor].[Supplier])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[ApTradeCreditor].[Supplier].&[HUAWEI TECHNOLOGIES (AUSTRALIA) PTY LTD]}) ON COLUMNS  FROM [Model]) WHERE ([ApTradeCreditor].[LiabilityAccount].[All],[ApTradeCreditor].[InvoiceNumber].&[AU1602160],[Measures].[TradeCreditorSum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
+            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
+            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
+
+            foreach (var pair in daxDic)
+            {
+                Console.WriteLine(pair.Key + " ---------");
+                foreach (var value in pair.Value)
+                {
+                    Console.WriteLine(value);
+                }
+            }
+        }
+
         public void ParsePivotItemFromValue()
         {
             string piValue = "[Usage].[Inbound or Outbound].&[Inbound]";
