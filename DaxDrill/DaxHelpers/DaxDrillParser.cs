@@ -211,19 +211,38 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
         public static List<DaxFilter> ConvertExcelMdxToDaxFilter(string mdxString)
         {
-            const string pattern = "FROM (SELECT (";
+            string[] columnStringArray = OnColumnsMdxToArray(mdxString);
+            string[] rowStringArray = OnRowsMdxToArray(mdxString);
 
             var result = new List<DaxFilter>();
 
+            foreach (string itemString in columnStringArray)
+            {
+                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString.Trim());
+                result.Add(daxFilter);
+            }
+            foreach (string itemString in rowStringArray)
+            {
+                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString.Trim());
+                result.Add(daxFilter);
+            }
+
+            return result;
+        }
+
+        private static string[] OnColumnsMdxToArray(string mdxString)
+        {
+            const string startPattern = "FROM (SELECT (";
+
             // start reading from the end of the pattern
-            int startIndex = mdxString.IndexOf(pattern);
-            if (startIndex < 0) return result;
-            startIndex += pattern.Length;
+            int startIndex = mdxString.IndexOf(startPattern);
+            if (startIndex < 0) return new string[0];
+            startIndex += startPattern.Length;
 
             mdxString = mdxString.Substring(startIndex, mdxString.Length - startIndex);
 
             // stop reading after the first occurrence of ") ON"
-            int endIndex = mdxString.IndexOf(") ON");
+            int endIndex = mdxString.IndexOf(") ON COLUMNS");
             mdxString = mdxString.Substring(0, endIndex);
 
             // remove the outer character "{" and "}"
@@ -231,13 +250,29 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             string[] itemStringArray = mdxString.Split(',');
 
+            return itemStringArray;
+        }
 
-            foreach (string itemString in itemStringArray)
-            {
-                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString.Trim());
-                result.Add(daxFilter);
-            }
-            return result;
+        private static string[] OnRowsMdxToArray(string mdxString)
+        {
+
+            // start reading from the end of the pattern
+            int startIndex = mdxString.IndexOf("FROM (SELECT (");
+            if (startIndex < 0) return new string[0];
+            startIndex = mdxString.IndexOf(") ON COLUMNS", startIndex);
+            int endIndex = mdxString.IndexOf(") ON ROWS", startIndex);
+            if (endIndex < 0) return new string[0];
+
+            mdxString = mdxString.Substring(startIndex, endIndex - startIndex);
+            endIndex = mdxString.Length - 1;
+
+            // remove the outer character "{" and "}"
+            startIndex = mdxString.IndexOf("({") + 1;
+            mdxString = mdxString.Substring(startIndex, endIndex - startIndex);
+            mdxString = mdxString.Replace("{","").Replace("}","");
+            string[] itemStringArray = mdxString.Split(',');
+
+            return itemStringArray;
         }
 
         public static DaxFilter CreateDaxFilter(string piKey, string piValue)
