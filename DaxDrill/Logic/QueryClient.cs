@@ -147,14 +147,16 @@ namespace DG2NTT.DaxDrill.Logic
 
         public static bool IsDrillThroughEnabled(Excel.Range rngCell)
         {
-            Excel.PivotCache cache = null;
-            Excel.PivotTable pt = null;
-
             try
             {
-                pt = rngCell.PivotTable; // throws error if selected cell is not pivot cel
-                cache = pt.PivotCache();
+                Excel.PivotTable pt = rngCell.PivotTable; // throws error if selected cell is not pivot cell
+                Excel.PivotCache cache = pt.PivotCache();
+                Excel.Workbook workbook = rngCell.Worksheet.Parent;
+
                 if (!cache.OLAP) return false;
+
+                if (ExcelHelper.CountXmlNamespace(workbook, Constants.DaxDrillXmlSchemaSpace) == 0)
+                    return false;
 
                 // check compatibility of Tabular database
                 var queryClient = new QueryClient(rngCell);

@@ -196,6 +196,11 @@ namespace DG2NTT.DaxDrill.UI
         {
             RefreshNamespaceControl();
         }
+
+        private void btnInitialize_Click(object sender, EventArgs e)
+        {
+            xmlEditController.InitializeXml();
+        }
     }
 }
 

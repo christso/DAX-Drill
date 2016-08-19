@@ -31,10 +31,21 @@ namespace DG2NTT.DaxDrill.Logic
         public void SaveXmlToWorkbook()
         {
             Excel.Workbook workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
+
+            // save XML
             if (xmlEditForm.XpathText == "x:*" || string.IsNullOrWhiteSpace(xmlEditForm.XpathText))
                 ExcelHelper.UpdateCustomXmlPart(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText);
             else
                 ExcelHelper.UpdateCustomXmlNode(workbook, xmlEditForm.NamespaceText, xmlEditForm.XmlText, xmlEditForm.XpathText);
+        }
+
+        public void InitializeXml()
+        {
+            Excel.Workbook workbook = ExcelHelper.FindWorkbook(xmlEditForm.WorkbookText);
+
+            // create daxdrill node template
+            ExcelHelper.AddCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace,
+                string.Format("<daxdrill xmlns=\"{0}\"></daxdrill>", Constants.DaxDrillXmlSchemaSpace));
         }
     }
 }

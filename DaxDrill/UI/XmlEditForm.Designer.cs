@@ -40,6 +40,7 @@
             this.btnLoad = new System.Windows.Forms.Button();
             this.lblXpath = new System.Windows.Forms.Label();
             this.txtXpath = new System.Windows.Forms.TextBox();
+            this.btnInitialize = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtXmlText
@@ -132,11 +133,22 @@
             this.txtXpath.Size = new System.Drawing.Size(206, 20);
             this.txtXpath.TabIndex = 10;
             // 
+            // btnInitialize
+            // 
+            this.btnInitialize.Location = new System.Drawing.Point(12, 224);
+            this.btnInitialize.Name = "btnInitialize";
+            this.btnInitialize.Size = new System.Drawing.Size(75, 23);
+            this.btnInitialize.TabIndex = 11;
+            this.btnInitialize.Text = "Initialize";
+            this.btnInitialize.UseVisualStyleBackColor = true;
+            this.btnInitialize.Click += new System.EventHandler(this.btnInitialize_Click);
+            // 
             // XmlEditForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(591, 254);
+            this.Controls.Add(this.btnInitialize);
             this.Controls.Add(this.txtXpath);
             this.Controls.Add(this.lblXpath);
             this.Controls.Add(this.btnLoad);
@@ -167,5 +179,6 @@
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Label lblXpath;
         private System.Windows.Forms.TextBox txtXpath;
+        private System.Windows.Forms.Button btnInitialize;
     }
 }

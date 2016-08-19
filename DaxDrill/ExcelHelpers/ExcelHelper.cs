@@ -111,6 +111,13 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return null;
         }
 
+        public static int CountXmlNamespace(Excel.Workbook workbook, string xNameSpace)
+        {
+            Office.CustomXMLParts ps = workbook.CustomXMLParts;
+            ps = ps.SelectByNamespace(xNameSpace);
+            return ps.Count;
+        }
+
         /*
 "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
                   "<employees xmlns=\"http://schemas.microsoft.com/vsto/samplestest\">" +
@@ -158,7 +165,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             System.Collections.IEnumerator enumerator = workbook.CustomXMLParts.SelectByNamespace(namespaceName).GetEnumerator();
             enumerator.Reset();
 
-            if (!(enumerator.MoveNext()))
+            if (!(enumerator.MoveNext())) // false if XmlPart already exists
             {
                 Office.CustomXMLPart p = workbook.CustomXMLParts.Add(xmlString);
             }
@@ -350,5 +357,6 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
                 pf.CurrentPageName = pageName;
             }
         }
+
     }
 }
