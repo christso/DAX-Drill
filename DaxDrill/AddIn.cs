@@ -185,12 +185,5 @@ namespace DG2NTT.DaxDrill
                 MsgForm.ShowMessage(ex);
             }
         }
-
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
-        public static void Test()
-        {
-            Excel.Workbook workbook = xlApp.ActiveWorkbook;
-            ExcelHelper.AddCustomXmlPart(workbook, Constants.DaxDrillXmlSchemaSpace, "<daxdrill xmlns=\"http://schemas.microsoft.com/daxdrill\"></daxdrill>");
-        }
     }
 }
