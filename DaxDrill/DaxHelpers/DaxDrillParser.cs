@@ -104,8 +104,6 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 if (commandText != "")
                     commandText += ",\n";
                 var table = tabular.GetTable(item.TableName);
-  
-                var column = table.Columns.Find(item.ColumnName); //column not found
                 commandText += BuildColumnCommandText(table, item);
             }
 
