@@ -55,7 +55,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
-                commandText = DaxDrillParser.BuildFilterCommandText(pivotCellDic, tabular);
+                commandText = DaxDrillParser.BuildFilterCommandText(pivotCellDic, tabular, null);
                 tabular.Disconnect();
             }
             #endregion
@@ -144,7 +144,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
                 var selectedColumns = new List<DetailColumn>();
                 selectedColumns.Add(new DetailColumn() { Name = "Call Type", Expression = "Usage[Call Type]" });
                 selectedColumns.Add(new DetailColumn() { Name = "Call Type Description", Expression = "Usage[Call Type Description]" });
-                commandText = DaxDrillParser.BuildQueryText(tabular, pivotCellDic, "Gross Billed Sum", 99999, selectedColumns);
+                commandText = DaxDrillParser.BuildQueryText(tabular, pivotCellDic, "Gross Billed Sum", 99999, selectedColumns, null);
                 tabular.Disconnect();
             }
             #endregion

@@ -30,6 +30,7 @@ namespace DG2NTT.DaxDrill.Logic
         public string GetDAXQuery(string connString)
         {
             var pivotCellDic = PivotCellHelper.GetPivotCellQuery(rngCell);
+            var pivotFieldNames = PivotCellHelper.GetPivotFieldNames(rngCell);
 
             string commandText = "";
    
@@ -54,13 +55,13 @@ namespace DG2NTT.DaxDrill.Logic
                     string measureName = GetMeasureName(rngCell);
                     commandText = DaxDrillParser.BuildQueryText(tabular,
                         pivotCellDic,
-                        measureName, maxRecords, detailColumns);
+                        measureName, maxRecords, detailColumns, pivotFieldNames);
                 }
                 else
                 {
                     commandText = DaxDrillParser.BuildCustomQueryText(tabular,
                         pivotCellDic,
-                        tableQuery, maxRecords, detailColumns);
+                        tableQuery, maxRecords, detailColumns, pivotFieldNames);
                 }
 
                 tabular.Disconnect();

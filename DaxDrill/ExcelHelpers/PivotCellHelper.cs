@@ -29,6 +29,16 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return pivotCellDic;
         }
 
+        public static IEnumerable<string> GetPivotFieldNames(Excel.Range rngCell)
+        {
+            
+            var pivotFields = rngCell.PivotTable.PivotFields();
+            var pivotFieldNames = new List<string>();
+            foreach (Excel.PivotField pf in pivotFields)
+                pivotFieldNames.Add(pf.Name);
+            return pivotFieldNames;
+        }
+
         public static void AddMultiplePageFieldFilterToDic(IEnumerable<string> pivotFieldNames, string ptMdx,
             PivotCellDictionary pivotCellDic)
         {

@@ -12,7 +12,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
     {
         public static string BuildQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
         {
-            return BuildQueryText(tabular, pivotCellDic, measureName, maxRecords, null);
+            return BuildQueryText(tabular, pivotCellDic, measureName, maxRecords);
         }
 
         /// <summary>
@@ -25,17 +25,19 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         /// <param name="detailColumns">List of columns to be included in drill-through</param>
         /// <returns></returns>
         public static string BuildQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName,
-            int maxRecords, IEnumerable<DetailColumn> detailColumns)
+            int maxRecords, IEnumerable<DetailColumn> detailColumns,
+            IEnumerable<string> pivotFieldNames)
         {
             var measure = tabular.GetMeasure(measureName);
-            string commandText = BuildCustomQueryText(tabular, pivotCellDic, measure.TableName, maxRecords, detailColumns);
+            string commandText = BuildCustomQueryText(tabular, pivotCellDic, measure.TableName, maxRecords, detailColumns, pivotFieldNames);
             return commandText;
         }
 
         public static string BuildCustomQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string tableQuery,
-            int maxRecords, IEnumerable<DetailColumn> detailColumns)
+            int maxRecords, IEnumerable<DetailColumn> detailColumns,
+            IEnumerable<string> pivotFieldNames)
         {
-            string filterText = BuildFilterCommandText(pivotCellDic, tabular);
+            string filterText = BuildFilterCommandText(pivotCellDic, tabular, pivotFieldNames);
 
             // create inner clause
             string commandText = string.Format("TOPN ( {1}, {0} )", tableQuery, maxRecords);
@@ -74,9 +76,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        public static string BuildFilterCommandText(PivotCellDictionary excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
+        public static string BuildFilterCommandText(PivotCellDictionary excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular, 
+            IEnumerable<string> pivotFieldNames)
         {
-            string singCmdText = BuildSingleSelectFilterCommandText(excelDic.SingleSelectDictionary, tabular);
+            string singCmdText = BuildSingleSelectFilterCommandText(excelDic.SingleSelectDictionary, tabular,
+                pivotFieldNames);
             string multiCmdText = BuildMultiSelectFilterCommandText(excelDic.MultiSelectDictionary, tabular);
 
             string result = singCmdText;
@@ -90,18 +94,19 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
+        private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular, IEnumerable<string> pivotFieldNames)
         {
-            var daxFilter = ConvertSingleExcelDrillToDaxFilterList(excelDic);
+            List<DaxFilter> daxFilterList = ConvertSingleExcelDrillToDaxFilterList(excelDic, pivotFieldNames);
 
             string commandText = "";
-            foreach (var item in daxFilter)
+            foreach (var item in daxFilterList)
             {
                 if (commandText != "")
                     commandText += ",\n";
                 var table = tabular.GetTable(item.TableName);
-                var column = table.Columns.Find(item.ColumnName);
-                commandText += BuildColumnCommandText(column, item.TableName, item.ColumnName, item.Value);
+  
+                var column = table.Columns.Find(item.ColumnName); //column not found
+                commandText += BuildColumnCommandText(table, item);
             }
 
             return commandText;
@@ -196,14 +201,14 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         }
 
         public static List<DaxFilter> ConvertSingleExcelDrillToDaxFilterList(
-            Dictionary<string, string> inputDic)
+            Dictionary<string, string> inputDic, IEnumerable<string> pivotFieldNames)
         {
 
             var output = new List<DaxFilter>();
 
             foreach (var pair in inputDic)
             {
-                output.Add(CreateDaxFilter(pair.Key, pair.Value));
+                output.Add(CreateDaxFilterFromHierarchy(pair.Value, pivotFieldNames));
             }
             return output;
         }
