@@ -11,5 +11,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         public string TableName;
         public string ColumnName;
         public string Value;
+        public string[] HierarchyValue;
+        public bool IsHiearchy;
     }
 }

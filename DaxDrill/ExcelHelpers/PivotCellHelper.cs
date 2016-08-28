@@ -32,7 +32,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
         private static void AddMultiplePageFieldFilterToDic(Excel.PivotTable pt, PivotCellDictionary pivotCellDic)
         {
             var mdxString = pt.MDX;
-            var daxFilterList = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
+            var daxFilterList = DaxDrillParser.ConvertPivotTableMdxToDaxFilterList(mdxString);
             DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilterList, pivotCellDic.MultiSelectDictionary);
         }
 
@@ -59,6 +59,10 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             foreach (Excel.PivotField pf in pfs)
             {
                 var dicCell = pivotCellDic.SingleSelectDictionary;
+                string cubeFieldPageName = pf.CubeField.CurrentPageName;
+                string cubeFieldValue = pf.CubeField.Value;
+                string sourceName = pf.SourceName;
+                string sourceCaption = pf.SourceCaption;
 
                 string pageName = pf.DataRange.Value2;
                 if (pageName != "All" && pageName != "(Multiple Items)")

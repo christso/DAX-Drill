@@ -92,7 +92,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
         private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
         {
-            var daxFilter = ConvertSingleExcelDrillToDaxFilter(excelDic);
+            var daxFilter = ConvertSingleExcelDrillToDaxFilterList(excelDic);
 
             string commandText = "";
             foreach (var item in daxFilter)
@@ -115,7 +115,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 if (commandText != "")
                     commandText += ",\n";
 
-                var daxFilter = ConvertMultiExcelDrillToDaxFilter(pair.Key, pair.Value);
+                var daxFilter = ConvertMultiExcelDrillToDaxFilterList(pair.Key, pair.Value);
 
                 string childCommandText = "";
                 foreach (var item in daxFilter)
@@ -158,7 +158,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public static List<DaxFilter> ConvertSingleExcelDrillToDaxFilter(
+        public static List<DaxFilter> ConvertSingleExcelDrillToDaxFilterList(
             Dictionary<string, string> inputDic)
         {
 
@@ -171,7 +171,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
-        public static List<DaxFilter> ConvertMultiExcelDrillToDaxFilter(string key, List<string> listValues)
+        public static List<DaxFilter> ConvertMultiExcelDrillToDaxFilterList(string key, List<string> listValues)
         {
             var output = new List<DaxFilter>();
 
@@ -192,6 +192,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return ConvertDaxFilterListToDictionary(daxFilters, dic);
         }
 
+        // converts DaxFilter list to dictionary. Duplicate entries are removed.
         public static Dictionary<string, List<string>> ConvertDaxFilterListToDictionary(List<DaxFilter> daxFilters, Dictionary<string, List<string>> dic)
         {
             foreach (var df in daxFilters)
@@ -209,7 +210,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return dic;
         }
 
-        public static List<DaxFilter> ConvertExcelMdxToDaxFilter(string mdxString)
+        public static List<DaxFilter> ConvertPivotTableMdxToDaxFilterList(string mdxString)
         {
             string[] columnStringArray = OnColumnsMdxToArray(mdxString);
             string[] rowStringArray = OnRowsMdxToArray(mdxString);
@@ -224,6 +225,32 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             foreach (string itemString in rowStringArray)
             {
                 var daxFilter = DaxDrillParser.CreateDaxFilter(itemString.Trim());
+                result.Add(daxFilter);
+            }
+
+            return result;
+        }
+
+        public static List<DaxFilter> ConvertPivotCellMdxToDaxFilterList(string mdxString)
+        {
+            mdxString = mdxString.Trim();
+            mdxString = mdxString.Substring(1, mdxString.Length - 2);
+            string[] itemStringArray = mdxString.Split(',');
+            for (int i = 0; i < itemStringArray.Length; i++)
+                itemStringArray[i] = itemStringArray[i].Trim();
+
+            itemStringArray = itemStringArray.Where(x =>
+            {
+                // exclude the measure as it's not a DAX filter
+                if (x.Substring(0, 10) == "[Measures]")
+                    return false;
+                return true;
+            }).ToArray();
+
+            var result = new List<DaxFilter>();
+            foreach (string itemString in itemStringArray)
+            {
+                var daxFilter = DaxDrillParser.CreateDaxFilterFromHierarchy(itemString, null);
                 result.Add(daxFilter);
             }
 
@@ -285,10 +312,22 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
         public static DaxFilter CreateDaxFilter(string piValue)
         {
+            return CreateDaxFilterFromColumn(piValue);
+        }
+
+        public static DaxFilter CreateDaxFilterFromColumn(string piValue)
+        {
             string column = GetColumnFromPivotField(piValue);
             string table = GetTableFromPivotField(piValue);
             string value = GetValueFromPivotItem(piValue);
             return new DaxFilter() { TableName = table, ColumnName = column, Value = value };
+        }
+
+        public static DaxFilter CreateDaxFilterFromHierarchy(string piValue, IEnumerable<string> pivotFieldNames)
+        {
+            var processor = new DaxFilterCreator(piValue, pivotFieldNames);
+            var daxFilter = processor.CreateDaxFilter();
+            return daxFilter;
         }
 
         public static string GetTableFromPivotField(string input)
@@ -298,14 +337,31 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             output = output.Substring(1, output.Length - 2);
             return output;
         }
+        public static string GetTableFromPivotFieldElement(string[] split)
+        {
+            string output = split[0];
+            output = output.Substring(1, output.Length - 2);
+            return output;
+        }
 
         // input: [Usage].[Inbound or Outbound].[Inbound or Outbound]
         public static string GetColumnFromPivotField(string input)
         {
             string[] split = input.Split('.');
+            return GetColumnFromPivotFieldElement(split);
+        }
+
+        public static string GetColumnFromPivotFieldElement(string[] split)
+        {
             string output = split[1];
             output = output.Substring(1, output.Length - 2);
             return output;
+        }
+
+        public static string GetHierarchyFromPivotField(string input)
+        {
+            string[] split = input.Split('.');
+            return string.Empty;
         }
 
         // "[Usage].[Inbound or Outbound].&[Inbound]

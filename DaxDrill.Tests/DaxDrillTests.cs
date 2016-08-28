@@ -100,6 +100,20 @@ UsageDate[Usage_MonthAbbrev] = "May"
         }
 
         [Test]
+        public void GetMeasure()
+        {
+            string measureName = "Gross Billed Sum";
+            TabularItems.Measure measure = null;
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
+            {
+                tabular.Connect();
+                measure = tabular.GetMeasure(measureName);
+                tabular.Disconnect();
+            }
+            Console.WriteLine("Measure = {0}, Table = {1}", measure.Name, measure.TableName);
+        }
+
+        [Test]
         public void ParseSelectedColumns()
         {
             #region Arrange
@@ -138,217 +152,6 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
         }
 
-        [Test]
-        public void ParsePivotText()
-        {
-            #region Parse
-            var columnCommandText = DaxDrillParser.GetColumnFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
-            Assert.AreEqual("Inbound or Outbound", columnCommandText);
-
-            var tableCommandText = DaxDrillParser.GetTableFromPivotField("[Usage].[Inbound or Outbound].[Inbound or Outbound]");
-            Assert.AreEqual("Usage", tableCommandText);
-
-            var pivotItemCommandText1 = DaxDrillParser.GetValueFromPivotItem("[Usage].[Inbound or Outbound].&[Inbound]");
-            Assert.AreEqual("Inbound", pivotItemCommandText1);
-
-            var pivotItemCommandText2 = DaxDrillParser.GetValueFromPivotItem("[Usage].[Inbound or Outbound].[Inbound]");
-            Assert.AreEqual("Inbound", pivotItemCommandText2);
-
-            #endregion
-        }
-
-        [Test]
-        public void GetMeasure()
-        {
-            string measureName = "Gross Billed Sum";
-            TabularItems.Measure measure = null;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
-            {
-                tabular.Connect();
-                measure = tabular.GetMeasure(measureName);
-                tabular.Disconnect();
-            }
-            Console.WriteLine("Measure = {0}, Table = {1}", measure.Name, measure.TableName);
-        }
-
-        [Test]
-        public void ParseXmlFromTable()
-        {
-            #region Arrange
-
-            const string nsString = "dg2ntt.daxdrill";
-            var xmlString =
-@"<?xml version=""1.0"" encoding=""UTF-8""?>
-<table id=""Usage"" connection_id=""localhost Roaming Model"" xmlns=""{0}"">
-	<columns>
-	   <column>
-		  <name>Call Type</name>
-		  <expression>Usage[Call Type]</expression>
-	   </column>
-	   <column>
-		  <name>Call Type Description</name>
-		  <expression>Usage[Call Type Description]</expression>
-	   </column>
-	   <column>
-		  <name>Gross Billed</name>
-		  <expression>Usage[Gross Billed]</expression>
-	   </column>
-	</columns>
-</table>"
-            .Replace("{0}", nsString);
-
-            #endregion
-
-            #region Act
-
-            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(nsString, xmlString, "localhost Roaming Model", "Usage");
-
-            #endregion
-
-            #region Assert
-            foreach (var column in columns)
-            {
-                Console.WriteLine(column.Name + " = " + column.Expression);
-            }
-
-            Assert.AreEqual(3, columns.Count);
-            Assert.AreEqual("Usage[Call Type]", columns.Where(x => x.Name == "Call Type").Select(x => x.Expression).FirstOrDefault());
-            Assert.AreEqual("Usage[Call Type Description]", columns.Where(x => x.Name == "Call Type Description").Select(x => x.Expression).FirstOrDefault());
-            Assert.AreEqual("Usage[Gross Billed]", columns.Where(x => x.Name == "Gross Billed").Select(x => x.Expression).FirstOrDefault());
-            #endregion
-        }
-
-        public void ParseXmlFromRoot()
-        {
-            #region Arrange
-
-            const string nsString = "http://schemas.microsoft.com/daxdrill";
-            var xmlString =
-@"<daxdrill xmlns=""http://schemas.microsoft.com/daxdrill"">
-	<table id=""Usage"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
-		<columns>
-		   <column>
-			  <name>Call Type</name>
-			  <expression>Usage[Call Type]</expression>
-		   </column>
-		   <column>
-			  <name>Call Type Description</name>
-			  <expression>Usage[Call Type Description]</expression>
-		   </column>
-		   <column>
-			  <name>Gross Billed</name>
-			  <expression>Usage[Gross Billed]</expression>
-		   </column>
-		</columns>
-	</table>
-	<table id=""RoamingMeasure"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
-		<query>Usage</query>
-	</table>
-</daxdrill>";
-
-            #endregion
-
-            #region Act
-
-            List<DetailColumn> columns = DaxDrillConfig.GetColumnsFromTableXml(nsString, xmlString, "localhost Roaming Model", "Usage");
-
-            #endregion
-
-            #region Assert
-            foreach (var column in columns)
-            {
-                Console.WriteLine(column.Name + " = " + column.Expression);
-            }
-
-            Assert.AreEqual(3, columns.Count);
-            Assert.AreEqual("Usage[Call Type]", columns.Where(x => x.Name == "Call Type").Select(x => x.Expression).FirstOrDefault());
-            Assert.AreEqual("Usage[Call Type Description]", columns.Where(x => x.Name == "Call Type Description").Select(x => x.Expression).FirstOrDefault());
-            Assert.AreEqual("Usage[Gross Billed]", columns.Where(x => x.Name == "Gross Billed").Select(x => x.Expression).FirstOrDefault());
-            #endregion
-        }
-
-        public void ParseMDX1()
-        {
-            string mdxString = @"SELECT NON EMPTY Hierarchize({DrilldownLevel({[UsageDate].[Usage_MonthAbbrev].[All]},,,INCLUDE_CALC_MEMBERS)}) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Usage].[Inbound or Outbound].[All],[Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers}, {([Usage].[Call Type].[All])}), [Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers, [Usage].[Call Type])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[UsageDate].[Usage_Year].&[2010],[UsageDate].[Usage_Year].&[2011],[UsageDate].[Usage_Year].&[2012],[UsageDate].[Usage_Year].&[2013],[UsageDate].[Usage_Year].&[2014],[UsageDate].[Usage_Year].&[2015],[UsageDate].[Usage_Year].&[2016],[UsageDate].[Usage_Year].&[2017],[UsageDate].[Usage_Year].&[2018],[UsageDate].[Usage_Year].&[2019],[UsageDate].[Usage_Year].&[2020]},{[Usage].[Country].&[Algeria],[Usage].[Country].&[American samoa]}) ON COLUMNS  FROM [Model]) WHERE ([Measures].[Gross Billed Sum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
-            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
-            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
-
-            foreach (var pair in daxDic)
-            {
-                Console.WriteLine(pair.Key + " ---------");
-                foreach (var value in pair.Value)
-                {
-                    Console.WriteLine(value);
-                }
-            }
-        }
-
-        public void ParseMDX2()
-        {
-            string mdxString = @"SELECT NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[UsageDate].[Usage_Year].[All],[UsageDate].[Usage_Year].[Usage_Year].AllMembers}, {([UsageDate].[Usage_MonthAbbrev].[All])}), [UsageDate].[Usage_Year].[Usage_Year].AllMembers, [UsageDate].[Usage_MonthAbbrev])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Usage].[Inbound or Outbound].[All],[Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers}, {([Usage].[Call Type].[All])}), [Usage].[Inbound or Outbound].[Inbound or Outbound].AllMembers, [Usage].[Call Type])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[Usage].[Call Type].&[MOC], [Usage].[Call Type].&[GPRS]}) ON COLUMNS  FROM [Model]) WHERE ([Usage].[Country].[All],[Measures].[Gross Billed Sum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
-            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
-            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
-
-            foreach (var pair in daxDic)
-            {
-                Console.WriteLine(pair.Key + " ---------");
-                foreach (var value in pair.Value)
-                {
-                    Console.WriteLine(value);
-                }
-            }
-        }
-
-        public void ParseMDX3()
-        {
-            string mdxString = @"SELECT NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[AsAtDate].[Year].[Year].AllMembers}, {([AsAtDate].[Month].[All])}), [AsAtDate].[Year].[Year].AllMembers, [AsAtDate].[Month])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Activity].[Fin Activity].[All],[Activity].[Fin Activity].[Fin Activity].AllMembers}, {([ApTradeCreditor].[Supplier].[All])}), {[Activity].[Fin Activity].&[Other Capex]}, [ApTradeCreditor].[Supplier])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[ApTradeCreditor].[Supplier].&[HUAWEI TECHNOLOGIES (AUSTRALIA) PTY LTD]}) ON COLUMNS  FROM [Model]) WHERE ([ApTradeCreditor].[LiabilityAccount].[All],[ApTradeCreditor].[InvoiceNumber].&[AU1602160],[Measures].[TradeCreditorSum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
-            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
-            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
-
-            foreach (var pair in daxDic)
-            {
-                Console.WriteLine(pair.Key + " ---------");
-                foreach (var value in pair.Value)
-                {
-                    Console.WriteLine(value);
-                }
-            }
-        }
-
-        public void ParseMDX4()
-        {
-            string mdxString = @"SELECT NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[AsAtDate].[Year].[Year].AllMembers}, {([AsAtDate].[Month].[All])}), [AsAtDate].[Year].[Year].AllMembers, [AsAtDate].[Month])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[Activity].[Fin Activity].[All],[Activity].[Fin Activity].[Fin Activity].AllMembers}, {([ApTradeCreditor].[Supplier].[All])}), {[Activity].[Fin Activity].&[Other Capex]}, [ApTradeCreditor].[Supplier])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[AsAtDate].[Month].&[Apr]}) ON COLUMNS , ({[ApTradeCreditor].[Supplier].&[HUAWEI TECHNOLOGIES (AUSTRALIA) PTY LTD]}) ON ROWS  FROM [Model]) WHERE ([ApTradeCreditor].[LiabilityAccount].[All],[ApTradeCreditor].[InvoiceNumber].&[AU1602160],[Measures].[TradeCreditorSum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
-            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
-            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
-
-            foreach (var pair in daxDic)
-            {
-                Console.WriteLine(pair.Key + " ---------");
-                foreach (var value in pair.Value)
-                {
-                    Console.WriteLine(value);
-                }
-            }
-
-            Assert.AreEqual(daxDic["[AsAtDate].[Month]"][0], "[AsAtDate].[Month].&[Apr]");
-            Assert.AreEqual(daxDic["[ApTradeCreditor].[Supplier]"][0], "[ApTradeCreditor].[Supplier].&[HUAWEI TECHNOLOGIES (AUSTRALIA) PTY LTD]");
-        }
-
-        public void ParseMDX5()
-        {
-            string mdxString = @"SELECT NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[PaymentDate].[Payment_Year].[All],[PaymentDate].[Payment_Year].[Payment_Year].AllMembers}, {([PaymentDate].[Payment_Month].[All])}), [PaymentDate].[Payment_Year].[Payment_Year].AllMembers, [PaymentDate].[Payment_Month])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize(DrilldownMember(DrilldownMember(CrossJoin({[Activity].[Dim_1_2].[All],[Activity].[Dim_1_2].[Dim_1_2].AllMembers}, {([Activity].[Dim_1_3].[All],[APPmtDistn].[VendorName].[All])}), [Activity].[Dim_1_2].[Dim_1_2].AllMembers, [Activity].[Dim_1_3]), {[Activity].[Dim_1_3].&[Regulatory Fees]}, [APPmtDistn].[VendorName])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[PaymentDate].[Payment_Year].&[2.016E3]}) ON COLUMNS , ({[Activity].[Dim_1_3].&[Regulatory Fees]},{[APPmtDistn].[VendorName].&[AUSTRALIAN COMMUNICATIONS AND MEDIA AUTHORITY]}) ON ROWS  FROM [Model]) WHERE ([APPmtDistn].[InvoiceNum].[All],[Account].[IsCash].&[1],[Measures].[Total Payment Amount Aud]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
-            var daxFilters = DaxDrillParser.ConvertExcelMdxToDaxFilter(mdxString);
-            var daxDic = DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilters);
-
-            foreach (var pair in daxDic)
-            {
-                Console.WriteLine(pair.Key + " ---------");
-                foreach (var value in pair.Value)
-                {
-                    Console.WriteLine(value);
-                }
-            }
-        }
 
         public void ParsePivotItemFromValue()
         {
