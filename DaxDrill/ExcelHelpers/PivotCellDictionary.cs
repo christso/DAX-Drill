@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DG2NTT.DaxDrill.DaxHelpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
     public class PivotCellDictionary
     {
         private Dictionary<string, string> singleSelectDictionary;
-        private Dictionary<string, List<string>> multiSelectDictionary;
+        private DaxFilterCollection multiSelectDictionary;
 
         public Dictionary<string, string> SingleSelectDictionary
         {
@@ -25,12 +26,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-        public Dictionary<string, List<string>> MultiSelectDictionary
+        public DaxFilterCollection MultiSelectDictionary
         {
             get
             {
                 if (this.multiSelectDictionary == null)
-                    this.multiSelectDictionary = new Dictionary<string, List<string>>();
+                    this.multiSelectDictionary = new DaxFilterCollection();
                 return this.multiSelectDictionary;
             }
             set
@@ -39,12 +40,12 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             }
         }
 
-        public void AddMultiSelectItem(string key, string value)
+        public void AddMultiSelectItem(string key, DaxFilter value)
         {
-            List<string> selectList = null;
+            List<DaxFilter> selectList = null;
             if (!MultiSelectDictionary.TryGetValue(key, out selectList))
             {
-                selectList = new List<string>();
+                selectList = new List<DaxFilter>();
                 MultiSelectDictionary[key] = selectList;
             }
             selectList.Add(value);

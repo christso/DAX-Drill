@@ -22,10 +22,10 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         public DaxFilter CreateDaxFilter()
         {
             var daxFilter = new DaxFilter();
-            daxFilter.IsHiearchy = PivotItemIsHierarchy(pivotItemValue);
+            daxFilter.IsHierarchy = PivotItemIsHierarchy(pivotItemValue);
             daxFilter.ColumnName = GetColumnName();
             daxFilter.TableName = GetTableName();
-            daxFilter.HierarchyValue = GetValue(daxFilter.IsHiearchy);
+            daxFilter.HierarchyValue = GetValue(daxFilter.IsHierarchy);
             daxFilter.Value = daxFilter.HierarchyValue[0];
             return daxFilter;
         }

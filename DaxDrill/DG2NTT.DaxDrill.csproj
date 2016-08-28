@@ -85,6 +85,7 @@
   <ItemGroup>
     <Compile Include="AddIn.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="DaxHelpers\DaxFilterCollection.cs" />
     <Compile Include="DaxHelpers\DaxFilterCreator.cs" />
     <Compile Include="TabularItems\Column.cs" />
     <Compile Include="TabularItems\ColumnCollection.cs" />

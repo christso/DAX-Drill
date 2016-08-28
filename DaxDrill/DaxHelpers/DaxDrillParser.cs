@@ -107,10 +107,10 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        private static string BuildMultiSelectFilterCommandText(Dictionary<string, List<string>> excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
+        private static string BuildMultiSelectFilterCommandText(DaxFilterCollection daxFilters, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
         {
             string commandText = "";
-            foreach (KeyValuePair<string, List<string>> pair in excelDic)
+            foreach (var pair in daxFilters)
             {
                 if (commandText != "")
                     commandText += ",\n";
@@ -171,14 +171,14 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
-        public static List<DaxFilter> ConvertMultiExcelDrillToDaxFilterList(string key, List<string> listValues)
+        public static List<DaxFilter> ConvertMultiExcelDrillToDaxFilterList(string key, List<DaxFilter> listValues)
         {
             var output = new List<DaxFilter>();
 
             string column = GetColumnFromPivotField(key);
             string table = GetTableFromPivotField(key);
 
-            foreach (string listValue in listValues)
+            foreach (DaxFilter listValue in listValues)
             {
                 string value = GetValueFromPivotItem(listValue);
                 output.Add(new DaxFilter() { TableName = table, ColumnName = column, Value = value });
@@ -186,26 +186,31 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return output;
         }
 
-        public static Dictionary<string, List<string>> ConvertDaxFilterListToDictionary(List<DaxFilter> daxFilters)
+        public static Dictionary<string, List<DaxFilter>> ConvertDaxFilterListToDictionary(List<DaxFilter> daxFilters)
         {
-            var dic = new Dictionary<string, List<string>>();
+            var dic = new DaxFilterCollection();
             return ConvertDaxFilterListToDictionary(daxFilters, dic);
         }
 
         // converts DaxFilter list to dictionary. Duplicate entries are removed.
-        public static Dictionary<string, List<string>> ConvertDaxFilterListToDictionary(List<DaxFilter> daxFilters, Dictionary<string, List<string>> dic)
+        // This is done by moving each Dax Filter under a dictionary key
+        // The flat data structure is converted to a tree structure
+        public static DaxFilterCollection ConvertDaxFilterListToDictionary(
+            List<DaxFilter> daxFilters, DaxFilterCollection dic)
         {
             foreach (var df in daxFilters)
             {
-                string key = "[" + df.TableName + "].[" + df.ColumnName + "]";
-                List<string> value = null;
+                List<DaxFilter> dicValue = null;
 
-                if (!dic.TryGetValue(key, out value))
+                // create dictionary element if it doesn't exist
+                if (!dic.TryGetValue(df.Key, out dicValue))
                 {
-                    value = new List<string>();
-                    dic.Add(key, value);
+                    dicValue = new List<DaxFilter>();
+                    dic.Add(df.Key, dicValue);
                 }
-                value.Add(key + ".&[" + df.Value + "]");
+
+                // add DaxFilter to dictionary element
+                dicValue.Add(df);
             }
             return dic;
         }
@@ -380,6 +385,18 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             catch (Exception ex)
             {
                 throw new Exception(ex.Message + string.Format("\r\nCould not parse '{0}'", input), ex);
+            }
+        }
+
+        public static string GetValueFromPivotItem(DaxFilter df)
+        {
+            try
+            {
+                return df.Value;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message + string.Format("\r\nCould not parse '{0}'", df.MDX), ex);
             }
         }
 
