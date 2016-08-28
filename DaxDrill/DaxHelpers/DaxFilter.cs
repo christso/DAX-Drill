@@ -33,5 +33,13 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 return Key + ".&[" + this.Value + "]";
             }
         }
+
+        public string GetValue(string columnName)
+        {
+            var daxFilter = this;
+            var matchedColumn = daxFilter.ColumnNameHierarchy.Where(x => x.ColumnName == columnName).FirstOrDefault();
+            return daxFilter.ValueHierarchy[matchedColumn.Index];
+        }
+
     }
 }

@@ -101,81 +101,95 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                     commandText += ",\n";
                 var table = tabular.GetTable(item.TableName);
                 var column = table.Columns.Find(item.ColumnName);
-                commandText += BuildColumnCommandText(column, item);
+                commandText += BuildColumnCommandText(column, item.TableName, item.ColumnName, item.Value);
             }
 
             return commandText;
         }
 
-        private static string BuildMultiSelectFilterCommandText(DaxFilterCollection daxFilters, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
+        private static string BuildMultiSelectFilterCommandText(DaxFilterCollection daxFilterDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
         {
             string commandText = "";
-            foreach (var pair in daxFilters)
+
+            foreach (var pair in daxFilterDic)
             {
+                List<DaxFilter> daxFilterList = pair.Value;
+                string tableName = daxFilterList[0].TableName;
+
                 if (commandText != "")
                     commandText += ",\n";
 
-                var daxFilter = ConvertMultiExcelDrillToDaxFilterList(pair.Key, pair.Value);
-
                 string childCommandText = "";
-                foreach (var item in daxFilter)
+                foreach (var item in daxFilterList)
                 {
                     if (childCommandText != "")
                         childCommandText += " || ";
+                    else
+                        childCommandText = "FILTER ( " + tableName + ", ";
+
                     var table = tabular.GetTable(item.TableName);
 
                     childCommandText += BuildColumnCommandText(table, item);
                 }
 
-                commandText += childCommandText;
+                commandText += childCommandText + " )";
             }
             return commandText;
         }
 
-        public static string BuildColumnCommandText(TabularItems.Table table, DaxFilter item)
+        public static string BuildColumnCommandText(TabularItems.Table table, DaxFilter daxFilter)
         {
             //TODO: problem is that column name = "Tran_YearMonthDay" 
             // this needs to be Tran_Year and TranMonth
             TabularItems.Column column = null;
 
-            if (item.IsHierarchy)
+            string commandText = "";
+
+            if (daxFilter.IsHierarchy)
             {
-                
-                column = table.Columns.Find(item.ColumnName);           
-                return BuildColumnCommandText(column, item);
+                for (int i = 0; i < daxFilter.ValueHierarchy.Length; i++) 
+                {
+                    DaxColumn dc = daxFilter.ColumnNameHierarchy[i];
+                    column = table.Columns.Find(dc.ColumnName);
+                    if (!string.IsNullOrEmpty(commandText))
+                        commandText += " && ";
+                    commandText += BuildColumnCommandText(column, dc.TableName, dc.ColumnName,
+                         daxFilter.ValueHierarchy[i]);
+                }
             }
             else
             {
-                column = table.Columns.Find(item.ColumnName);
-                return BuildColumnCommandText(column, item);
+                column = table.Columns.Find(daxFilter.ColumnName);
+                commandText = BuildColumnCommandText(column, daxFilter.TableName, daxFilter.ColumnName, daxFilter.Value);
             }
+            return commandText;
         }
 
-        public static string BuildColumnCommandText(TabularItems.Column column, DaxFilter item)
+        public static string BuildColumnCommandText(TabularItems.Column column, string tableName, string columnName, string value)
         {
             if (column == null)
                 throw new InvalidOperationException(
-                    string.Format("Column '{0} was not found in Tabular database", item.ColumnName));
+                    string.Format("Column '{0} was not found in Tabular database", columnName));
 
             string commandText;
             switch (column.DataType)
             {
                 case SSAS.DataType.String:
-                    commandText = string.Format("{0}[{1}] = \"{2}\"", item.TableName, item.ColumnName, item.Value);
+                    commandText = string.Format("{0}[{1}] = \"{2}\"", tableName, columnName, value);
                     break;
                 case SSAS.DataType.Int64:
                 case SSAS.DataType.Decimal:
                 case SSAS.DataType.Double:
-                    commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, item.Value);
+                    commandText = string.Format("{0}[{1}] = {2}", tableName, columnName, value);
                     break;
                 case SSAS.DataType.Boolean:
-                    if (item.Value.ToLower() == "true")
-                        commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, "TRUE");
+                    if (value.ToLower() == "true")
+                        commandText = string.Format("{0}[{1}] = {2}", tableName, columnName, "TRUE");
                     else
-                        commandText = string.Format("{0}[{1}] = {2}", item.TableName, item.ColumnName, "FALSE");
+                        commandText = string.Format("{0}[{1}] = {2}", tableName, columnName, "FALSE");
                     break;
                 default:
-                    commandText = string.Format("{0}[{1}] = \"{2}\"", item.TableName, item.ColumnName, item.Value);
+                    commandText = string.Format("{0}[{1}] = \"{2}\"", tableName, columnName, value);
                     break;
             }
             return commandText;
@@ -240,6 +254,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
         public static List<DaxFilter> ConvertPivotTableMdxToDaxFilterList(string mdxString)
         {
+            return ConvertPivotTableMdxToDaxFilterList(mdxString, null);
+        }
+
+        public static List<DaxFilter> ConvertPivotTableMdxToDaxFilterList(string mdxString, IEnumerable<string> pivotFieldNames)
+        {
             string[] columnStringArray = OnColumnsMdxToArray(mdxString);
             string[] rowStringArray = OnRowsMdxToArray(mdxString);
 
@@ -247,17 +266,18 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             foreach (string itemString in columnStringArray)
             {
-                var daxFilter = DaxDrillParser.CreateDaxFilterFromHierarchy(itemString.Trim(), null);
+                var daxFilter = DaxDrillParser.CreateDaxFilterFromHierarchy(itemString.Trim(), pivotFieldNames);
                 result.Add(daxFilter);
             }
             foreach (string itemString in rowStringArray)
             {
-                var daxFilter = DaxDrillParser.CreateDaxFilterFromHierarchy(itemString.Trim(), null);
+                var daxFilter = DaxDrillParser.CreateDaxFilterFromHierarchy(itemString.Trim(), pivotFieldNames);
                 result.Add(daxFilter);
             }
 
             return result;
         }
+
 
         public static List<DaxFilter> ConvertPivotCellMdxToDaxFilterList(string mdxString)
         {

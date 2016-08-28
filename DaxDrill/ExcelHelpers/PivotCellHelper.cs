@@ -29,11 +29,22 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             return pivotCellDic;
         }
 
+        public static void AddMultiplePageFieldFilterToDic(IEnumerable<string> pivotFieldNames, string ptMdx,
+            PivotCellDictionary pivotCellDic)
+        {
+            var daxFilterList = DaxDrillParser.ConvertPivotTableMdxToDaxFilterList(ptMdx, pivotFieldNames);
+            DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilterList, pivotCellDic.MultiSelectDictionary);
+        }
+
         private static void AddMultiplePageFieldFilterToDic(Excel.PivotTable pt, PivotCellDictionary pivotCellDic)
         {
             var mdxString = pt.MDX;
-            var daxFilterList = DaxDrillParser.ConvertPivotTableMdxToDaxFilterList(mdxString);
-            DaxDrillParser.ConvertDaxFilterListToDictionary(daxFilterList, pivotCellDic.MultiSelectDictionary);
+            var pivotFields = pt.PivotFields();
+            var pivotFieldNames = new List<string>();
+            foreach (Excel.PivotField pf in pivotFields)
+                pivotFieldNames.Add(pf.Name);
+
+            AddMultiplePageFieldFilterToDic(pivotFieldNames, mdxString, pivotCellDic);
         }
 
         private static void AddSingleAxisFiltersToDic(Excel.PivotCell pc, PivotCellDictionary pivotCellDic)

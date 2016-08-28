@@ -34,29 +34,24 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return daxFilter;
         }
 
+
         private IList<DaxColumn> GetColumnNameHierarchy()
         {
             var columnName = daxFilter.ColumnName;
             var daxColumns = new List<DaxColumn>();
+            if (pivotFieldNames == null)
+                return null;
+
+            int i = 0;
             foreach (var pfValue in pivotFieldNames)
             {
-                daxColumns.Add(new DaxColumn(pfValue, daxFilter.IsHierarchy));
+                if (pfValue == "Values")
+                    continue;
+                daxColumns.Add(new DaxColumn(pfValue, daxFilter.IsHierarchy, i));
+                i++;
             }
             var matched = daxColumns.Where(x => x.HierarchyName == columnName);
             return matched.ToList<DaxColumn>();
-        }
-
-        public IList<DaxColumn> CreateDaxColumnHierarchy(IEnumerable<string> pivotFieldNames)
-        {
-            if (pivotFieldNames == null) return null;
-            var result = new List<DaxColumn>();
-
-            foreach (var piValue in pivotFieldNames)
-            {
-                var dc = new DaxColumn(piValue, daxFilter.IsHierarchy);
-                result.Add(dc);
-            }
-            return result;
         }
 
         private string GetColumnName()

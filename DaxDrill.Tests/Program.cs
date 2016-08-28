@@ -11,7 +11,7 @@ namespace DG2NTT.DaxDrill.Tests
         static void Main(string[] args)
         {
             var tests = new ParseMdxTests();
-            tests.ParseMdxWithHierarchy();
+            tests.AddMultiplePageFieldFilterToDic();
             Console.WriteLine("Test passed");
             Console.ReadKey();
         }

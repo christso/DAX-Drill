@@ -64,7 +64,7 @@ namespace DG2NTT.DaxDrill.TabularItems
                         this.columns.Add(column);
                     }
                 }
-                else
+                else if (this.table14 == null && this.table12 == null)
                 {
                     throw new InvalidOperationException("Table cannot be null");
                 }

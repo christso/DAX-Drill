@@ -268,6 +268,27 @@ namespace DG2NTT.DaxDrill.Tests
             Assert.AreEqual("Tran_MonthAbbrev", daxFilter.ColumnNameHierarchy[1].ColumnName);
             Assert.AreEqual("2.014E3", daxFilter.ValueHierarchy[0]);
             Assert.AreEqual("Jul", daxFilter.ValueHierarchy[1]);
+
+        }
+
+        public void AddMultiplePageFieldFilterToDic()
+        {
+            string pivotFieldNamesString = @"[Measures].[Trades CCA Sum]
+[TranDate].[Tran_Year].[Tran_Year]
+[TranDate].[Tran_YearMonthDay].[Tran_Year]
+[TranDate].[Tran_YearMonthDay].[Tran_MonthAbbrev]
+[TranDate].[Tran_YearMonthDay].[Tran_DayOfMonth]
+[CounterCcy].[Counter Ccy].[Counter Ccy]
+[TranDate].[Tran_MonthAbbrev].[Tran_MonthAbbrev]";
+
+            string ptMdxString = @"SELECT NON EMPTY Hierarchize(DrilldownMember(CrossJoin({[TranDate].[Tran_Year].[All],[TranDate].[Tran_Year].[Tran_Year].AllMembers}, {([TranDate].[Tran_MonthAbbrev].[All])}), [TranDate].[Tran_Year].[Tran_Year].AllMembers, [TranDate].[Tran_MonthAbbrev])) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS , NON EMPTY Hierarchize({DrilldownLevel({[CounterCcy].[Counter Ccy].[All]},,,INCLUDE_CALC_MEMBERS)}) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON ROWS  FROM (SELECT ({[TranDate].[Tran_YearMonthDay].[Tran_Year].&[2.016E3].&[Jun],[TranDate].[Tran_YearMonthDay].[Tran_Year].&[2.016E3].&[Mar]}) ON COLUMNS  FROM [Model]) WHERE ([Measures].[Trades CCA Sum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
+
+            string[] pivotFieldNames = pivotFieldNamesString.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            var pivotCellDic = new PivotCellDictionary();
+
+            PivotCellHelper.AddMultiplePageFieldFilterToDic(pivotFieldNames, ptMdxString, pivotCellDic);
+
+
         }
 
         [Test]

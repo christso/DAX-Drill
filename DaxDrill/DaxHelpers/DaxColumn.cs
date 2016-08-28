@@ -8,21 +8,30 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 {
     public class DaxColumn
     {
-        public DaxColumn(string pivotFieldName, bool isHierarchyMember)
+        public DaxColumn(string pivotFieldName, bool isHierarchyMember, int index)
         {
             this.pivotFieldName = pivotFieldName;
             this.tableName = GetTableName();
             this.isHierarchyMember = isHierarchyMember;
             this.columnName = GetColumnName(isHierarchyMember);
             this.hierarchyName = GetColumnName(false);
+            this.index = index;
         }
 
         private string pivotFieldName;
         private string tableName;
         private string columnName;
         private string hierarchyName;
+        private int index;
         private bool isHierarchyMember;
         
+        public int Index
+        {
+            get
+            {
+                return index;
+            }
+        }
         public string TableName
         {
             get
