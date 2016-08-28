@@ -123,8 +123,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                     if (childCommandText != "")
                         childCommandText += " || ";
                     var table = tabular.GetTable(item.TableName);
-                    var column = table.Columns.Find(item.ColumnName);
-                    childCommandText += BuildColumnCommandText(column, item);
+
+                    childCommandText += BuildColumnCommandText(table, item);
                 }
 
                 commandText += childCommandText;
@@ -132,8 +132,31 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
+        public static string BuildColumnCommandText(TabularItems.Table table, DaxFilter item)
+        {
+            //TODO: problem is that column name = "Tran_YearMonthDay" 
+            // this needs to be Tran_Year and TranMonth
+            TabularItems.Column column = null;
+
+            if (item.IsHierarchy)
+            {
+                
+                column = table.Columns.Find(item.ColumnName);           
+                return BuildColumnCommandText(column, item);
+            }
+            else
+            {
+                column = table.Columns.Find(item.ColumnName);
+                return BuildColumnCommandText(column, item);
+            }
+        }
+
         public static string BuildColumnCommandText(TabularItems.Column column, DaxFilter item)
         {
+            if (column == null)
+                throw new InvalidOperationException(
+                    string.Format("Column '{0} was not found in Tabular database", item.ColumnName));
+
             string commandText;
             switch (column.DataType)
             {
@@ -224,12 +247,12 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
             foreach (string itemString in columnStringArray)
             {
-                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString.Trim());
+                var daxFilter = DaxDrillParser.CreateDaxFilterFromHierarchy(itemString.Trim(), null);
                 result.Add(daxFilter);
             }
             foreach (string itemString in rowStringArray)
             {
-                var daxFilter = DaxDrillParser.CreateDaxFilter(itemString.Trim());
+                var daxFilter = DaxDrillParser.CreateDaxFilterFromHierarchy(itemString.Trim(), null);
                 result.Add(daxFilter);
             }
 
@@ -315,10 +338,6 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return new DaxFilter() { TableName = table, ColumnName = column, Value = value };
         }
 
-        public static DaxFilter CreateDaxFilter(string piValue)
-        {
-            return CreateDaxFilterFromColumn(piValue);
-        }
 
         public static DaxFilter CreateDaxFilterFromColumn(string piValue)
         {

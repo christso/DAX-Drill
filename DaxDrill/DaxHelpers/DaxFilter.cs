@@ -9,10 +9,14 @@ namespace DG2NTT.DaxDrill.DaxHelpers
     public class DaxFilter
     {
         public string TableName;
-        public string ColumnName;
+        public string ColumnName; // also represents hierarchy name
         public string Value;
-        public string[] HierarchyValue;
+        public IList<DaxColumn> ColumnNameHierarchy;
+        public string[] ValueHierarchy;
+
         public bool IsHierarchy;
+
+        // also represents the table-qualified column name
         public string Key
         {
             get

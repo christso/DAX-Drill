@@ -18,16 +18,45 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
         private string pivotItemValue;
         private IEnumerable<string> pivotFieldNames;
+        private DaxFilter daxFilter;
 
         public DaxFilter CreateDaxFilter()
         {
-            var daxFilter = new DaxFilter();
+            daxFilter = new DaxFilter();
             daxFilter.IsHierarchy = PivotItemIsHierarchy(pivotItemValue);
             daxFilter.ColumnName = GetColumnName();
             daxFilter.TableName = GetTableName();
-            daxFilter.HierarchyValue = GetValue(daxFilter.IsHierarchy);
-            daxFilter.Value = daxFilter.HierarchyValue[0];
+            daxFilter.ValueHierarchy = GetValue(daxFilter.IsHierarchy);
+            daxFilter.Value = daxFilter.ValueHierarchy[0];
+
+            daxFilter.ColumnNameHierarchy = GetColumnNameHierarchy();
+
             return daxFilter;
+        }
+
+        private IList<DaxColumn> GetColumnNameHierarchy()
+        {
+            var columnName = daxFilter.ColumnName;
+            var daxColumns = new List<DaxColumn>();
+            foreach (var pfValue in pivotFieldNames)
+            {
+                daxColumns.Add(new DaxColumn(pfValue, daxFilter.IsHierarchy));
+            }
+            var matched = daxColumns.Where(x => x.HierarchyName == columnName);
+            return matched.ToList<DaxColumn>();
+        }
+
+        public IList<DaxColumn> CreateDaxColumnHierarchy(IEnumerable<string> pivotFieldNames)
+        {
+            if (pivotFieldNames == null) return null;
+            var result = new List<DaxColumn>();
+
+            foreach (var piValue in pivotFieldNames)
+            {
+                var dc = new DaxColumn(piValue, daxFilter.IsHierarchy);
+                result.Add(dc);
+            }
+            return result;
         }
 
         private string GetColumnName()
@@ -107,13 +136,19 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             }
         }
 
-        private static bool PivotItemIsHierarchy(string pivotItemValue)
+        public static bool PivotFieldIsHierarchy(string pivotFieldValue)
+        {
+            var split = pivotFieldValue.Split('.');
+            bool isHierarchy = split[1] != split[2];
+            return isHierarchy;
+        }
+
+        public static bool PivotItemIsHierarchy(string pivotItemValue)
         {
             var split = pivotItemValue.Split('.');
             bool isHierarchy = split[2].Substring(0, 1) != "&";
             return isHierarchy;
         }
-
 
     }
 }

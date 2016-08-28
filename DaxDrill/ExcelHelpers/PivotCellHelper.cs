@@ -59,17 +59,16 @@ namespace DG2NTT.DaxDrill.ExcelHelpers
             foreach (Excel.PivotField pf in pfs)
             {
                 var dicCell = pivotCellDic.SingleSelectDictionary;
-                string cubeFieldPageName = pf.CubeField.CurrentPageName;
-                string cubeFieldValue = pf.CubeField.Value;
-                string sourceName = pf.SourceName;
-                string sourceCaption = pf.SourceCaption;
+
+                if (DaxFilterCreator.PivotFieldIsHierarchy(pf.SourceName))
+                    continue;
 
                 string pageName = pf.DataRange.Value2;
-                if (pageName != "All" && pageName != "(Multiple Items)")
-                {
-                    var cubeField = pf.CubeField;
-                    dicCell.Add(pf.Name, cubeField.Name + ".&[" + pageName + "]");
-                }
+                if (pageName == "All" || pageName == "(Multiple Items)")
+                    continue;
+
+                var cubeField = pf.CubeField;
+                dicCell.Add(pf.Name, cubeField.Name + ".&[" + pageName + "]");
             }
         }
 

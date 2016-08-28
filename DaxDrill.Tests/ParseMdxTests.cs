@@ -206,7 +206,7 @@ namespace DG2NTT.DaxDrill.Tests
         public void ParseHierPivotFilter()
         {
             string value = "[TranDate].[Tran_YearMonthDay].[Tran_Year].&[2.014E3].&[Mar]";
-            var daxFilter = DaxDrillParser.CreateDaxFilter(value);
+            var daxFilter = DaxDrillParser.CreateDaxFilterFromColumn(value);
         }
 
         [Test]
@@ -248,7 +248,8 @@ namespace DG2NTT.DaxDrill.Tests
 
         }
 
-        public void GetHierarchyFields()
+        [Test]
+        public void ParseMdxWithHierarchy()
         {
             string pivotFieldNamesString = @"[Measures].[Trades CCA Sum]
 [TranDate].[Tran_Year].[Tran_Year]
@@ -258,7 +259,31 @@ namespace DG2NTT.DaxDrill.Tests
 [CounterCcy].[Counter Ccy].[Counter Ccy]
 [TranDate].[Tran_MonthAbbrev].[Tran_MonthAbbrev]";
             string[] pivotFieldNames = pivotFieldNamesString.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            string pivotItemValue = "[TranDate].[Tran_YearMonthDay].[Tran_Year].&[2.014E3].&[Jul]";
 
+            var creator = new DaxFilterCreator(pivotItemValue, pivotFieldNames);
+            var daxFilter = creator.CreateDaxFilter();
+
+            Assert.AreEqual("Tran_Year", daxFilter.ColumnNameHierarchy[0].ColumnName);
+            Assert.AreEqual("Tran_MonthAbbrev", daxFilter.ColumnNameHierarchy[1].ColumnName);
+            Assert.AreEqual("2.014E3", daxFilter.ValueHierarchy[0]);
+            Assert.AreEqual("Jul", daxFilter.ValueHierarchy[1]);
+        }
+
+        [Test]
+        public void PivotFieldIsHierarchy()
+        {
+            string pivotFieldValue = "[TranDate].[Tran_MonthAbbrev].[Tran_MonthAbbrev]";
+            bool isHierarchy = DaxFilterCreator.PivotFieldIsHierarchy(pivotFieldValue);
+            Assert.IsFalse(isHierarchy);
+        }
+
+        [Test]
+        public void PivotFieldIsNotHierarchy()
+        {
+            string pivotFieldValue = "[TranDate].[Tran_YearMonthDay].[Tran_MonthAbbrev]";
+            bool isHierarchy = DaxFilterCreator.PivotFieldIsHierarchy(pivotFieldValue);
+            Assert.IsTrue(isHierarchy);
         }
 
         [Test]
@@ -270,9 +295,10 @@ namespace DG2NTT.DaxDrill.Tests
             Assert.AreEqual(true, daxFilter.IsHierarchy);
             Assert.AreEqual("Tran_YearMonthDay", daxFilter.ColumnName);
             Assert.AreEqual("TranDate", daxFilter.TableName);
-            Assert.AreEqual("2.014E3", daxFilter.HierarchyValue[0]);
-            Assert.AreEqual("Jul", daxFilter.HierarchyValue[1]);
+            Assert.AreEqual("2.014E3", daxFilter.ValueHierarchy[0]);
+            Assert.AreEqual("Jul", daxFilter.ValueHierarchy[1]);
         }
+
 
     }
 }

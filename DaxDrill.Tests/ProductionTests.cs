@@ -17,7 +17,7 @@ using SSAS12 = AnalysisServices2014::Microsoft.AnalysisServices;
 namespace DG2NTT.DaxDrill.Tests
 {
     [TestFixture]
-    public class DaxDrillTests
+    public class ProductionTests
     {
         /*
 EVALUATE
@@ -29,6 +29,9 @@ UsageDate[Usage_Year] = "2014",
 UsageDate[Usage_MonthAbbrev] = "May" 
 )
          */
+
+        public const string serverName = "FINSERV01";
+
         [Test]
         public void ParseCellDictionary()
         {
@@ -49,7 +52,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var pivotCellDic = new PivotCellDictionary();
             pivotCellDic.SingleSelectDictionary = excelDic;
             string commandText;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 commandText = DaxDrillParser.BuildFilterCommandText(pivotCellDic, tabular);
@@ -85,7 +88,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var pivotCellDic = new PivotCellDictionary();
             pivotCellDic.SingleSelectDictionary = singDic;
 
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 commandText = DaxDrillParser.BuildQueryText(tabular, pivotCellDic, "Gross Billed Sum", 99999);
@@ -104,7 +107,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         {
             string measureName = "Gross Billed Sum";
             TabularItems.Measure measure = null;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 measure = tabular.GetMeasure(measureName);
@@ -135,7 +138,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             var parser = new DaxDrillParser();
             string commandText;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("localhost", "Roaming"))
+            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 var selectedColumns = new List<DetailColumn>();
@@ -152,108 +155,20 @@ UsageDate[Usage_MonthAbbrev] = "May"
             #endregion
         }
 
-
-        public void ParsePivotItemFromValue()
-        {
-            string piValue = "[Usage].[Inbound or Outbound].&[Inbound]";
-
-            var daxFilter = DaxDrillParser.CreateDaxFilter(piValue);
-
-            Console.WriteLine("{0} | {1} | {2}", daxFilter.TableName,
-                daxFilter.ColumnName, daxFilter.Value);
-        }
-
-        public void XmlTest()
-        {
-            #region Arrange
-
-            const string nsString = "http://schemas.microsoft.com/daxdrill";
-            var xmlString =
-@"<daxdrill xmlns=""http://schemas.microsoft.com/daxdrill"">
-	<table id=""Usage"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
-		<columns>
-		   <column>
-			  <name>Call Type</name>
-			  <expression>Usage[Call Type]</expression>
-		   </column>
-		   <column>
-			  <name>Call Type Description</name>
-			  <expression>Usage[Call Type Description]</expression>
-		   </column>
-		   <column>
-			  <name>Gross Billed</name>
-			  <expression>Usage[Gross Billed]</expression>
-		   </column>
-		</columns>
-	</table>
-	<table id=""RoamingMeasure"" connection_id=""localhost Roaming Model"" xmlns=""http://schemas.microsoft.com/daxdrill"">
-		<query>FILTER
-(
-	UNION (
-		SELECTCOLUMNS (
-			DiscRelease,
-			""Roaming Measure"", ""Discount Release"",
-			""Accrual Period"", DiscRelease[Accrual Period],
-			""TAP Code"", DiscRelease[TAP Code],
-			""Amount Aud"", DiscRelease[Net Release Aud]
-		),
-		SELECTCOLUMNS (
-			Usage,
-			""Roaming Measure"", ""Discount Accrual"",
-			""Accrual Period"", Usage[Usage Date],
-			""TAP Code"", Usage[Their PMN TADIG Code],
-			""Amount Aud"", Usage[Gross Billed]		
-		)
-	),
-	[Roaming Measure] = VALUES ( RoamingMeasure[Roaming Measure] )
-)</query>
-	</table>
-</daxdrill>";
-
-            #endregion
-
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xmlString);
-            XmlNode root = doc.DocumentElement;
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
-            nsmgr.AddNamespace("x", nsString);
-
-            //string xpath = "..";
-            string xpath = string.Format("/x:daxdrill/x:table[@id='{0}']/x:query", "RoamingMeasure");
-
-            XmlNode node = root.SelectSingleNode(xpath, nsmgr);
-
-            Console.WriteLine(node.InnerXml);
-        }
-
-        public void SetPivotFieldPage()
-        {
-            var pageName = DaxDrillParser.CreatePivotFieldPageName("[PrdDate].[Prd_MonthAbbrev].[Prd_MonthAbbrev]", "May");
-            Console.WriteLine(pageName);
-        }
-
-        public void RemoveBrackets()
-        {
-            var input1 = "TableName[ColumnName]";
-            var input2 = "[ColumnName]";
-
-            Console.WriteLine(DaxDrillParser.RemoveBrackets(input1));
-            Console.WriteLine(DaxDrillParser.RemoveBrackets(input2));
-
-        }
-
+        [Test]
         public void GetMeasureDMV()
         {
-            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2016("FINSERV01", "CashFlow");
+            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2016(serverName, "CashFlow");
             tabular.Connect();
             var measure = tabular.GetMeasureFromDMV("Func Amt Sum");
 
             Console.WriteLine(measure.TableName);
+            Assert.AreEqual("CashFlow", measure.TableName);
         }
 
         public void GetColumnDataType_SSAS2014()
         {
-            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2014("FINSERV01", "ApPayments");
+            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2014(serverName, "ApPayments");
             tabular.Connect();
 
 

@@ -86,7 +86,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DaxDrillTests.cs" />
+    <Compile Include="UtilTests.cs" />
+    <Compile Include="ProductionTests.cs" />
     <Compile Include="ExcelTests.cs" />
     <Compile Include="ParseXmlTests.cs" />
     <Compile Include="Program.cs" />
