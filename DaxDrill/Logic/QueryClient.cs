@@ -22,14 +22,24 @@ namespace DG2NTT.DaxDrill.Logic
         private readonly PivotCellDictionary pivotCellDic;
         private readonly IEnumerable<string> pivotFieldNames;
 
-        public QueryClient(Excel.Range rngCell)
+        public QueryClient(Excel.Range rngCell) : 
+            this(rngCell, null, null)
+        {
+        }
+
+        public QueryClient(Excel.Range rngCell, PivotCellDictionary pivotCellDic, IEnumerable<string> pivotFieldNames)
         {
             this.rngCell = rngCell;
             this.pivotTable = rngCell.PivotTable;
             this.pcache = pivotTable.PivotCache();
             this.connectionString = pcache.Connection;
-            this.pivotFieldNames = PivotCellHelper.GetPivotFieldNames(rngCell);
-            this.pivotCellDic = PivotCellHelper.GetPivotCellQuery(rngCell);
+            this.pivotFieldNames = pivotFieldNames ?? PivotCellHelper.GetPivotFieldNames(rngCell);
+            this.pivotCellDic = pivotCellDic ?? PivotCellHelper.GetPivotCellQuery(rngCell);
+        }
+
+        public Excel.Range RangeCell
+        {
+            get { return rngCell; }
         }
 
         public string GetDAXQuery()
@@ -44,7 +54,7 @@ namespace DG2NTT.DaxDrill.Logic
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
 
             int maxRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
-            var detailColumns = QueryClient.GetCustomDetailColumns(rngCell);
+            var detailColumns = GetCustomDetailColumns(rngCell);
 
             using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(
                 cnnStringBuilder.DataSource,
@@ -93,7 +103,7 @@ namespace DG2NTT.DaxDrill.Logic
             return result;
         }
 
-        public static IEnumerable<DetailColumn> GetCustomDetailColumns(Excel.Range rngCell)
+        public IEnumerable<DetailColumn> GetCustomDetailColumns(Excel.Range rngCell)
         {
             Excel.WorkbookConnection wbcnn = null;
             Excel.Workbook workbook = null;
@@ -104,7 +114,7 @@ namespace DG2NTT.DaxDrill.Logic
             sheet = (Excel.Worksheet)rngCell.Parent;
             workbook = (Excel.Workbook)sheet.Parent;
 
-            TabularItems.Measure measure = QueryClient.GetMeasure(rngCell);
+            TabularItems.Measure measure = GetMeasure(rngCell);
 
             string xmlString = ExcelHelper.ReadCustomXmlNode(
                 workbook, Constants.DaxDrillXmlSchemaSpace,
@@ -114,12 +124,12 @@ namespace DG2NTT.DaxDrill.Logic
             return columns;
         }
 
-        public static string GetCustomTableQuery(Excel.Range rngCell)
+        public string GetCustomTableQuery(Excel.Range rngCell)
         {
             Excel.Worksheet sheet = (Excel.Worksheet)rngCell.Parent;
             Excel.Workbook workbook = (Excel.Workbook)sheet.Parent;
 
-            TabularItems.Measure measure = QueryClient.GetMeasure(rngCell);
+            TabularItems.Measure measure = GetMeasure(rngCell);
             Office.CustomXMLNode node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
                 string.Format("{0}[@id='{1}']/x:query", Constants.TableXpath, measure.TableName));
 
@@ -129,10 +139,10 @@ namespace DG2NTT.DaxDrill.Logic
             return string.Empty;
         }
 
-        private static TabularItems.Measure GetMeasure(Excel.Range rngCell)
+
+        private TabularItems.Measure GetMeasure(Excel.Range rngCell)
         {
-            var cnnString = ExcelHelper.GetConnectionString(rngCell);
-            var cnnBuilder = new TabularConnectionStringBuilder(cnnString);
+            var cnnBuilder = new TabularConnectionStringBuilder(this.connectionString);
 
             string measureName = GetMeasureName(rngCell);
             TabularItems.Measure measure = null;

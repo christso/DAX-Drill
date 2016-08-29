@@ -83,7 +83,14 @@ namespace DG2NTT.DaxDrill
         [ExcelCommand(MenuName = "&DAX Drill", MenuText = "DrillThrough")]
         public static void DrillThrough()
         {
-            Task.Factory.StartNew(DrillThroughThreadSafe).ContinueWith(t =>
+            Excel.Range rngCell = xlApp.ActiveCell;
+            if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
+
+            var queryClient = new QueryClient(rngCell);
+
+            Task.Factory.StartNew(() => 
+                DrillThroughThreadSafe(queryClient))
+                .ContinueWith(t =>
             {
                 ExcelAsyncUtil.QueueAsMacro(() =>
                 {
@@ -93,10 +100,9 @@ namespace DG2NTT.DaxDrill
             });
         }
 
-        public static void DrillThroughThreadSafe()
+        private static void DrillThroughThreadSafe(QueryClient queryClient)
         {
-            Excel.Range rngCell = xlApp.ActiveCell;
-            if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
+            Excel.Range rngCell = queryClient.RangeCell;
 
             // create sheet
             Excel.Sheets sheets = xlApp.Sheets;
@@ -109,7 +115,6 @@ namespace DG2NTT.DaxDrill
                 maxDrillThroughRecords);
 
             // set up connection
-            var queryClient = new QueryClient(rngCell);
             var connString = ExcelHelper.GetConnectionString(rngCell);
             var commandText = queryClient.GetDAXQuery(connString);
             var daxClient = new DaxClient();
