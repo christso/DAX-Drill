@@ -106,7 +106,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                     commandText += ",\n";
                 }
                 if (item.IsHierarchy)
-                    commandText = "FILTER ( " + item.TableName + ",";
+                    commandText += "FILTER ( " + item.TableName + ",";
                 var table = tabular.GetTable(item.TableName);
                 commandText += BuildColumnCommandText(table, item);
                 if (item.IsHierarchy)
@@ -267,8 +267,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
 
         public static List<DaxFilter> ConvertPivotTableMdxToDaxFilterList(string mdxString, IEnumerable<string> pivotFieldNames)
         {
-            string[] columnStringArray = OnColumnsMdxToArray(mdxString);
-            string[] rowStringArray = OnRowsMdxToArray(mdxString);
+            var mdxParser = new TableMdxParser(mdxString);
+            
+            string[] columnStringArray = mdxParser.ConvertColumnMdxToArray();
+
+            string[] rowStringArray = mdxParser.ConvertRowMdxToArray();
 
             var result = new List<DaxFilter>();
 
@@ -311,51 +314,6 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             }
 
             return result;
-        }
-
-        private static string[] OnColumnsMdxToArray(string mdxString)
-        {
-            const string startPattern = "FROM (SELECT (";
-
-            // start reading from the end of the pattern
-            int startIndex = mdxString.IndexOf(startPattern);
-            if (startIndex < 0) return new string[0];
-            startIndex += startPattern.Length;
-
-            mdxString = mdxString.Substring(startIndex, mdxString.Length - startIndex);
-
-            // stop reading after the first occurrence of ") ON"
-            int endIndex = mdxString.IndexOf(") ON COLUMNS");
-            mdxString = mdxString.Substring(0, endIndex);
-
-            // remove the outer character "{" and "}"
-            mdxString = mdxString.Replace("{", "").Replace("}", "");
-
-            string[] itemStringArray = mdxString.Split(',');
-
-            return itemStringArray;
-        }
-
-        private static string[] OnRowsMdxToArray(string mdxString)
-        {
-
-            // start reading from the end of the pattern
-            int startIndex = mdxString.IndexOf("FROM (SELECT (");
-            if (startIndex < 0) return new string[0];
-            startIndex = mdxString.IndexOf(") ON COLUMNS", startIndex);
-            int endIndex = mdxString.IndexOf(") ON ROWS", startIndex);
-            if (endIndex < 0) return new string[0];
-
-            mdxString = mdxString.Substring(startIndex, endIndex - startIndex);
-            endIndex = mdxString.Length - 1;
-
-            // remove the outer character "{" and "}"
-            startIndex = mdxString.IndexOf("({") + 1;
-            mdxString = mdxString.Substring(startIndex, endIndex - startIndex);
-            mdxString = mdxString.Replace("{","").Replace("}","");
-            string[] itemStringArray = mdxString.Split(',');
-
-            return itemStringArray;
         }
 
         public static DaxFilter CreateDaxFilter(string piKey, string piValue)

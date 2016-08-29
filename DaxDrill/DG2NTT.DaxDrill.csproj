@@ -88,6 +88,7 @@
     <Compile Include="DaxHelpers\DaxColumn.cs" />
     <Compile Include="DaxHelpers\DaxFilterCollection.cs" />
     <Compile Include="DaxHelpers\DaxFilterCreator.cs" />
+    <Compile Include="DaxHelpers\TableMdxParser.cs" />
     <Compile Include="TabularItems\Column.cs" />
     <Compile Include="TabularItems\ColumnCollection.cs" />
     <Compile Include="TabularItems\Measure.cs" />

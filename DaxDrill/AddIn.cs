@@ -98,6 +98,16 @@ namespace DG2NTT.DaxDrill
             Excel.Range rngCell = xlApp.ActiveCell;
             if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
 
+            // create sheet
+            Excel.Sheets sheets = xlApp.Sheets;
+            Excel.Worksheet sheet = (Excel.Worksheet)sheets.Add();
+
+            // show message to user we are retrieving records
+            Excel.Range rngHead = sheet.Range["A1"];
+            int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
+            rngHead.Value2 = string.Format("Retrieving TOP {0} records",
+                maxDrillThroughRecords);
+
             // set up connection
             var queryClient = new QueryClient(rngCell);
             var connString = ExcelHelper.GetConnectionString(rngCell);
@@ -106,16 +116,6 @@ namespace DG2NTT.DaxDrill
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
             var cnn = new ADOMD.AdomdConnection(cnnStringBuilder.StrippedConnectionString);
 
-            // create sheet
-            Excel.Sheets sheets = xlApp.Sheets;
-            Excel.Worksheet sheet = (Excel.Worksheet)sheets.Add();
-
-            // show message to user we are retrieving records
-            Excel.Range rngHead = sheet.Range["A1"];
-            int maxDrillThroughRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
-            rngHead.Value2 = string.Format("Retrieving TOP {0} records", 
-                maxDrillThroughRecords);
-                
             // retrieve result
             var dtResult = daxClient.ExecuteTable(commandText, cnn);
 

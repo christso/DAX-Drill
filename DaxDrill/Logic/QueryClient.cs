@@ -16,22 +16,29 @@ namespace DG2NTT.DaxDrill.Logic
     public class QueryClient
     {
         private readonly Excel.Range rngCell;
+        private readonly Excel.PivotTable pivotTable;
+        private readonly string connectionString;
+        private readonly Excel.PivotCache pcache;
+        private readonly PivotCellDictionary pivotCellDic;
+        private readonly IEnumerable<string> pivotFieldNames;
+
         public QueryClient(Excel.Range rngCell)
         {
             this.rngCell = rngCell;
+            this.pivotTable = rngCell.PivotTable;
+            this.pcache = pivotTable.PivotCache();
+            this.connectionString = pcache.Connection;
+            this.pivotFieldNames = PivotCellHelper.GetPivotFieldNames(rngCell);
+            this.pivotCellDic = PivotCellHelper.GetPivotCellQuery(rngCell);
         }
 
         public string GetDAXQuery()
         {
-            var connString = ExcelHelper.GetConnectionString(rngCell);
-            return GetDAXQuery(connString);
+            return GetDAXQuery(connectionString);
         }
 
         public string GetDAXQuery(string connString)
         {
-            var pivotCellDic = PivotCellHelper.GetPivotCellQuery(rngCell);
-            var pivotFieldNames = PivotCellHelper.GetPivotFieldNames(rngCell);
-
             string commandText = "";
    
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
