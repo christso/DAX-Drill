@@ -102,11 +102,16 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             foreach (var item in daxFilterList)
             {
                 if (commandText != "")
+                {
                     commandText += ",\n";
+                }
+                if (item.IsHierarchy)
+                    commandText = "FILTER ( " + item.TableName + ",";
                 var table = tabular.GetTable(item.TableName);
                 commandText += BuildColumnCommandText(table, item);
+                if (item.IsHierarchy)
+                    commandText += ")";
             }
-
             return commandText;
         }
 

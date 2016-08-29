@@ -320,6 +320,39 @@ namespace DG2NTT.DaxDrill.Tests
             Assert.AreEqual("Jul", daxFilter.ValueHierarchy[1]);
         }
 
+        // Column Pivot Fields = { [TranDate].[Tran_Year].&[2.016E3], [TranDate].[Tran_Year].&[2.015E3] }
+        // Page Fields = { [CounterCcy].[Counter Ccy].&[EUR],[CounterCcy].[Counter Ccy].&[USD] }
+        [Test]
+        public void ParseTableMdxWithMultiPageSelect()
+        {
+            var mdxString = @"SELECT NON EMPTY Hierarchize({[TranDate].[Tran_Year].[Tran_Year].AllMembers}) DIMENSION PROPERTIES PARENT_UNIQUE_NAME,HIERARCHY_UNIQUE_NAME ON COLUMNS  FROM (SELECT ({[TranDate].[Tran_Year].&[2.016E3], [TranDate].[Tran_Year].&[2.015E3]}) ON COLUMNS  FROM (SELECT ({[CounterCcy].[Counter Ccy].&[EUR],[CounterCcy].[Counter Ccy].&[USD]}) ON COLUMNS  FROM [Model])) WHERE ([Account].[Account Currency].[All],[Activity].[Activity L1].[All],[CounterCcy].[Currency L1].&[Major],[Activity].[Is Hedgeable].&[True],[CounterCcy].[Counter Ccy Is Func].&[False],[SnapshotReported].[Compare Name].&[Current],[Snapshot].[Snapshot].&[Current],[Measures].[Trades CCA Sum]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS";
+            var daxFilterList = DaxDrillParser.ConvertPivotTableMdxToDaxFilterList(mdxString, null);
+
+            #region User Friendly Result
+            foreach (var df in daxFilterList)
+            {
+                Console.WriteLine("Column = {0}; Value = {1};", df.ColumnName, df.Value);
+            }
+            #endregion
+
+            #region Assert
+            IEnumerable<DaxFilter> columnDfs = null;
+            IEnumerable<DaxFilter> valueDfs = null;
+
+            columnDfs = daxFilterList.Where(c => c.ColumnName == "Tran_Year");
+            Assert.AreEqual(2, columnDfs.Count());
+
+            valueDfs = columnDfs.Where(c => c.Value == "2.016E3");
+            Assert.AreEqual(1, valueDfs.Count());
+
+            valueDfs = columnDfs.Where(c => c.Value == "2.015E3");
+            Assert.AreEqual(1, valueDfs.Count());
+
+            columnDfs = daxFilterList.Where(c => c.ColumnName == "Counter Ccy");
+            Assert.AreEqual(2, columnDfs.Count());
+
+            #endregion
+        }
 
     }
 }
