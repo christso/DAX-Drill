@@ -27,7 +27,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             daxFilter.ColumnName = GetColumnName();
             daxFilter.TableName = GetTableName();
             daxFilter.ValueHierarchy = GetValue(daxFilter.IsHierarchy);
-            daxFilter.Value = daxFilter.ValueHierarchy[0];
+            daxFilter.Value = daxFilter.ValueHierarchy == null ?
+                null : daxFilter.ValueHierarchy[0];
 
             daxFilter.ColumnNameHierarchy = GetColumnNameHierarchy();
 
