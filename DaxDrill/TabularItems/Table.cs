@@ -81,13 +81,18 @@ namespace DG2NTT.DaxDrill.TabularItems
             {
                 case System.Data.OleDb.OleDbType.Double:
                 case System.Data.OleDb.OleDbType.Decimal:
-                case System.Data.OleDb.OleDbType.DBDate:
                 case System.Data.OleDb.OleDbType.Integer:
                 case System.Data.OleDb.OleDbType.BigInt:
                     destDataType = SSAS14.DataType.Double;
                     break;
                 case System.Data.OleDb.OleDbType.Boolean:
                     destDataType = SSAS14.DataType.Boolean;
+                    break;
+                case System.Data.OleDb.OleDbType.Date:
+                    destDataType = SSAS14.DataType.DateTime;
+                    break;
+                case System.Data.OleDb.OleDbType.DBDate:
+                    destDataType = SSAS14.DataType.DateTime;
                     break;
                 default:
                     destDataType = SSAS14.DataType.String;

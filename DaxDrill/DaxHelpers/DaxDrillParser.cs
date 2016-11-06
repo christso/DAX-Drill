@@ -185,6 +185,11 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 case SSAS.DataType.String:
                     commandText = string.Format("{0}[{1}] = \"{2}\"", tableName, columnName, value);
                     break;
+                case SSAS.DataType.DateTime:
+                    var date = Convert.ToDateTime(value);
+                    var dateExpr = string.Format("DATE({0},{1},{2})", date.Year, date.Month, date.Day);
+                    commandText = string.Format("{0}[{1}] = {2}", tableName, columnName, dateExpr);
+                    break;
                 case SSAS.DataType.Int64:
                 case SSAS.DataType.Decimal:
                 case SSAS.DataType.Double:
