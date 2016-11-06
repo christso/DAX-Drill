@@ -193,7 +193,10 @@ namespace DG2NTT.DaxDrill.DaxHelpers
                 case SSAS.DataType.Int64:
                 case SSAS.DataType.Decimal:
                 case SSAS.DataType.Double:
-                    commandText = string.Format("{0}[{1}] = {2}", tableName, columnName, value);
+                    if (value == null)
+                        commandText = string.Format("{0}[{1}] = BLANK()", tableName, columnName);
+                    else
+                        commandText = string.Format("{0}[{1}] = {2}", tableName, columnName, value);
                     break;
                 case SSAS.DataType.Boolean:
                     if (value.ToLower() == "true")
