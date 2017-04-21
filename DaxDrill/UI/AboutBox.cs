@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DG2NTT.DaxDrill.Helpers;
-using DG2NTT.DaxDrill.ExcelHelpers;
+using DaxDrill.Helpers;
+using DaxDrill.ExcelHelpers;
 
-namespace DG2NTT.DaxDrill.UI
+namespace DaxDrill.UI
 {
     public partial class AboutBox : Form
     {

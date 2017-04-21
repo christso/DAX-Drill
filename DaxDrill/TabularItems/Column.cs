@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AnalysisServices.Tabular;
 
-namespace DG2NTT.DaxDrill.TabularItems
+namespace DaxDrill.TabularItems
 {
     public class Column
     {

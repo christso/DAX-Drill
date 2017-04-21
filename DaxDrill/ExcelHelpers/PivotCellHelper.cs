@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
-using DG2NTT.DaxDrill.DaxHelpers;
+using DaxDrill.DaxHelpers;
 
-namespace DG2NTT.DaxDrill.ExcelHelpers
+namespace DaxDrill.ExcelHelpers
 {
     public class PivotCellHelper
     {

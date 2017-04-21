@@ -1,5 +1,5 @@
-<DnaLibrary Name="DG2NTT.DaxDrill.Tests Add-In" RuntimeVersion="v4.0">
-  <ExternalLibrary Path="DG2NTT.DaxDrill.Tests.exe" LoadFromBytes="true" Pack="true" />
+<DnaLibrary Name="DaxDrill.Tests Add-In" RuntimeVersion="v4.0">
+  <ExternalLibrary Path="DaxDrill.Tests.exe" LoadFromBytes="true" Pack="true" />
   
   <!-- 
        The RuntimeVersion attribute above allows two settings:

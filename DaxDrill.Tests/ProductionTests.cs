@@ -8,13 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using ADOMD = Microsoft.AnalysisServices.AdomdClient;
-using DG2NTT.DaxDrill.DaxHelpers;
+using DaxDrill.DaxHelpers;
 using Microsoft.AnalysisServices.Tabular;
-using DG2NTT.DaxDrill.ExcelHelpers;
-using DG2NTT.DaxDrill.Tabular;
+using DaxDrill.ExcelHelpers;
+using DaxDrill.Tabular;
 using SSAS12 = AnalysisServices2014::Microsoft.AnalysisServices;
 
-namespace DG2NTT.DaxDrill.Tests
+namespace DaxDrill.Tests
 {
     [TestFixture]
     public class ProductionTests
@@ -52,7 +52,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var pivotCellDic = new PivotCellDictionary();
             pivotCellDic.SingleSelectDictionary = excelDic;
             string commandText;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
+            using (var tabular = new DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 commandText = DaxDrillParser.BuildFilterCommandText(pivotCellDic, tabular, null);
@@ -88,7 +88,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
             var pivotCellDic = new PivotCellDictionary();
             pivotCellDic.SingleSelectDictionary = singDic;
 
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
+            using (var tabular = new DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 commandText = DaxDrillParser.BuildQueryText(tabular, pivotCellDic, "Gross Billed Sum", 99999);
@@ -107,7 +107,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         {
             string measureName = "Gross Billed Sum";
             TabularItems.Measure measure = null;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
+            using (var tabular = new DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 measure = tabular.GetMeasure(measureName);
@@ -138,7 +138,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
             var parser = new DaxDrillParser();
             string commandText;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
+            using (var tabular = new DaxDrill.Tabular.TabularHelper(serverName, "Roaming"))
             {
                 tabular.Connect();
                 var selectedColumns = new List<DetailColumn>();
@@ -158,7 +158,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
         [Test]
         public void GetMeasureDMV()
         {
-            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2016(serverName, "CashFlow");
+            var tabular = new DaxDrill.Tabular.TabularHelper_2016(serverName, "CashFlow");
             tabular.Connect();
             var measure = tabular.GetMeasureFromDMV("Func Amt Sum");
 
@@ -168,7 +168,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
         public void GetColumnDataType_SSAS2014()
         {
-            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2014(serverName, "ApPayments");
+            var tabular = new DaxDrill.Tabular.TabularHelper_2014(serverName, "ApPayments");
             tabular.Connect();
 
 
@@ -183,7 +183,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
         public void GetMeasure_SSAS2016()
         {
-            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper("FINSERV01", "HRR_Snap");
+            var tabular = new DaxDrill.Tabular.TabularHelper("FINSERV01", "HRR_Snap");
             tabular.Connect();
             TabularItems.Measure measure = tabular.GetMeasure("HRR_ExGST_Sum");
             Console.WriteLine(measure.Name);
@@ -191,7 +191,7 @@ UsageDate[Usage_MonthAbbrev] = "May"
 
         public void GetMeasure_SSAS2014()
         {
-            var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper_2014("FINSERV01", "CashFlow");
+            var tabular = new DaxDrill.Tabular.TabularHelper_2014("FINSERV01", "CashFlow");
             tabular.Connect();
             var measure = tabular.GetMeasure("Func Amt Sum");
 

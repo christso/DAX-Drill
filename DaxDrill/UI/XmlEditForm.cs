@@ -1,4 +1,4 @@
-﻿using DG2NTT.DaxDrill.Logic;
+﻿using DaxDrill.Logic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,12 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExcelDna.Integration;
-using DG2NTT.DaxDrill.ExcelHelpers;
+using DaxDrill.ExcelHelpers;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
-namespace DG2NTT.DaxDrill.UI
+namespace DaxDrill.UI
 {
     public partial class XmlEditForm : Form
     {

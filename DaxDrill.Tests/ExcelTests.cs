@@ -8,7 +8,7 @@ using Office = Microsoft.Office.Core;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace DG2NTT.DaxDrill.Tests
+namespace DaxDrill.Tests
 {
     public class ExcelTests
     {

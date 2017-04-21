@@ -8,18 +8,18 @@ using ADOMD = Microsoft.AnalysisServices.AdomdClient;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-using DG2NTT.DaxDrill.ExcelHelpers;
+using DaxDrill.ExcelHelpers;
 using System.Threading;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using DG2NTT.DaxDrill.UI;
-using DG2NTT.DaxDrill.Logic;
-using DG2NTT.DaxDrill.DaxHelpers;
-using DG2NTT.DaxDrill.Helpers;
+using DaxDrill.UI;
+using DaxDrill.Logic;
+using DaxDrill.DaxHelpers;
+using DaxDrill.Helpers;
 using System.Collections;
 using Office = Microsoft.Office.Core;
 
-namespace DG2NTT.DaxDrill
+namespace DaxDrill
 {
     public class AddIn : IExcelAddIn
     {
@@ -189,6 +189,20 @@ namespace DG2NTT.DaxDrill
             {
                 MsgForm.ShowMessage(ex);
             }
+        }
+
+
+
+        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
+        public static void Test()
+        {
+            Excel.Range rngCell = xlApp.ActiveCell;
+            if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
+
+            // generate command
+            var queryClient = new QueryClient(rngCell);
+            var commandText = QueryClient.GetMeasureName(rngCell);
+            MsgForm.ShowMessage("Test", commandText);
         }
     }
 }

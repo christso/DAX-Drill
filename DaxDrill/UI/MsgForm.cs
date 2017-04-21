@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace DG2NTT.DaxDrill.UI
+namespace DaxDrill.UI
 {
     /// <summary>
     /// Description of ErrForm.

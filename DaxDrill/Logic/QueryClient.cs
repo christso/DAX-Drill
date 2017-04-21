@@ -1,5 +1,5 @@
-﻿using DG2NTT.DaxDrill.DaxHelpers;
-using DG2NTT.DaxDrill.ExcelHelpers;
+﻿using DaxDrill.DaxHelpers;
+using DaxDrill.ExcelHelpers;
 using Microsoft.AnalysisServices.Tabular;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 
-namespace DG2NTT.DaxDrill.Logic
+namespace DaxDrill.Logic
 {
     public class QueryClient
     {
@@ -56,7 +56,7 @@ namespace DG2NTT.DaxDrill.Logic
             int maxRecords = ExcelHelper.GetMaxDrillthroughRecords(rngCell);
             var detailColumns = GetCustomDetailColumns(rngCell);
 
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(
+            using (var tabular = new DaxDrill.Tabular.TabularHelper(
                 cnnStringBuilder.DataSource,
                 cnnStringBuilder.InitialCatalog))
             {
@@ -69,6 +69,7 @@ namespace DG2NTT.DaxDrill.Logic
 
                 if (string.IsNullOrEmpty(tableQuery))
                 {
+                    // if table not defined in XML metadata, retrieve entire table
                     string measureName = GetMeasureName(rngCell);
                     commandText = DaxDrillParser.BuildQueryText(tabular,
                         pivotCellDic,
@@ -76,6 +77,7 @@ namespace DG2NTT.DaxDrill.Logic
                 }
                 else
                 {
+                    // if table is defined in XML metadata, retrieve using DAX command
                     commandText = DaxDrillParser.BuildCustomQueryText(tabular,
                         pivotCellDic,
                         tableQuery, maxRecords, detailColumns, pivotFieldNames);
@@ -92,7 +94,7 @@ namespace DG2NTT.DaxDrill.Logic
             var cnnStringBuilder = new TabularConnectionStringBuilder(connString);
             bool result = false;
 
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(
+            using (var tabular = new DaxDrill.Tabular.TabularHelper(
                 cnnStringBuilder.DataSource,
                 cnnStringBuilder.InitialCatalog))
             {
@@ -124,14 +126,22 @@ namespace DG2NTT.DaxDrill.Logic
             return columns;
         }
 
+        // get DAX query from XML Data based on active rngCell
         public string GetCustomTableQuery(Excel.Range rngCell)
         {
             Excel.Worksheet sheet = (Excel.Worksheet)rngCell.Parent;
             Excel.Workbook workbook = (Excel.Workbook)sheet.Parent;
 
             TabularItems.Measure measure = GetMeasure(rngCell);
+
+            // get DAX query by measure id
             Office.CustomXMLNode node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
-                string.Format("{0}[@id='{1}']/x:query", Constants.TableXpath, measure.TableName));
+                string.Format("{0}[@id='{1}']/x:query", Constants.MeasureXpath, measure.Name));
+
+            // get DAX query by table id (if measure not found in XML metadata)
+            if (node == null)
+                node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
+                    string.Format("{0}[@id='{1}']/x:query", Constants.TableXpath, measure.TableName));
 
             if (node != null)
                 return node.Text;
@@ -146,7 +156,7 @@ namespace DG2NTT.DaxDrill.Logic
 
             string measureName = GetMeasureName(rngCell);
             TabularItems.Measure measure = null;
-            using (var tabular = new DG2NTT.DaxDrill.Tabular.TabularHelper(cnnBuilder.DataSource, cnnBuilder.InitialCatalog))
+            using (var tabular = new DaxDrill.Tabular.TabularHelper(cnnBuilder.DataSource, cnnBuilder.InitialCatalog))
             {
                 tabular.Connect();
                 measure = tabular.GetMeasure(measureName);

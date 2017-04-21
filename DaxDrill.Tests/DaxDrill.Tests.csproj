@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BCB367F4-9ED4-4B75-9F9D-3039DB171BAD}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{BD7D2EB5-FFB8-425B-8D88-2E751E71F1E7}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DG2NTT.DaxDrill</RootNamespace>
-    <AssemblyName>DG2NTT.DaxDrill</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>DaxDrill.Tests</RootNamespace>
+    <AssemblyName>DaxDrill.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,18 +32,17 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>DaxDrill.Tests.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ExcelDna.Integration, Version=0.33.5730.40390, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ExcelDna.Integration.0.33.9\lib\ExcelDna.Integration.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Microsoft.AnalysisServices, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AnalysisServices.11.0.2100.60\lib\net40\Microsoft.AnalysisServices.DLL</HintPath>
       <Private>True</Private>
       <Aliases>AnalysisServices2014</Aliases>
     </Reference>
     <Reference Include="Microsoft.AnalysisServices.AdomdClient, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AnalysisServices.AdomdClient.12.0.2000.8\lib\net40\Microsoft.AnalysisServices.AdomdClient.dll</HintPath>
+      <HintPath>..\DG2NTT.DaxDrill\packages\Microsoft.AnalysisServices.AdomdClient.12.0.2000.8\lib\net40\Microsoft.AnalysisServices.AdomdClient.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AnalysisServices.Server.Core, Version=13.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
@@ -66,6 +67,10 @@
       <HintPath>..\packages\Excel-DNA.Interop.14.0.1\lib\Microsoft.Vbe.Interop.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="nunit.framework, Version=3.2.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.2.1\lib\net45\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Office, Version=14.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\packages\Excel-DNA.Interop.14.0.1\lib\Office.dll</HintPath>
@@ -73,8 +78,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -83,90 +86,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddIn.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="DaxHelpers\DaxColumn.cs" />
-    <Compile Include="DaxHelpers\DaxFilterCollection.cs" />
-    <Compile Include="DaxHelpers\DaxFilterCreator.cs" />
-    <Compile Include="DaxHelpers\TableMdxParser.cs" />
-    <Compile Include="TabularItems\Column.cs" />
-    <Compile Include="TabularItems\ColumnCollection.cs" />
-    <Compile Include="TabularItems\Measure.cs" />
-    <Compile Include="TabularItems\Table.cs" />
-    <Compile Include="Tabular\ITabularHelper.cs" />
-    <Compile Include="Tabular\TabularHelper_2014.cs" />
-    <Compile Include="ExcelHelpers\PivotCellDictionary.cs" />
-    <Compile Include="Helpers\AssemblyHelper.cs" />
-    <Compile Include="Logic\PivotFieldPageEditController.cs" />
-    <Compile Include="Logic\QueryClient.cs" />
-    <Compile Include="DaxHelpers\DetailColumn.cs" />
-    <Compile Include="DaxHelpers\DaxFilter.cs" />
-    <Compile Include="ExcelHelpers\ExcelHelper.cs" />
-    <Compile Include="ExcelHelpers\PivotCellHelper.cs" />
-    <Compile Include="DaxHelpers\DaxDrillParser.cs" />
-    <Compile Include="Tabular\TabularHelper_2016.cs" />
-    <Compile Include="UI\AboutBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\AboutBox.Designer.cs">
-      <DependentUpon>AboutBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\MsgForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\MsgForm.Designer.cs">
-      <DependentUpon>MsgForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DaxHelpers\DaxDrillConfig.cs" />
+    <Compile Include="UtilTests.cs" />
+    <Compile Include="ProductionTests.cs" />
+    <Compile Include="ExcelTests.cs" />
+    <Compile Include="ParseXmlTests.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DaxHelpers\DaxClient.cs" />
-    <Compile Include="DaxHelpers\TabularConnectionStringBuilder.cs" />
-    <Compile Include="Tabular\TabularHelper.cs" />
-    <Compile Include="UI\PivotFieldPageEditForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\PivotFieldPageEditForm.Designer.cs">
-      <DependentUpon>PivotFieldPageEditForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Utils.cs" />
-    <Compile Include="Logic\XmlEditController.cs" />
-    <Compile Include="UI\XmlEditForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\XmlEditForm.Designer.cs">
-      <DependentUpon>XmlEditForm.cs</DependentUpon>
-    </Compile>
+    <Compile Include="ParseMdxTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DG2NTT.DaxDrill-AddIn.dna">
+    <None Include="App.config" />
+    <Content Include="DaxDrill.Tests-AddIn.dna">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <ProjectReference Include="..\DaxDrill\DaxDrill.csproj">
+      <Project>{bcb367f4-9ed4-4b75-9f9d-3039db171bad}</Project>
+      <Name>DaxDrill</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="UI\AboutBox.resx">
-      <DependentUpon>AboutBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\MsgForm.resx">
-      <DependentUpon>MsgForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\PivotFieldPageEditForm.resx">
-      <DependentUpon>PivotFieldPageEditForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\XmlEditForm.resx">
-      <DependentUpon>XmlEditForm.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(SolutionDir)packages\ExcelDna.AddIn.0.33.9\tools\ExcelDna.xll" "$(TargetDir)DG2NTT.DaxDrill-AddIn.xll*" /C /Y
-xcopy "$(TargetDir)DG2NTT.DaxDrill-AddIn.dna*" "$(TargetDir)DG2NTT.DaxDrill-AddIn64.dna*" /C /Y
-xcopy "$(SolutionDir)packages\ExcelDna.AddIn.0.33.9\tools\ExcelDna64.xll" "$(TargetDir)DG2NTT.DaxDrill-AddIn64.xll*" /C /Y</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

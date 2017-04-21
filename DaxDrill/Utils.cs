@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 
-namespace DG2NTT.DaxDrill
+namespace DaxDrill
 {
     public class Utils
     {

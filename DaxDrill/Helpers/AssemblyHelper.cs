@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DG2NTT.DaxDrill.Helpers
+namespace DaxDrill.Helpers
 {
     /// <summary>
     /// Helps in the tasks relative to the Assembly.

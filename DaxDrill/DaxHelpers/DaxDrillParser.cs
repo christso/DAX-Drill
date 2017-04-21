@@ -1,4 +1,4 @@
-﻿using DG2NTT.DaxDrill.ExcelHelpers;
+﻿using DaxDrill.ExcelHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,17 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using SSAS = Microsoft.AnalysisServices.Tabular;
 
-namespace DG2NTT.DaxDrill.DaxHelpers
+namespace DaxDrill.DaxHelpers
 {
     public class DaxDrillParser
     {
-        public static string BuildQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
+        public static string BuildQueryText(DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName, int maxRecords)
         {
             return BuildQueryText(tabular, pivotCellDic, measureName, maxRecords);
         }
 
         /// <summary>
-        /// Builds DAX query based on location on pivot table (specified in parameters)
+        /// Builds DAX query based on location on pivot table (specified in parameters). This returns all columns in the table.
         /// </summary>
         /// <param name="tabular">Tabular connection helper</param>
         /// <param name="pivotCellDic">Dictionary representing Pivot Table context filters</param>
@@ -24,7 +24,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
         /// <param name="maxRecords">Maximum records to be retrieved</param>
         /// <param name="detailColumns">List of columns to be included in drill-through</param>
         /// <returns></returns>
-        public static string BuildQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName,
+        public static string BuildQueryText(DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string measureName,
             int maxRecords, IEnumerable<DetailColumn> detailColumns,
             IEnumerable<string> pivotFieldNames)
         {
@@ -33,7 +33,8 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        public static string BuildCustomQueryText(DG2NTT.DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string tableQuery,
+        // This returns the query results based on the specified tableQuery.
+        public static string BuildCustomQueryText(DaxDrill.Tabular.TabularHelper tabular, PivotCellDictionary pivotCellDic, string tableQuery,
             int maxRecords, IEnumerable<DetailColumn> detailColumns,
             IEnumerable<string> pivotFieldNames)
         {
@@ -76,7 +77,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        public static string BuildFilterCommandText(PivotCellDictionary excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular, 
+        public static string BuildFilterCommandText(PivotCellDictionary excelDic, DaxDrill.Tabular.TabularHelper tabular, 
             IEnumerable<string> pivotFieldNames)
         {
             string singCmdText = BuildSingleSelectFilterCommandText(excelDic.SingleSelectDictionary, tabular,
@@ -94,7 +95,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return result;
         }
 
-        private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular, IEnumerable<string> pivotFieldNames)
+        private static string BuildSingleSelectFilterCommandText(Dictionary<string, string> excelDic, DaxDrill.Tabular.TabularHelper tabular, IEnumerable<string> pivotFieldNames)
         {
             List<DaxFilter> daxFilterList = ConvertSingleExcelDrillToDaxFilterList(excelDic, pivotFieldNames);
 
@@ -115,7 +116,7 @@ namespace DG2NTT.DaxDrill.DaxHelpers
             return commandText;
         }
 
-        private static string BuildMultiSelectFilterCommandText(DaxFilterCollection daxFilterDic, DG2NTT.DaxDrill.Tabular.TabularHelper tabular)
+        private static string BuildMultiSelectFilterCommandText(DaxFilterCollection daxFilterDic, DaxDrill.Tabular.TabularHelper tabular)
         {
             string commandText = "";
 

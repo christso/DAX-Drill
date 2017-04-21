@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using ADOMD = Microsoft.AnalysisServices.AdomdClient;
-using DG2NTT.DaxDrill.DaxHelpers;
+using DaxDrill.DaxHelpers;
 using Microsoft.AnalysisServices.Tabular;
-using DG2NTT.DaxDrill.ExcelHelpers;
-using DG2NTT.DaxDrill.Tabular;
+using DaxDrill.ExcelHelpers;
+using DaxDrill.Tabular;
 using System.Diagnostics;
 
-namespace DG2NTT.DaxDrill.Tests
+namespace DaxDrill.Tests
 {
     [TestFixture]
     public class ParseMdxTests

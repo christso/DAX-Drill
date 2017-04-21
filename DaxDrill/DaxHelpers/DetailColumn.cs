@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace DG2NTT.DaxDrill.DaxHelpers
+namespace DaxDrill.DaxHelpers
 {
     [Serializable]
     public class DetailColumn

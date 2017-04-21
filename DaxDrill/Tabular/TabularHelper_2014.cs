@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AnalysisServices2014::Microsoft.AnalysisServices;
 
-namespace DG2NTT.DaxDrill.Tabular
+namespace DaxDrill.Tabular
 {
     public class TabularHelper_2014 : IDisposable
     {

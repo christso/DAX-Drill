@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DG2NTT.DaxDrill.UI
+namespace DaxDrill.UI
 {
     partial class AboutBox
     {

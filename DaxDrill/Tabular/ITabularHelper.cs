@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DG2NTT.DaxDrill.Tabular
+namespace DaxDrill.Tabular
 {
     public interface ITabularHelper
     {

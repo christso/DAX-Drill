@@ -7,7 +7,7 @@ using Microsoft.AnalysisServices.Tabular;
 using SSAS = Microsoft.AnalysisServices;
 using ADOMD = Microsoft.AnalysisServices.AdomdClient;
 
-namespace DG2NTT.DaxDrill.Tabular
+namespace DaxDrill.Tabular
 {
     public class TabularHelper_2016 : IDisposable, ITabularHelper
     {

@@ -1,14 +1,14 @@
-﻿using DG2NTT.DaxDrill.UI;
+﻿using DaxDrill.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DG2NTT.DaxDrill.ExcelHelpers;
+using DaxDrill.ExcelHelpers;
 using Excel = Microsoft.Office.Interop.Excel;
 using ExcelDna.Integration;
 
-namespace DG2NTT.DaxDrill.Logic
+namespace DaxDrill.Logic
 {
     public class PivotFieldPageEditController
     {

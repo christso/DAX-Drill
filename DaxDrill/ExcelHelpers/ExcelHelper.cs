@@ -13,9 +13,9 @@ using System.Data.SqlClient;
 using System.Data.Common;
 using System.Xml;
 using System.Collections;
-using DG2NTT.DaxDrill.DaxHelpers;
+using DaxDrill.DaxHelpers;
 
-namespace DG2NTT.DaxDrill.ExcelHelpers
+namespace DaxDrill.ExcelHelpers
 {
     public class ExcelHelper
     {

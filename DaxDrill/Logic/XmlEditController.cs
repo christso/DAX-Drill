@@ -1,5 +1,5 @@
-﻿using DG2NTT.DaxDrill.ExcelHelpers;
-using DG2NTT.DaxDrill.UI;
+﻿using DaxDrill.ExcelHelpers;
+using DaxDrill.UI;
 using ExcelDna.Integration;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 
-namespace DG2NTT.DaxDrill.Logic
+namespace DaxDrill.Logic
 {
     public class XmlEditController
     {

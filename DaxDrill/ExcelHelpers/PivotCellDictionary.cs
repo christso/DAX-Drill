@@ -1,11 +1,11 @@
-﻿using DG2NTT.DaxDrill.DaxHelpers;
+﻿using DaxDrill.DaxHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DG2NTT.DaxDrill.ExcelHelpers
+namespace DaxDrill.ExcelHelpers
 {
     public class PivotCellDictionary
     {

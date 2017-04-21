@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using SSAS14 = Microsoft.AnalysisServices.Tabular;
 using SSAS12 = AnalysisServices2014::Microsoft.AnalysisServices;
 
-namespace DG2NTT.DaxDrill.TabularItems
+namespace DaxDrill.TabularItems
 {
     public class Table
     {
