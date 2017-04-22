@@ -190,19 +190,5 @@ namespace DaxDrill
                 MsgForm.ShowMessage(ex);
             }
         }
-
-
-
-        [ExcelCommand(MenuName = "&DAX Drill", MenuText = "Test")]
-        public static void Test()
-        {
-            Excel.Range rngCell = xlApp.ActiveCell;
-            if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
-
-            // generate command
-            var queryClient = new QueryClient(rngCell);
-            var commandText = QueryClient.GetMeasureName(rngCell);
-            MsgForm.ShowMessage("Test", commandText);
-        }
     }
 }

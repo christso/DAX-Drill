@@ -389,5 +389,46 @@ FILTER
             Console.WriteLine(node.InnerXml);
         }
 
+        // Test logic for retrieving query in referenced measure
+        [Test]
+        public void MeasureRefXmlTest()
+        {
+            #region Arrange
+
+            const string nsString = "http://schemas.microsoft.com/daxdrill";
+            var xmlString =
+@"<daxdrill xmlns=""http://schemas.microsoft.com/daxdrill"">
+	<measure id=""Counter Amt Current UL Sum"" xmlns=""http://schemas.microsoft.com/daxdrill"">
+        <query>CALCULATE ( CashFlow )</query>
+	</measure>
+	<measure id=""Func Amt Current UL Sum"" ref=""Counter Amt Current UL Sum"" xmlns=""http://schemas.microsoft.com/daxdrill"">
+	</measure>
+</daxdrill>";
+
+            #endregion
+
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xmlString);
+            XmlNode root = doc.DocumentElement;
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
+            nsmgr.AddNamespace("x", nsString);
+
+            // find measure
+            string xpath = string.Format("/x:daxdrill/x:measure[@id='{0}']", "Func Amt Current UL Sum");
+
+            // find referenced measure and get Xml Path
+            XmlNode node = root.SelectSingleNode(xpath, nsmgr);
+            XmlAttribute refMeasure = null;
+            if (node != null)
+                refMeasure = node.Attributes["ref"];
+            if (refMeasure != null)
+                xpath = string.Format("/x:daxdrill/x:measure[@id='{0}']/x:query", refMeasure.Value);
+
+            // return node for referenced measure
+            node = root.SelectSingleNode(xpath, nsmgr);
+
+            Console.WriteLine("--- MEASURE " + refMeasure.Value + " ---");
+            Console.WriteLine(node.InnerXml);
+        }
     }
 }

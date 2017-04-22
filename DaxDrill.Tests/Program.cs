@@ -11,7 +11,7 @@ namespace DaxDrill.Tests
         static void Main(string[] args)
         {
             var tests = new ParseXmlTests();
-            tests.XmlTest2();
+            tests.MeasureRefXmlTest();
             Console.WriteLine("Test passed");
             Console.ReadKey();
         }

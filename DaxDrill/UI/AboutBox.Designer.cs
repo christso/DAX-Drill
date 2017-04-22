@@ -76,9 +76,9 @@ namespace DaxDrill.UI
             this.lblAuthorName.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblAuthorName.Location = new System.Drawing.Point(65, 73);
             this.lblAuthorName.Name = "lblAuthorName";
-            this.lblAuthorName.Size = new System.Drawing.Size(87, 13);
+            this.lblAuthorName.Size = new System.Drawing.Size(81, 13);
             this.lblAuthorName.TabIndex = 17;
-            this.lblAuthorName.Text = "DG2NTT Pty Ltd";
+            this.lblAuthorName.Text = "Christopher Tso";
             // 
             // lblVersionNum
             // 
@@ -126,9 +126,9 @@ namespace DaxDrill.UI
             this.lblWebsiteAddr.Cursor = System.Windows.Forms.Cursors.Hand;
             this.lblWebsiteAddr.Location = new System.Drawing.Point(65, 33);
             this.lblWebsiteAddr.Name = "lblWebsiteAddr";
-            this.lblWebsiteAddr.Size = new System.Drawing.Size(191, 13);
+            this.lblWebsiteAddr.Size = new System.Drawing.Size(183, 13);
             this.lblWebsiteAddr.TabIndex = 12;
-            this.lblWebsiteAddr.Text = "https://github.com/DG2NTT/DAX-Drill";
+            this.lblWebsiteAddr.Text = "https://github.com/christso/DAX-Drill";
             this.lblWebsiteAddr.Click += new System.EventHandler(this.lblWebsiteAddr_Click);
             // 
             // btnOK
