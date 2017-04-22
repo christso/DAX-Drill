@@ -88,16 +88,38 @@ namespace DaxDrill
 
             var queryClient = new QueryClient(rngCell);
 
-            Task.Factory.StartNew(() => 
+            try
+            {
+                DrillThroughThreadSafe(queryClient);
+            }
+            catch (Exception ex)
+            {
+                MsgForm.ShowMessage(ex);
+            }
+        }
+
+        /* Asynchrononous drill-through.
+         * This is unstable. You sometimes get an error message in Excel after double-clicking.
+         * So, we'll only expose this in the menu, not for double-click.
+         */
+        //[ExcelCommand(MenuName = "&DAX Drill", MenuText = "DrillThrough")]
+        public static void DrillThrough_Async()
+        {
+            Excel.Range rngCell = xlApp.ActiveCell;
+            if (!ExcelHelper.IsPivotDataCell(rngCell)) return;
+
+            var queryClient = new QueryClient(rngCell);
+
+            Task.Factory.StartNew(() =>
                 DrillThroughThreadSafe(queryClient))
                 .ContinueWith(t =>
-            {
-                ExcelAsyncUtil.QueueAsMacro(() =>
                 {
-                    if (t.Exception != null)
-                        MsgForm.ShowMessage(t.Exception);
+                    ExcelAsyncUtil.QueueAsMacro(() =>
+                    {
+                        if (t.Exception != null)
+                            MsgForm.ShowMessage(t.Exception);
+                    });
                 });
-            });
         }
 
         private static void DrillThroughThreadSafe(QueryClient queryClient)
