@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 
@@ -134,14 +135,37 @@ namespace DaxDrill.Logic
 
             TabularItems.Measure measure = GetMeasure(rngCell);
 
-            // get DAX query by measure id
+            #region measure
+            // get referenced measure
             Office.CustomXMLNode node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
-                string.Format("{0}[@id='{1}']/x:query", Constants.MeasureXpath, measure.Name));
+                string.Format("{0}[@id='{1}']", Constants.MeasureXpath, measure.Name));
+
+            string measureName = measure.Name;
+
+            if (node != null)
+            {
+                foreach (Office.CustomXMLNode attr in node.Attributes)
+                {
+                    if (attr.BaseName == "ref")
+                    {
+                        // get DAX query by measure id
+                        node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
+                            string.Format("{0}[@id='{1}']/x:query", Constants.MeasureXpath, attr.Text));
+                        break;
+                    }
+                }
+            }
+                
+            #endregion
+
+            #region table
 
             // get DAX query by table id (if measure not found in XML metadata)
             if (node == null)
                 node = ExcelHelper.GetCustomXmlNode(workbook, Constants.DaxDrillXmlSchemaSpace,
                     string.Format("{0}[@id='{1}']/x:query", Constants.TableXpath, measure.TableName));
+
+            #endregion
 
             if (node != null)
                 return node.Text;
